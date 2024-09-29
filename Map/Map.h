@@ -21,38 +21,44 @@ class Player{
 
 
 class Map {
-public:
-    // Data members
-    std::unordered_map<std::string, int> Continents; // continent name and value
-    std::unordered_map<std::string, Territory*> Territories; // territory name and pointer to Territory object
+    private:
+    //Helper methods for validate()
+    bool isMapConnected();                      //Check if map is a connected graph
+    bool areContinentsConnected();              //Check if each continent is a connected subgraph
+    bool eachTerritoryHasOneContinent();        //Check if each territory belongs to exactly one continent
 
-    // Constructor
-    Map();
+    public:
+        // Data members
+        std::unordered_map<std::string, int> Continents; // continent name and value
+        std::unordered_map<std::string, Territory*> Territories; // territory name and pointer to Territory object
 
-    // Destructor
-    ~Map();
+        // Constructor
+        Map();
 
-    // Copy Constructor
-    Map(const Map& other);
+        // Destructor
+        ~Map();
 
-    // Assignment Operator
-    Map& operator=(const Map& other);
+        // Copy Constructor
+        Map(const Map& other);
 
-    // Stream Insertion
-    friend std::ostream& operator<<(std::ostream& os, const Map& map);
+        // Assignment Operator
+        Map& operator=(const Map& other);
 
-    // Validation Method
-    bool validate();
-};
+        // Stream Insertion
+        friend std::ostream& operator<<(std::ostream& os, const Map& map);
 
-class Territory {
-private:
-    // Pointers to allow dynamic allocation of memory
-    std::string* TerritoryName;
-    std::string* continent; // Continent name
-    std::vector<Territory*> AdjTerritories; // Adjacent territories
-    Player* territoryOwner; // Pointer to the owner of the territory
-    int* armyAmount; // Pointer to the number of armies in the territory
+        // Validation Method
+        bool validate();
+    };
+
+    class Territory {
+    private:
+        // Pointers to allow dynamic allocation of memory
+        std::string* TerritoryName;
+        std::string* continent; // Continent name
+        std::vector<Territory*> AdjTerritories; // Adjacent territories
+        Player* territoryOwner; // Pointer to the owner of the territory
+        int* armyAmount; // Pointer to the number of armies in the territory
 
 public:
     // Default Constructor
@@ -79,7 +85,7 @@ public:
     // Getter and Setter methods
     std::string getName() const;
     void setName(const std::string& name);
-    std::vector<Territory*> getAdjacentTerritories() const;
+    const std::vector<Territory*>& getAdjacentTerritories() const;
     void setAdjacentTerritories(const std::vector<Territory*>& territories);
     std::string getContinent() const;
     void setContinent(const std::string& cont);
