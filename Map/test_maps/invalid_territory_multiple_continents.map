@@ -1,0 +1,11 @@
+[Continents]
+North_America=5
+South_America=3
+Asia=4
+
+[Territories]
+Alaska,0,0,North_America
+Northwest_Territory,0,0,North_America
+Brazil,2,2,South_America
+China,3,3,North_America,Asia  // China is listed in both continents
+India,4,4,Asia

@@ -1,0 +1,14 @@
+[Continents]
+NorthAmerica=5
+SouthAmerica=3
+Europe=4
+
+[Territories]
+Territory1,0,0,NorthAmerica,Territory2,Territory3
+Territory2,1,0,NorthAmerica,Territory1,Territory4
+Territory3,0,1,NorthAmerica,Territory1
+Territory4,1,1,NorthAmerica,Territory2,Territory5
+Territory5,2,1,SouthAmerica,Territory4,Territory6
+Territory6,3,1,SouthAmerica,Territory5,EuropeTerritory1
+EuropeTerritory1,4,1,Europe,Territory6,EuropeTerritory2
+EuropeTerritory2,4,2,Europe,EuropeTerritory1

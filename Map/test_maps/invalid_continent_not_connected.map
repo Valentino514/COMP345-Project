@@ -1,0 +1,10 @@
+[Continents]
+North_America=5
+South_America=3
+
+[Territories]
+Alaska,0,0,North_America,Northwest_Territory
+Northwest_Territory,0,0,North_America
+Brazil,2,2,South_America
+Argentina,3,3,South_America
+China,4,4,South_America
