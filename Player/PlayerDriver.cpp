@@ -3,7 +3,7 @@
 #include "../OrdersList/Orders.h"
 #include <string>
 
-//use g++ Player.cpp PlayerDriver.cpp Orders.cpp to test it
+//use "g++ Player.cpp PlayerDriver.cpp ../OrdersList/Orders.cpp" to test it
 using namespace std;
 
 void testPlayers(){
