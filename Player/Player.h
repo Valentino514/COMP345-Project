@@ -5,13 +5,10 @@
 #include <iostream>
 #include <list>
 #include "../OrdersList/Orders.h"
+#include "../Map/Map.h"
 
+class Territory;
 
-class Territory{
-
-    public:
-    Territory();
-};
 
 class Cards{
 

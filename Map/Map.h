@@ -8,16 +8,13 @@
 #include <unordered_map>
 #include <map>
 #include <fstream>
+#include "../Player/Player.h"
 
 // Forward declarations
 class Territory;
 class Continent;
 class Player;
 
-class Player{
-    public:
-    Player();
-};
 
 
 class Map {

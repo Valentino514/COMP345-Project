@@ -12,8 +12,7 @@
 #include "Map.h"
 using namespace std;
 
-// Temporary 
-Player::Player(){}
+//g++ Map.cpp MapDriver.cpp ../Player/Player.cpp ../OrdersList/Orders.cpp
 
 // Map Class Definitions
 Map::Map() {}
