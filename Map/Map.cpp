@@ -9,7 +9,7 @@
 #include <regex> // Added regex for splitting
 #include <unordered_set>
 #include <stack>
-#include "map.h"
+#include "Map.h"
 using namespace std;
 
 // Temporary 
