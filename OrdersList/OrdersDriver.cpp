@@ -3,7 +3,7 @@
 
 using namespace std;
 
-//use g++ Orders.cpp OrderDriver.cpp to test it
+//use g++ Orders.cpp OrdersDriver.cpp to test it
 void testOrdersList();
 
 int main() {
