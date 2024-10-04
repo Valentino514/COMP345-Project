@@ -4,11 +4,6 @@
 
 void testLoadMaps();
 
-int main() {
-    testLoadMaps();
-    return 0;
-}
-
 void testLoadMaps() {
     std::cout << "Testing map validation..." << std::endl;
 

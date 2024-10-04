@@ -3,86 +3,90 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 using namespace std;
 
-class Order{
-    
+// Base Order Class
+class Order {
 public:
-    string* orderName;
-    Order();
-    ~Order();
-    Order(const Order&);
+    string* orderName;  
+    Order();//default constructor
+    virtual ~Order(); //virtual destructor 
+    Order(const Order& other);// Copy constructor 
+    Order& operator=(const Order& other); // Assignment operator
 
-    //functions to be overriden in order's subclasses
+   
     virtual void validate() = 0;
     virtual void execute() = 0;
 
+    
     friend ostream& operator<<(ostream& os, const Order& order);
-        virtual void print(ostream& os) const = 0; //used to override the operator<< for sub classes
+
+protected:
+    virtual void print(ostream& os) const = 0; 
 };
 
-//subclasses of Order class (no destructor, and os since Order already takes care of it)
-
-class Deploy:public Order{
-    public:
+//subclasses:
+class Deploy : public Order {//
+public:
     Deploy();
-    Deploy(const Deploy&); 
-    Deploy& operator=(const Deploy&); 
-    void validate();
-    void execute();
+    Deploy(const Deploy& other);
+    Deploy& operator=(const Deploy& other);
+    void validate() override;
+    void execute() override;
     void print(ostream& os) const override;
-
 };
 
-class Advance:public Order{
-    public:
+
+class Advance : public Order {
+public:
     Advance();
-    Advance& operator=(const Advance&); 
-    void validate();
-    void execute();
+    Advance& operator=(const Advance& other);
+    void validate() override;
+    void execute() override;
     void print(ostream& os) const override;
-
 };
 
-class Bomb:public Order{
-    public:
+
+class Bomb : public Order {
+public:
     Bomb();
-    Bomb& operator=(const Bomb&); 
-    void execute();
-    void validate();
+    Bomb& operator=(const Bomb& other);
+    void validate() override;
+    void execute() override;
     void print(ostream& os) const override;
-
 };
 
-class Blockade:public Order{
-    public:
+
+class Blockade : public Order {
+public:
     Blockade();
-    Blockade& operator=(const Blockade&); 
-    void validate();
-    void execute();
+    Blockade& operator=(const Blockade& other);
+    void validate() override;
+    void execute() override;
     void print(ostream& os) const override;
-
-
 };
 
-class Airlift:public Order{
-    public:
+
+class Airlift : public Order {
+public:
     Airlift();
-    Airlift& operator=(const Airlift&); 
-    void validate();
-    void execute();
+    Airlift& operator=(const Airlift& other);
+    void validate() override;
+    void execute() override;
     void print(ostream& os) const override;
 };
 
-class Negociate:public Order{
-    public:
+class Negociate : public Order {
+public:
     Negociate();
-    Negociate& operator=(const Negociate&); 
-    void validate();
-    void execute();
+    Negociate& operator=(const Negociate& other);
+    void validate() override;
+    void execute() override;
     void print(ostream& os) const override;
 };
+
 
 class OrdersList {
 private:
@@ -91,11 +95,10 @@ private:
 public:
     OrdersList();  
     ~OrdersList(); 
-    OrdersList& operator=(const OrdersList&); 
+    OrdersList& operator=(const OrdersList& other);  
     void move();  
-    void remove(Order*);  
-    void addOrder(Order*);  
+    void remove(Order* order);  
+    void addOrder(Order* orderName); 
 };
-
 
 #endif
