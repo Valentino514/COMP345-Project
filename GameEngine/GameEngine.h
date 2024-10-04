@@ -8,23 +8,21 @@ using namespace std;
 class GameEngine
 {
 private:
-    string map[8] = {"start","map loaded","map validated",
+    string* map = new string[8]{"start","map loaded","map validated",
                      "players added", "assign reinforcement",
                      "issue orders", "execute orders", "win"};
     
-    string commands[9] ={"loadmap","validatemap","addplayer",
+    string* commands = new string[11]{"loadmap","validatemap","addplayer",
                         "assigncountries","issueorder","endissueorders"
-                        ,"execorder","win","play"};
-   int currentIndex = 0;
+                        ,"execorder","endexecorders","win","play","end"};
+   
     
 public:
     GameEngine();
 
     ~GameEngine();
 
-    GameEngine(const GameEngine& other);
-
-    void GenerateMap();
+    GameEngine(GameEngine&);
 
     void navigate();
 

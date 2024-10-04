@@ -3,7 +3,7 @@
 #include "../OrdersList/Orders.h"
 #include <string>
 
-//use "g++ Player.cpp PlayerDriver.cpp ../OrdersList/Orders.cpp" to test it
+//use "g++ Player.cpp PlayerDriver.cpp ../OrdersList/Orders.cpp ../Map/Map.cpp" to test it
 using namespace std;
 
 void testPlayers(){
@@ -17,14 +17,5 @@ void testPlayers(){
     player1->issueOrder(order);
 
     delete player1;
-
-}
-
-
-int main(){
-
-testPlayers();
-
-return 0;
 
 }

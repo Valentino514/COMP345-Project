@@ -6,12 +6,6 @@ using namespace std;
 //use g++ Orders.cpp OrdersDriver.cpp to test it
 void testOrdersList();
 
-int main() {
-
-    testOrdersList();
-    return 0;
-}
-
 void testOrdersList(){
     // Creating order objects
     Order* deploy = new Deploy();
