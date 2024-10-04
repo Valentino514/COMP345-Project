@@ -142,6 +142,6 @@ void GameEngine::navigate() {
 
     delete command;
     delete currentIndex;
-    command == nullptr;
-    currentIndex == nullptr;
+    command = nullptr;
+    currentIndex = nullptr;
 }
