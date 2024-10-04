@@ -8,7 +8,7 @@ using namespace std;
 
 Player::Player(string* name){
 
-cout<<"generating player..."<<*name<<"\n";
+cout<<"Generating player..."<<*name<<"\n";
 this->name = name;
 }
 
@@ -77,7 +77,7 @@ Player::~Player() {
 
 void Player::toDefend(){
 
-    cout<<"territories to defend:\n";
+    cout<<"Territories to defend:\n";
 
     for(const auto& territory: territories){
 
@@ -88,13 +88,13 @@ void Player::toDefend(){
 }
 
 void Player::toAttack(){
-    cout<<"territories to attack:\n";
+    cout<<"Territories to attack:\n";
     
 }
 
 void Player::issueOrder(Order* order){
     
     orders.addOrder(order);
-    cout<<"order "<<*order<<" added to list!";
+    cout<<"Order "<<*order<<" added to list!";
 
 }
