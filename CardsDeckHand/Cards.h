@@ -11,19 +11,19 @@ public:
     enum CardType { Bomb, Reinforcement, Blockade, Airlift, Diplomacy };
 
     // Constructor to initialize the card with a type
-    Card(CardType type);
+    Card(CardType* type);
 
     // Method to play the card (to be expanded later in Assignment 2)
     void play();
 
     // Get the type of the card
-    CardType getType() const;
+    CardType* getType() const;
 
     // Return the name of the card type as a string
     std::string getCardTypeName() const;
 
 private:
-    CardType type;  // Holds the type of the card
+    CardType* type;  // Holds the type of the card as a pointer
 };
 
 // Deck class definition
