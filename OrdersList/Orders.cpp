@@ -184,7 +184,7 @@ void OrdersList::move() {
     // Display first order
     cout << "Current order selected: " << *orders[position] << endl;
 
-    cout << "Press 1 to see next order or 0 to exit: ";
+    cout << "Press any number to see next order or 0 to exit: ";
     cin >> next;
 
     while (next != 0) {

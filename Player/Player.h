@@ -21,9 +21,9 @@ class Player
 {
 private:
 
-    vector<Territory*> territories;
-    vector<Cards*> cards;
-    OrdersList orders;
+    vector<Territory*>* territories;
+    vector<Cards*>* cards;
+    OrdersList *orders;
     string* name;
 
 public:

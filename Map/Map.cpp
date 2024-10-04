@@ -350,7 +350,7 @@ Map* MapLoader::loadMap(const std::string& path) {
                 if (FullLine.size() > 1) {
                     Territory* newTerritory;
 
-                    // if its not in tracker it will be equal to TrackT.end
+                    // If its not in tracker it will be equal to TrackT.end
                     auto searchmain = TrackT.find(FullLine[0]);
 
                     // If the territory does not already exist, create it
