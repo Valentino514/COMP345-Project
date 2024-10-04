@@ -26,11 +26,11 @@ ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
 }
 
 GameEngine& GameEngine::operator=(const GameEngine& other) {
-    if (this != &other) {  // Check for self
+    if (this != &other) { // Check for self
         delete[] map;
         delete[] commands;
 
-        // Allocate new memory for map and commands
+        //dynamic map and commands
         map = new string[8];
         commands = new string[11];
 
@@ -142,6 +142,6 @@ void GameEngine::navigate() {
 
     delete command;
     delete currentIndex;
-    command == nullptr;
-    currentIndex == nullptr;
+    command = nullptr;
+    currentIndex = nullptr;
 }
