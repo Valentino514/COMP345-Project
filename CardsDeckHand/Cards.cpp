@@ -5,7 +5,7 @@
 // Card class implementation
 
 // Constructor to initialize a card with a specific type
-Card::Card(CardType t) : type(t) {}
+Card::Card(CardType* t) : type(t) {}
 
 // Play method: Outputs the card type when the card is played
 void Card::play() {
@@ -13,13 +13,13 @@ void Card::play() {
 }
 
 // Get the type of the card
-Card::CardType Card::getType() const {
+Card::CardType* Card::getType() const {
     return type;
 }
 
 // Return the name of the card type as a string
 std::string Card::getCardTypeName() const {
-    switch (type) {
+    switch (*type) {
         case Bomb: return "Bomb";
         case Reinforcement: return "Reinforcement";
         case Blockade: return "Blockade";
@@ -40,11 +40,11 @@ Deck::Deck() {
 // Initialize the deck with several cards of each type
 void Deck::initializeDeck() {
     for (int i = 0; i < 5; ++i) {  // Add 5 cards of each type
-        cards.push_back(new Card(Card::Bomb));
-        cards.push_back(new Card(Card::Reinforcement));
-        cards.push_back(new Card(Card::Blockade));
-        cards.push_back(new Card(Card::Airlift));
-        cards.push_back(new Card(Card::Diplomacy));
+        cards.push_back(new Card(new Card::CardType(Card::Bomb)));
+        cards.push_back(new Card(new Card::CardType(Card::Reinforcement)));
+        cards.push_back(new Card(new Card::CardType(Card::Blockade)));
+        cards.push_back(new Card(new Card::CardType(Card::Airlift)));
+        cards.push_back(new Card(new Card::CardType(Card::Diplomacy)));
     }
 }
 
