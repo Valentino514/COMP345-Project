@@ -8,12 +8,12 @@ using namespace std;
 
 void testPlayers(){
         
-    Player* player1 = new Player(new string("player1"));
+    Player* player1 = new Player(new string("Player 1"));
 
     Order* order = new Bomb();
 
 
-    cout<<"issuing order:"<<endl;
+    cout<<"Issuing order: "<<endl;
     player1->issueOrder(order);
 
     delete player1;
