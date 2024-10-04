@@ -1,0 +1,31 @@
+{
+    "tasks": [
+      {
+        "type": "cppbuild",
+        "label": "C/C++: clang++ build active file",
+        "command": "/usr/bin/clang++",
+        "args": [
+          "-fcolor-diagnostics",
+          "-fansi-escape-codes",
+          "-g",
+          "-Wall",
+          "-std=c++17",
+          "${workspaceFolder}/MainDriver.cpp",  // Compile MainDriver explicitly
+          "${workspaceFolder}/**/*.cpp",       // Include other necessary files
+          "-o",
+          "${workspaceFolder}/a1"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": ["$gcc"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "detail": "Builds MainDriver.cpp with all other .cpp files"
+      }
+    ],
+    "version": "2.0.0"
+  }
+  
