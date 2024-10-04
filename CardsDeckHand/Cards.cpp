@@ -73,8 +73,13 @@ Card* Deck::draw() {
 
 // Return a played card to the deck
 void Deck::returnCard(Card* card) {
-    cards->push_back(card);  
+    if (card != nullptr) {
+        cards->push_back(card);
+    } else {
+        std::cout << "Cannot return a null card to the deck." << std::endl;
+    }
 }
+
 
 // Hand class implementation
 
