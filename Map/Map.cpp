@@ -157,7 +157,6 @@ bool Map::areContinentsConnected() {
         Territory* startTerritory = *continentTerritories.begin();  // Start DFS from any territory in the continent
         stack.push(startTerritory);
 
-        std::cout << "Starting DFS for continent: " << continentName << " from territory: " << startTerritory->getName() << std::endl;
 
         // Perform DFS within the continent
         while (!stack.empty()) {
@@ -166,7 +165,6 @@ bool Map::areContinentsConnected() {
 
             if (visited.find(current) == visited.end()) {   // Mark territory as visited
                 visited.insert(current);
-                //std::cout << "Visited territory: " << current->getName() << std::endl;
 
                 // Check adjacent territories
                 for (Territory* adjacent : *(current->getAdjacentTerritories())) {
@@ -174,14 +172,11 @@ bool Map::areContinentsConnected() {
                     // New Condition: Check bidirectional adjacency
                     const std::vector<Territory*>* adjToCurrent = adjacent->getAdjacentTerritories();
                     if (std::find(adjToCurrent->begin(), adjToCurrent->end(), current) == adjToCurrent->end()) {
-                        std::cout << "Error: Territory " << adjacent->getName() << " is not bidirectionally adjacent to " 
-                                  << current->getName() << std::endl;
                         return false;  // Return false if bidirectional adjacency fails
                     }
 
                     // Add adjacent territories in the same continent to the stack
                     if (continentTerritories.find(adjacent) != continentTerritories.end() && visited.find(adjacent) == visited.end()) {
-                       // std::cout << "Pushing adjacent territory: " << adjacent->getName() << " to stack." << std::endl;
                         stack.push(adjacent);
                     }
                 }
