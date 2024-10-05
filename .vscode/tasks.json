@@ -13,7 +13,7 @@
           "${workspaceFolder}/MainDriver.cpp",  // Compile MainDriver explicitly
           "${workspaceFolder}/**/*.cpp",       // Include other necessary files
           "-o",
-          "${workspaceFolder}/a1"
+          "${workspaceFolder}/a.out"
         ],
         "options": {
           "cwd": "${workspaceFolder}"

@@ -23,6 +23,9 @@ class Map {
     bool isMapConnected();                      //Check if map is a connected graph
     bool areContinentsConnected();              //Check if each continent is a connected subgraph
     bool eachTerritoryHasOneContinent();        //Check if each territory belongs to exactly one continent
+    bool *x;
+    
+    
 
     public:
        /*  // Data members
@@ -51,7 +54,14 @@ class Map {
 
         // Validation Method
         bool validate();
+
+          // Getter for x
+    bool getX() const;
+
+    // Setter for x
+    void setX(bool value);
     };
+    
 
     class Territory {
 private:

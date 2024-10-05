@@ -19,6 +19,7 @@ using namespace std;
 Map::Map() {
     Continents = new std::unordered_map<std::string, int>();
     Territories = new std::unordered_map<std::string, Territory*>();
+    x = new bool(false);  // Initialize the bool pointer
 }
 
 // Destructor
@@ -28,6 +29,7 @@ Map::~Map() {
     }
     delete Territories; 
     delete Continents;
+    delete x;
 }
 
 // Copy Constructor
@@ -37,6 +39,7 @@ Map::Map(const Map &other) {
     for (const auto& pair : *other.Territories) {
         (*Territories)[pair.first] = new Territory(*pair.second); // Deep copy of each territory
     }
+     x = new bool(*other.x); 
 }
 
 // Assignment Operator
@@ -49,6 +52,7 @@ Map& Map::operator=(const Map& other) {
     }
     delete Territories;
     delete Continents;
+    delete x;
 
     // Deep copy from the other map
     Continents = new std::unordered_map<std::string, int>(*other.Continents);
@@ -56,6 +60,7 @@ Map& Map::operator=(const Map& other) {
     for (const auto& pair : *other.Territories) {
         (*Territories)[pair.first] = new Territory(*pair.second);
     }
+     x = new bool(*other.x); 
     return *this;
 }
 
@@ -63,6 +68,16 @@ Map& Map::operator=(const Map& other) {
 std::ostream& operator<<(std::ostream& os, const Map& map) {
     os << "Map with " << map.Continents->size() << " continents and " << map.Territories->size() << " territories.\n";
     return os;
+}
+
+// Getter for x
+bool Map::getX() const {
+    return *x;
+}
+
+// Setter for x
+void Map::setX(bool value) {
+    *x = value;
 }
 
 
@@ -197,6 +212,11 @@ bool Map::eachTerritoryHasOneContinent() {
         if (continent.empty()) {
             return false;
         }
+        if (*x)
+        {
+            return false;
+        }
+        
 
     }
     return true;
@@ -329,6 +349,7 @@ Map* MapLoader::loadMap(const std::string& path) {
     std::unordered_map<std::string, int> conts;
     std::string input;
     std::ifstream file(path);
+    bool y;
 
     // Check if the file was opened successfully
     if (!file) {
@@ -383,6 +404,9 @@ Map* MapLoader::loadMap(const std::string& path) {
                         if (newTerritory->getContinent() == "default continent") {
                             newTerritory->setContinent(FullLine[3]);
                         }
+                        else {
+                            y=true;
+                        }
                     }
 
                     // Process the adjacent territories
@@ -409,6 +433,7 @@ Map* MapLoader::loadMap(const std::string& path) {
     Map* WarzoneMap = new Map();
     WarzoneMap->Territories = new std::unordered_map<std::string, Territory*>(TrackT);
     WarzoneMap->Continents = new std::unordered_map<std::string, int>(conts);
+    WarzoneMap->setX(y);
 
     return WarzoneMap;
 }
