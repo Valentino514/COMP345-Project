@@ -1,0 +1,9 @@
+[Continents]
+North_America=5
+Asia=4
+
+[Territories]
+Alaska,0,0,North_America,China, Northwest_Territory,China
+Northwest_Territory,0,0,North_America, Alaska, India
+China,2,2,Asia,India, Alaska
+India,3,3,Asia, China, Northwest_Territory
