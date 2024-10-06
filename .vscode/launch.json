@@ -1,3 +1,33 @@
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug All Files",
+      "program": "${workspaceFolder}/a.out",  // Use the fixed output file from the build task
+      "args": [],
+      "cwd": "${workspaceFolder}",  // Use workspace directory as the current working directory
+      "preLaunchTask": "C/C++: clang++ build active file"  // Build all files before launching
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* {
   "version": "0.2.0",
   "configurations": [
@@ -5,10 +35,10 @@
       "name": "(lldb) Launch",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/a.out",  // Ensure this matches the output executable
+      "program": "${workspaceFolder}/a.out",  
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",  // Ensure this is set to the workspace folder
+      "cwd": "${workspaceFolder}",  
       "environment": [],
       "externalConsole": false,
       "MIMode": "lldb",
@@ -27,17 +57,3 @@
  */
 
 
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug All Files",
-      "program": "${workspaceFolder}/a.out",  // Use the fixed output file from the build task
-      "args": [],
-      "cwd": "${workspaceFolder}",  // Use workspace directory as the current working directory
-      "preLaunchTask": "C/C++: clang++ build active file"  // Build all files before launching
-    }
-  ]
-}
