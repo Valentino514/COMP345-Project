@@ -1,4 +1,4 @@
-{
+/* {
   "version": "0.2.0",
   "configurations": [
     {
@@ -21,6 +21,23 @@
         }
       ],
       "logging": { "engineLogging": true }
+    }
+  ]
+}
+ */
+
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug All Files",
+      "program": "${workspaceFolder}/a.out",  // Use the fixed output file from the build task
+      "args": [],
+      "cwd": "${workspaceFolder}",  // Use workspace directory as the current working directory
+      "preLaunchTask": "C/C++: clang++ build active file"  // Build all files before launching
     }
   ]
 }
