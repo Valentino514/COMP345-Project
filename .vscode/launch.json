@@ -2,25 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "(lldb) Launch",
-      "type": "cppdbg",
+      "type": "lldb",
       "request": "launch",
-      "program": "${workspaceFolder}/a.out",  // Ensure this matches the output executable
+      "name": "Debug All Files",
+      "program": "${workspaceFolder}/a.out",  // Use the fixed output file from the build task
       "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",  // Ensure this is set to the workspace folder
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "lldb",
-      "preLaunchTask": "C/C++: clang++ build active file",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ],
-      "logging": { "engineLogging": true }
+      "cwd": "${workspaceFolder}",  // Use workspace directory as the current working directory
+      "preLaunchTask": "C/C++: clang++ build active file"  // Build all files before launching
     }
   ]
 }
