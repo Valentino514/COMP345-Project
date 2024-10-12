@@ -15,6 +15,8 @@ private:
     string* commands = new string[11]{"loadmap","validatemap","addplayer",
                         "assigncountries","issueorder","endissueorders"
                         ,"execorder","endexecorders","win","play","end"};
+
+    vector<Player*> *playerList;
    
     
 public:
@@ -26,11 +28,18 @@ public:
 
     void navigate();
 
+    void startupPhase();
+    
+    void DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p)  ;
+
+
     // Assignment Operator
     GameEngine& operator=(const GameEngine& other);
 
     // Stream Insertion
     friend ostream& operator<<(ostream& os, const GameEngine& gameEngine);
+
+    void addplayer();
 };
 
 #endif
