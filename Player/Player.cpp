@@ -110,3 +110,15 @@ ostream& operator<<(ostream& os, const Player& player) {
     os << "Player with name " << *(player.name) << " has " << player.territories->size() << " territories and " << player.cards->size() << " cards.";
     return os;
 }
+
+void Player::addTerritory(Territory* territory) {
+    territories->push_back(territory);  // Add territory to the player's list
+}
+
+
+void Player::printOwnedTerritories() const {
+    std::cout << "Player " << *name << " owns the following territories:\n";
+    for (auto t : *territories) {
+        std::cout << t->getName() << std::endl;  // Assuming Territory class has getName() method
+    }
+}

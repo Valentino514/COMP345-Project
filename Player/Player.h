@@ -46,6 +46,10 @@ public:
     void toDefend();
 
     void toAttack();
+
+    void addTerritory(Territory* territory);
+
+    void printOwnedTerritories() const;
     
 };
 
