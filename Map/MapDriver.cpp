@@ -1,57 +1,64 @@
 #include <iostream>
 #include "Map.h"
 
-
+// Function declaration for testing map loading and validation
 void testLoadMaps();
 
-int main() {
-    testLoadMaps();
-    return 0;
-}
-
 void testLoadMaps() {
-    std::cout << "Testing map validation..." << std::endl;
-
+   
     MapLoader loader;
 
-    // Test map that fails the connected graph validation
-    std::cout << "Testing invalid map (not connected):" << std::endl;
-    Map* invalidMap1 = loader.loadMap("test_maps/invalid_map_not_connected.map");
-    if (invalidMap1->validate()) {
-        std::cout << "Invalid map (not connected) passed validation (ERROR)." << std::endl;
+    // Test 1: Map that fails the connected graph validation
+    std::cout << "\n[TEST 1] Invalid map (not connected):" << std::endl;
+    Map* invalidMap1 = loader.loadMap("Map/test_maps/invalid_map_not_connected.map"); // 2nd file
+    if (invalidMap1 != nullptr && invalidMap1->validate()) {
+        std::cout << "Result: Invalid map (not connected) passed validation (ERROR)." << std::endl;
     } else {
-        std::cout << "Invalid map (not connected) failed validation (CORRECT)." << std::endl;
+        std::cout << "Result: Invalid map (not connected) failed validation (CORRECT)." << std::endl;
     }
-    delete invalidMap1;
+    delete invalidMap1;  // Free allocated memory
 
-    // Test map that fails the continent connected subgraph validation
-    std::cout << "Testing invalid map (continent not connected):" << std::endl;
-    Map* invalidMap2 = loader.loadMap("test_maps/invalid_continent_not_connected.map");
-    if (invalidMap2->validate()) {
-        std::cout << "Invalid map (continent not connected) passed validation (ERROR)." << std::endl;
+    // Test 2: Map that fails the continent connected subgraph validation
+    std::cout << "\n[TEST 2] Invalid map (continent not connected):" << std::endl;
+    Map* invalidMap2 = loader.loadMap("Map/test_maps/invalid_continent_not_connected.map"); // 1st file
+    if (invalidMap2 != nullptr && invalidMap2->validate()) {
+        std::cout << "Result: Invalid map (continent not connected) passed validation (ERROR)." << std::endl;
     } else {
-        std::cout << "Invalid map (continent not connected) failed validation (CORRECT)." << std::endl;
+        std::cout << "Result: Invalid map (continent not connected) failed validation (CORRECT)." << std::endl;
     }
-    delete invalidMap2;
+    delete invalidMap2;  // Free allocated memory
 
-    // Test map that fails the territory belongs to one continent validation
-    std::cout << "Testing invalid map (territory in multiple continents):" << std::endl;
-    Map* invalidMap3 = loader.loadMap("test_maps/invalid_territory_multiple_continents.map");
-    if (invalidMap3->validate()) {
-        std::cout << "Invalid map (territory in multiple continents) passed validation (ERROR)." << std::endl;
+    // Test 3: Map that fails the territory belongs to multiple continents validation
+    std::cout << "\n[TEST 3] Invalid map (territory in multiple continents):" << std::endl;
+    Map* invalidMap3 = loader.loadMap("Map/test_maps/invalid_territory_multiple_continents.map"); //3rd file
+    if (invalidMap3 != nullptr && invalidMap3->validate()) {
+        std::cout << "Result: Invalid map (territory in multiple continents) passed validation (ERROR)." << std::endl;
     } else {
-        std::cout << "Invalid map (territory in multiple continents) failed validation (CORRECT)." << std::endl;
+        std::cout << "Result: Invalid map (territory in multiple continents) failed validation (CORRECT)." << std::endl;
     }
-    delete invalidMap3;
+    delete invalidMap3;  // Free allocated memory
 
-    // Test valid map
-    std::cout << "Testing valid map:" << std::endl;
-    Map* validMap = loader.loadMap("test_maps/valid_map.map");
-    if (validMap->validate()) {
-        std::cout << "Valid map passed validation (CORRECT)." << std::endl;
+    // Test 4: Valid map
+    std::cout << "\n[TEST 4] Valid map:" << std::endl;
+    Map* validMap = loader.loadMap("Map/test_maps/valid_map.map");
+    if (validMap != nullptr && validMap->validate()) {
+        std::cout << "Result: Valid map passed validation (CORRECT)." << std::endl;
     } else {
-        std::cout << "Valid map failed validation (ERROR)." << std::endl;
+        std::cout << "Result: Valid map failed validation (ERROR)." << std::endl;
     }
-    delete validMap;
+    delete validMap;  // Free allocated memory
 
+    // Test 5: Valentin map
+    std::cout << "\n[TEST 5] Valentin map:" << std::endl;
+    Map* valentinMap = loader.loadMap("Map/test_maps/valentin_map.txt");
+    if (valentinMap != nullptr && valentinMap->validate()) {
+        std::cout << "Result: Valentin map passed validation (CORRECT)." << std::endl;
+    } else {
+        std::cout << "Result: Valentin map failed validation (ERROR)." << std::endl;
+    }
+    delete valentinMap;  // Free allocated memory
+
+    std::cout << "\n===================================" << std::endl;
+    std::cout << "   MAP VALIDATION TEST COMPLETED" << std::endl;
+    std::cout << "=====================================" << std::endl;
 }

@@ -1,10 +1,10 @@
 [Continents]
 North_America=5
-South_America=3
+Asia=4
 
 [Territories]
-Alaska,0,0,North_America,Northwest_Territory
-Northwest_Territory,0,0,North_America
-Brazil,2,2,South_America
-Argentina,3,3,South_America
-China,4,4,South_America
+Montreal, 3, 3, North_America, Alaska, Northwest_Territory
+Alaska,0,0,North_America,Northwest_Territory, Montreal
+Northwest_Territory,0,0,North_America, Montreal, China
+China,2,2,Asia, India, Northwest_Territory
+India,3,3,Asia, China

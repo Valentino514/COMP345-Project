@@ -4,20 +4,18 @@
 
 // Card class implementation
 
-// Constructor to initialize a card with a specific type
+// Constructor 
 Card::Card(CardType* t) : type(t) {}
 
-// Destructor to free the allocated memory
+// Destructor
 Card::~Card() {
-    delete type;  // Delete the dynamically allocated card type
+    delete type; 
 }
 
-// Play method: Outputs the card type when the card is played
 void Card::play() {
     std::cout << "Playing card: " << getCardTypeName() << std::endl;
 }
 
-// Get the type of the card
 Card::CardType* Card::getType() const {
     return type;
 }
@@ -36,18 +34,18 @@ std::string Card::getCardTypeName() const {
 
 // Deck class implementation
 
-// Constructor: Initialize the deck with cards
+// Constructor
 Deck::Deck() : cards(new std::vector<Card*>()) {
-    initializeDeck();  // Fill the deck with cards
-    srand(time(0));  // Seed for random card drawing
+    initializeDeck(); 
+    srand(time(0));  
 }
 
-// Destructor to clean up dynamically allocated memory
+// Destructor 
 Deck::~Deck() {
     for (Card* card : *cards) {
-        delete card;  // Free memory for each card
+        delete card;  
     }
-    delete cards;  // Free the vector memory
+    delete cards;  
 }
 
 // Initialize the deck with several cards of each type
@@ -75,25 +73,20 @@ Card* Deck::draw() {
 
 // Return a played card to the deck
 void Deck::returnCard(Card* card) {
-    if (card != nullptr) {
-        cards->push_back(card);
-    } else {
-        std::cout << "Cannot return a null card to the deck." << std::endl;
-    }
+    cards->push_back(card);  
 }
-
 
 // Hand class implementation
 
-// Constructor: Initialize an empty hand
+// Constructor
 Hand::Hand() : handCards(new std::vector<Card*>()) {}
 
-// Destructor to clean up dynamically allocated memory
+// Destructor
 Hand::~Hand() {
     for (Card* card : *handCards) {
-        delete card;  // Free memory for each card
+        delete card; 
     }
-    delete handCards;  // Free the vector memory
+    delete handCards;  
 }
 
 // Add a card to the hand
@@ -103,9 +96,9 @@ void Hand::addCard(Card* card) {
 
 // Play all cards in the hand and return them to the deck
 void Hand::playAll(Deck* deck) {
-    for (Card* card : *handCards) {  // Play each card in the hand
+    for (Card* card : *handCards) {  
         card->play();
-        deck->returnCard(card);  // Return the card to the deck after playing
+        deck->returnCard(card);  
     }
     handCards->clear();  // Clear the hand after playing all cards
 }

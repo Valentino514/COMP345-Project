@@ -36,7 +36,3 @@ void testCards() {
     player2Hand.playAll(&deck);
 }
 
-int main() {
-    testCards();  // Run the test function
-    return 0;
-}
