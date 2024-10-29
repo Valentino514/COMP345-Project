@@ -1,6 +1,8 @@
 #include "CommandProcessing.h"
+#include "Map.h"
+#include "Player.h"
 
-// Command Class Implementation
+// Command class implementation
 
 Command::Command(const std::string& commandText) {
     this->commandText = new std::string(commandText);
@@ -47,10 +49,11 @@ std::ostream& operator<<(std::ostream& os, const Command& command) {
     return os;
 }
 
-// CommandProcessor Class Implementation
+// CommandProcessor class implementation
 
-CommandProcessor::CommandProcessor() {
+CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
     commands = new std::vector<Command*>();
+    currentState = "start";
 }
 
 CommandProcessor::CommandProcessor(const CommandProcessor& other) {
@@ -68,6 +71,7 @@ CommandProcessor& CommandProcessor::operator=(const CommandProcessor& other) {
 
 CommandProcessor::~CommandProcessor() {
     clear();
+    clearPlayers();
     delete commands;
 }
 
@@ -75,29 +79,88 @@ Command* CommandProcessor::getCommand() {
     return commands->empty() ? nullptr : commands->back();
 }
 
-void CommandProcessor::processInput(int argc, char* argv[]) {
-    readCommand(argc, argv);
+void CommandProcessor::processInput() {
+    readCommand();
 }
 
-void CommandProcessor::readCommand(int argc, char* argv[]) {
-    for (int i = 1; i < argc; ++i) {
-        Command* cmd = new Command(argv[i]);
-        saveCommand(cmd);
-    }
+void CommandProcessor::readCommand() {
+    std::string input;
+    std::cout << "Enter a command: ";
+    std::getline(std::cin, input);
+    Command* cmd = new Command(input);
+    validate(cmd);
+    saveCommand(cmd);
 }
 
 void CommandProcessor::saveCommand(Command* command) {
     commands->push_back(command);
 }
 
-void CommandProcessor::validate() {
-    // Implement validation logic
+void CommandProcessor::validate(Command* command) {
+    std::string cmd = command->getCommand();
+    bool isValid = false;
+
+    if (currentState == "start" && cmd.rfind("loadmap", 0) == 0) {
+        // Extract the map filename from the command
+        std::string filename = cmd.substr(8);  // Assumes format "loadmap <filename>"
+
+        // Attempt to load the map using MapLoader
+        MapLoader mapLoader;
+        Map* loadedMap = mapLoader.loadMap(filename);
+
+        // Check if the map was loaded successfully
+        if (loadedMap != nullptr) {
+            std::cout << "Map loaded successfully from " << filename << std::endl;
+            map = loadedMap;  // Set the loaded map to the `map` member
+            currentState = "maploaded";
+            isValid = true;
+        } else {
+            std::cerr << "Failed to load map from " << filename << std::endl;
+            isValid = false;
+        }
+    } else if (currentState == "maploaded" && cmd == "validatemap") {
+        if (map->validate()) {
+            currentState = "mapvalidated";
+            isValid = true;
+        } else {
+            isValid = false;
+        }
+    } else if (currentState == "mapvalidated" && cmd.rfind("addplayer", 0) == 0) {
+        std::string playerName = cmd.substr(10);
+        createPlayer(playerName);
+        currentState = "playersadded";
+        isValid = true;
+    } else if (currentState == "playersadded" && cmd == "gamestart") {
+        currentState = "assignreinforcement";
+        isValid = true;
+    } else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
+        currentState = (cmd == "replay") ? "start" : "exit";
+        isValid = true;
+    }
+
+    command->saveEffect(isValid ? "Command valid." : "Invalid command for the current state.");
+}
+
+
+void CommandProcessor::createPlayer(const std::string& playerName) {
+    std::string* namePtr = new std::string(playerName);  // Allocate a new string for the player's name
+    Player* newPlayer = new Player(namePtr);  // Create a new Player with the name
+    players.push_back(newPlayer);  // Add the new Player to the players vector
+    std::cout << "Player " << playerName << " created and added to the game." << std::endl;
+}
+
+void CommandProcessor::clearPlayers() {
+    for (Player* player : players) {
+        delete player;
+    }
+    players.clear();
 }
 
 void CommandProcessor::copy(const CommandProcessor& other) {
     for (Command* cmd : *other.commands) {
         commands->push_back(new Command(*cmd));
     }
+    currentState = other.currentState;
 }
 
 void CommandProcessor::clear() {
@@ -112,4 +175,34 @@ std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp) {
         os << *cmd << std::endl;
     }
     return os;
+}
+
+// FileCommandProcessorAdapter class implementation
+
+FileCommandProcessorAdapter::FileCommandProcessorAdapter(Map* gameMap, const std::string& filename) : CommandProcessor(gameMap) {
+    commandFile.open(filename);
+    if (!commandFile.is_open()) {
+        std::cerr << "Error: Unable to open file " << filename << std::endl;
+    }
+}
+
+FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
+    if (commandFile.is_open()) {
+        commandFile.close();
+    }
+}
+
+void FileCommandProcessorAdapter::readCommand() {
+    if (commandFile.is_open() && !commandFile.eof()) {
+        std::string line;
+        if (std::getline(commandFile, line)) {
+            Command* cmd = new Command(line);
+            validate(cmd);
+            saveCommand(cmd);
+        } else {
+            std::cerr << "Error: Unable to read command from file." << std::endl;
+        }
+    } else {
+        std::cerr << "Error: File is not open or has been fully read." << std::endl;
+    }
 }

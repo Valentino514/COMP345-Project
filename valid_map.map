@@ -1,0 +1,58 @@
+[Map]
+author=Andrew Williams
+image=anatomy.bmp
+wrap=no
+scroll=horizontal
+warn=yes
+
+[Continents]
+Head=1
+Torso=6
+Abdomen=4
+Left Leg=3
+Right Leg=3
+Left Arm=2
+Right Arm=2
+
+[Territories]
+Skull, 894, 230, Head, Face
+Face, 850, 230, Head, Skull, Neck
+Neck, 807, 230, Head, Face, Left Shoulder, Right Shoulder
+
+Left Shoulder, 761, 192, Torso, Neck, Heart, Left Upper Arm, Left Lung, Right Shoulder
+Right Shoulder, 761, 269, Torso, Neck, Heart, Right Upper Arm, Right Lung, Left Shoulder
+Left Lung, 696, 192, Torso, Left Upper Arm, Left Shoulder, Heart, Right Lung, Left Kidney, Stomach
+Right Lung, 696, 269, Torso, Right Upper Arm, Right Shoulder, Heart, Left Lung, Right Kidney, Stomach
+Heart, 739, 233, Torso, Left Lung, Right Lung, Left Shoulder, Right Shoulder
+Stomach, 612, 233, Torso, Left Lung, Right Lung, Left Kidney, Right Kidney, Intestines
+Left Kidney, 612, 182, Torso, Stomach, Left Lung, Intestines
+Right Kidney, 612, 281, Torso, Stomach, Right Lung, Intestines
+
+Left Upper Arm, 675, 135, Left Arm, Left Shoulder, Left Lung, Left Ulna, Left Radius
+Left Radius, 555, 94, Left Arm, Left Upper Arm, Left Ulna, Left Hand
+Left Ulna, 545, 114, Left Arm, Left Upper Arm, Left Radius, Left Hand
+Left Hand, 461, 65, Left Arm, Left Ulna, Left Radius, Left Upper Thigh
+
+Right Upper Arm, 675, 328, Right Arm, Right Shoulder, Right Lung, Right Ulna, Right Radius
+Right Radius, 544, 378, Right Arm, Right Upper Arm, Right Ulna, Right Hand
+Right Ulna, 530, 360, Right Arm, Right Upper Arm, Right Radius, Right Hand
+Right Hand, 460, 405, Right Arm, Right Radius, Right Ulna, Right Upper Thigh
+
+Intestines, 549, 230, Abdomen, Left Hip, Right Hip, Left Kidney, Right Kidney, Stomach, Groin
+Left Hip, 508, 182, Abdomen, Intestines, Groin, Left Upper Thigh
+Right Hip, 508, 280, Abdomen, Intestines, Groin, Right Upper Thigh
+Groin, 464, 228, Abdomen, Left Hip, Right Hip, Left Upper Thigh, Right Upper Thigh, Intestines
+
+Left Upper Thigh, 413, 180, Left Leg, Left Hand, Left Hip, Groin, Left Lower Thigh
+Left Lower Thigh, 331, 175, Left Leg, Left Upper Thigh, Left Kneecap
+Left Kneecap, 279, 175, Left Leg, Left Lower Thigh, Left Tibia, Left Fibula
+Left Tibia, 189, 179, Left Leg, Left Kneecap, Left Fibula, Left Foot
+Left Fibula, 189, 153, Left Leg, Left Kneecap, Left Tibia, Left Foot
+Left Foot, 60, 156, Left Leg, Left Tibia, Left Fibula, Right Foot
+
+Right Upper Thigh, 413, 277, Right Leg, Right Hand, Right Hip, Groin, Right Lower Thigh
+Right Lower Thigh, 331, 282, Right Leg, Right Upper Thigh, Right Kneecap
+Right Kneecap, 278, 282, Right Leg, Right Lower Thigh, Right Tibia, Right Fibula
+Right Tibia, 186, 274, Right Leg, Right Kneecap, Right Fibula, Right Foot
+Right Fibula, 186, 304, Right Leg, Right Kneecap, Right Tibia, Right Foot
+Right Foot, 57, 292, Right Leg, Right Tibia, Right Fibula, Left Foot

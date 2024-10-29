@@ -1,0 +1,7 @@
+loadmap valid_map.map
+validatemap
+addplayer Alice
+addplayer Bob
+gamestart
+replay
+quit

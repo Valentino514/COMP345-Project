@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include "Map.h"
+#include "Player.h"
 
 // Command Class
 class Command {
@@ -28,24 +31,45 @@ private:
 // CommandProcessor Class
 class CommandProcessor {
 public:
-    CommandProcessor();
+    CommandProcessor(Map* gameMap);
     CommandProcessor(const CommandProcessor& other); // Copy constructor
     CommandProcessor& operator=(const CommandProcessor& other); // Assignment operator
-    ~CommandProcessor(); // Destructor
+    virtual ~CommandProcessor(); // Destructor
 
     Command* getCommand();
-    void processInput(int argc, char* argv[]);
+    virtual void processInput();
 
     friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp); // Stream insertion operator
 
-private:
+protected:
     std::vector<Command*>* commands;
+    std::string currentState;
 
-    void readCommand(int argc, char* argv[]);
+    virtual void readCommand();
     void saveCommand(Command* command);
-    void validate();
+    void validate(Command* command);
     void copy(const CommandProcessor& other);
     void clear();
+
+private:
+    Map* map;  // Pointer to the Map instance
+    std::vector<Player*> players;  // Container to store created Player objects
+
+    void createPlayer(const std::string& playerName);  // Helper method to create a Player
+    void clearPlayers();  // Helper method to clear Player instances
+};
+
+// FileCommandProcessorAdapter Class
+class FileCommandProcessorAdapter : public CommandProcessor {
+public:
+    FileCommandProcessorAdapter(Map* gameMap, const std::string& filename);
+    ~FileCommandProcessorAdapter();
+
+protected:
+    void readCommand() override;
+
+private:
+    std::ifstream commandFile;
 };
 
 #endif // COMMANDPROCESSING_H
