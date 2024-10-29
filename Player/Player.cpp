@@ -6,17 +6,26 @@
 #include <vector>
 using namespace std;
 
-Player::Player(string* name){
-
-cout<<"Generating player..."<<*name<<"\n";
-this->name = name;
-orders= new OrdersList();
-cards = new vector<Cards*>;
-territories = new vector<Territory*>;
+Player::Player(string* name, int* armyamount) {
+    cout << "Generating player..." << *name << " with " << *armyamount << " armies\n";
+    this->name = new string(*name);  // Deep copy name
+    this->armyamount = new int(*armyamount);  // Deep copy the value of armyamount
+    orders = new OrdersList();
+    cards = new vector<Card*>;
+    territories = new vector<Territory*>;
+}
+Player::Player(string* name) {
+    cout << "Generating player..." << *name << " with 0 armies (default)\n";
+    this->name = new string(*name);  // Deep copy name
+    this->armyamount = new int(0);  // Default armyamount to 0
+    orders = new OrdersList();
+    cards = new vector<Card*>;
+    territories = new vector<Territory*>;
 }
 
 Player::Player(const Player& other) {
     name = new string(*other.name);
+    armyamount = new int(*other.armyamount);  // Deep copy armyamount
 
     // Deep copy territories
     territories = new vector<Territory*>;
@@ -24,33 +33,43 @@ Player::Player(const Player& other) {
         territories->push_back(new Territory(*t));
     }
 
-    // Deep copy cards
-    cards = new vector<Cards*>;
-    for (Cards* c : *(other.cards)) {
-        cards->push_back(new Cards(*c));
+    // Deep copy Card
+    cards = new vector<Card*>;
+    for (Card* c : *(other.cards)) {
+        cards->push_back(new Card(*c));
     }
 
     // Deep copy orders
-    orders = new OrdersList(*(other.orders)); 
+    orders = new OrdersList(*(other.orders));
+}
+
+void Player::setArmyAmount(int amount) {
+    if (armyamount) {
+        *armyamount = amount;  // Update the existing armyamount
+    } else {
+        armyamount = new int(amount);  // Allocate memory and assign value
+    }
 }
 
 // Assignment operator for deep copying
 Player& Player::operator=(const Player& other) {
-    if (this == &other) return *this;
+    if (this == &other) return *this;  // Self-assignment check
 
     // Clean up existing data
     delete this->name;
+    delete this->armyamount;
     for (Territory* t : *territories) {
         delete t;
     }
     territories->clear();
-    for (Cards* c : *cards) {
+    for (Card* c : *cards) {
         delete c;
     }
     cards->clear();
 
-    // Deep copy name
+    // Deep copy name and armyamount
     this->name = new string(*other.name);
+    this->armyamount = new int(*other.armyamount);
 
     // Deep copy territories
     for (Territory* t : *(other.territories)) {
@@ -58,33 +77,37 @@ Player& Player::operator=(const Player& other) {
     }
 
     // Deep copy cards
-    for (Cards* c : *(other.cards)) {
-        cards->push_back(new Cards(*c));
+    for (Card* c : *(other.cards)) {
+        cards->push_back(new Card(*c));
     }
 
     // Deep copy orders
-    *orders = *(other.orders); 
+    *orders = *(other.orders);
 
     return *this;
 }
 
+
 // Destructor
 Player::~Player() {
     delete name;
+    delete armyamount;  // Free the memory for armyamount
 
     for (Territory* t : *territories) {
         delete t;
     }
     territories->clear();
-    delete territories;  
-    for (Cards* c : *cards) {
+    delete territories;
+
+    for (Card* c : *cards) {
         delete c;
     }
     cards->clear();
-    delete cards;  // 
+    delete cards;
 
     delete orders;  // Clean up the orders list
 }
+
 
 // Print territories to defend
 void Player::toDefend() {
@@ -107,9 +130,13 @@ void Player::issueOrder(Order* order) {
 
 //Overloaded stream insertion 
 ostream& operator<<(ostream& os, const Player& player) {
-    os << "Player with name " << *(player.name) << " has " << player.territories->size() << " territories and " << player.cards->size() << " cards.";
+    os << "Player with name " << *(player.name)
+       << " has " << player.territories->size() << " territories, "
+       << player.cards->size() << " cards, and "
+       << *(player.armyamount) << " armies.";  // Print the value of armyamount
     return os;
 }
+
 
 void Player::addTerritory(Territory* territory) {
     territories->push_back(territory);  // Add territory to the player's list
@@ -121,4 +148,8 @@ void Player::printOwnedTerritories() const {
     for (auto t : *territories) {
         std::cout << t->getName() << std::endl;  // Assuming Territory class has getName() method
     }
+}
+
+void Player::addCard(Card* card) {
+    cards->push_back(card);  // Adds a card to the player's hand
 }

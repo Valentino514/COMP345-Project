@@ -3,9 +3,12 @@
 #include "GameEngine.h"
 #include "../Map/Map.h"
 #include "../Player/Player.h"
+#include "../CardsDeckHand/Cards.h"
 #include <string>
 #include <vector>
 #include <filesystem> 
+#include <algorithm>
+#include <random>
 
 
 
@@ -157,7 +160,6 @@ void GameEngine::navigate() {
 void GameEngine::startupPhase() {
     std::string command;
     std::cout << "Welcome to the Game Startup Phase. Please enter your commands:\n";
-    Map* map = nullptr;
     MapLoader x;
     std::vector<std::string> mapFiles;
     std::string mapsDirectory = "../Maps/maps";  // Directory where your map files are stored
@@ -186,14 +188,14 @@ void GameEngine::startupPhase() {
             // Verify if the entered map exists in the list
             if (std::find(mapFiles.begin(), mapFiles.end(), chosenMap) != mapFiles.end()) {
                 std::cout << "You have selected: " << chosenMap << "\n";
-                map = x.loadMap(chosenMap);
+                Cmap = x.loadMap(chosenMap);
             } else {
                 std::cout << "Invalid map name. Please choose from the available maps.\n";
             }
         } 
         else if (command == "validatemap") {
-            if (map != nullptr) {
-                if (map->validate()) {
+            if (Cmap != nullptr) {
+                if (Cmap->validate()) {
                     std::cout << "Map is valid.\n";
                 } else {
                     std::cout << "Map is invalid.\n";
@@ -208,7 +210,9 @@ void GameEngine::startupPhase() {
         } 
         else if (command == "gamestart") {
             if (map != nullptr) {
-                DistributeTerritories(*map->Territories,*playerList);
+                DistributeTerritories(*Cmap->Territories,*playerList);
+                shufflePlayers();
+                assignArmyAmount(50);
                 break;  // Exit the loop once game starts
             } else {
                 std::cout << "No map loaded. Please load and validate a map before starting the game.\n";
@@ -247,7 +251,7 @@ void GameEngine::addplayer() {
     std::cout << playerAmount << " players added successfully!\n";
 }
 
-void DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p){
+void GameEngine::DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p){
 
     if (p.empty() || m.empty()) {
         std::cout << "No players or no territories to distribute." << std::endl;
@@ -274,4 +278,108 @@ int numPlayers = p.size();
 
 }
 
- 
+void GameEngine::shufflePlayers() {
+    if (!playerList || playerList->empty()) {
+        std::cout << "No players to shuffle." << std::endl;
+        return;
+    }
+
+    // Create a random number generator and seed it
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    // Shuffle the playerList
+    std::shuffle(playerList->begin(), playerList->end(), g);
+
+    std::cout << "Players shuffled successfully!" << std::endl;
+}
+
+void GameEngine::assignArmyAmount(int amount) {
+    if (!playerList || playerList->empty()) {
+        std::cout << "No players to assign armies." << std::endl;
+        return;
+    }
+
+    // Iterate through each player in the list and assign them the given army amount
+    for (Player* player : *playerList) {
+        player->setArmyAmount(amount);  // Use the setter method to assign armyamount
+    }
+
+    std::cout << "Each player has been assigned " << amount << " armies." << std::endl;
+}
+
+void GameEngine::DrawTwoCards() {
+    if (!playerList || playerList->empty()) {
+        std::cout << "No players available to draw cards." << std::endl;
+        return;
+    }
+
+    Deck deck;  
+
+    for (Player* player : *playerList) {
+        
+        Card* card1 = deck.draw();
+        Card* card2 = deck.draw();
+
+        if (card1) player->addCard(card1);  
+        if (card2) player->addCard(card2);
+
+        std::cout << "Drew two cards for player: " << *(player->getName()) << std::endl;
+    }
+}
+
+void GameEngine::mainGameLoop() {
+    bool gameRunning = true;
+
+    do {
+        std::cout << "------------------- Starting Reinforcement Phase -------------------" << std::endl;
+        
+        // Execute the game phases
+        reinforcementPhase();
+        issueOrdersPhase();
+        executeOrdersPhase();
+
+        // Check if any player owns all territories in the loaded map
+        for (Player* player : *playerList) {
+            bool ownsAllTerritories = true;
+
+            // Check each territory in `map->Territories` to see if the player owns it
+        for (const auto& territoryPair : *Cmap->Territories) {
+                Territory* territory = territoryPair.second;
+
+                // Check if the player's territories contain this map territory
+                if (std::find(player->getTerritories()->begin(), player->getTerritories()->end(), territory) == player->getTerritories()->end()) {
+                    ownsAllTerritories = false;
+                    break;
+                }
+            }
+
+            // If the player owns all territories, they win the game
+            if (ownsAllTerritories) {
+                std::cout << "Player " << *(player->getName()) << " owns all territories and wins the game!" << std::endl;
+                gameRunning = false;
+                break;
+            }
+        }
+    } while (gameRunning);
+}
+
+
+void GameEngine::reinforcementPhase(){
+
+}
+
+void GameEngine::issueOrdersPhase(){
+    
+}
+
+void GameEngine::executeOrdersPhase(){
+    
+}
+
+
+
+
+
+
+

@@ -3,7 +3,13 @@
 
 #include <ostream>
 
+
 using namespace std;
+
+class Map;
+class Player;
+class Territory;
+
 
 class GameEngine
 {
@@ -15,6 +21,7 @@ private:
     string* commands = new string[11]{"loadmap","validatemap","addplayer",
                         "assigncountries","issueorder","endissueorders"
                         ,"execorder","endexecorders","win","play","end"};
+    Map* Cmap;
 
     vector<Player*> *playerList;
    
@@ -32,6 +39,12 @@ public:
     
     void DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p)  ;
 
+     void shufflePlayers();
+
+     void assignArmyAmount(int amount);
+     
+     void DrawTwoCards();
+
 
     // Assignment Operator
     GameEngine& operator=(const GameEngine& other);
@@ -40,6 +53,20 @@ public:
     friend ostream& operator<<(ostream& os, const GameEngine& gameEngine);
 
     void addplayer();
+
+    void mainGameLoop();
+
+
+    void reinforcementPhase();
+
+    void issueOrdersPhase();
+
+    void executeOrdersPhase();
+
+
+
+
+
 };
 
 #endif

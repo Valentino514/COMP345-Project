@@ -6,15 +6,16 @@
 #include <list>
 #include "../OrdersList/Orders.h"
 #include "../Map/Map.h"
+#include "../CardsDeckHand/Cards.h"
 
 class Territory;
 
 
-class Cards{
+// class Cards{
 
-    public:
-    Cards();
-};
+//     public:
+//     Card();
+// }
 
 
 class Player
@@ -22,14 +23,17 @@ class Player
 private:
 
     vector<Territory*>* territories;
-    vector<Cards*>* cards;
+    vector<Card*>* cards;
     OrdersList *orders;
     string* name;
+    int* armyamount;
+    
 
 public:
 
 
-    Player(string* name); 
+    Player(string* name, int* armyamount);
+    Player(string* name);
 
     ~Player(); //destructor
 
@@ -38,6 +42,7 @@ public:
 
     // Assignment Operator
     Player& operator=(const Player& other);
+    void setArmyAmount(int amount);
 
     friend ostream& operator<<(ostream& os, const Player& player);
 
@@ -50,6 +55,15 @@ public:
     void addTerritory(Territory* territory);
 
     void printOwnedTerritories() const;
+
+    void addCard(Card* card);
+
+    std::string* getName() const { return name; }
+
+     const std::vector<Territory*>* getTerritories() const {
+        return territories;
+    }
+
     
 };
 

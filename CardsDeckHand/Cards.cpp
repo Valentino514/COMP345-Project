@@ -102,3 +102,5 @@ void Hand::playAll(Deck* deck) {
     }
     handCards->clear();  // Clear the hand after playing all cards
 }
+
+
