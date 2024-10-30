@@ -239,9 +239,15 @@ void Territory::setArmyAmount(int amount) {
     *armyAmount = amount;
 }
 
+void Territory::setLandOccupier(Player* player) {
+    territoryOwner = player;
+}
+
+
 const std::vector<Territory*>* Territory::getAdjacentTerritories() const {
     return AdjTerritories; // Return the pointer to the vector
 }
+
 
 
 void Territory::addAdjacentTerritory(Territory* adjacent) {

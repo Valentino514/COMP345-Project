@@ -43,6 +43,7 @@ public:
     // Assignment Operator
     Player& operator=(const Player& other);
     void setArmyAmount(int amount);
+    int getArmyAmount() const { return *armyamount; }
 
     friend ostream& operator<<(ostream& os, const Player& player);
 

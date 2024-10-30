@@ -266,8 +266,11 @@ int numPlayers = p.size();
     int playerIndex = 0;
 
     while (it != m.end()) {
+        Territory* territory = it->second;
         // Assign the current territory to the current player
         p[playerIndex]->addTerritory(it->second); // Assuming `addTerritory` is a method in the Player class
+
+        territory->setLandOccupier(p[playerIndex]);
 
         // Move to the next territory
         ++it;
@@ -365,9 +368,42 @@ void GameEngine::mainGameLoop() {
 }
 
 
-void GameEngine::reinforcementPhase(){
+void GameEngine::reinforcementPhase() {
+    for (Player* player : *playerList) {
+        int territoryCount = player->getTerritories()->size();
+        int reinforcementArmies = std::max(territoryCount / 3, 3);  // Minimum reinforcement rule
 
+        // Check for continent control and add control bonus
+        for (const auto& continentPair : *Cmap->Continents) {
+            const std::string& continentName = continentPair.first;
+            int continentBonus = continentPair.second;
+            bool ownsAllInContinent = true;
+
+            // Check if player owns all territories in this continent
+           for (const auto& territoryPair : *Cmap->Territories) {
+            Territory* territory = territoryPair.second;
+                if (territory->getContinent() == continentName) {
+                    if (territory->getLandOccupier() != player) {
+                        ownsAllInContinent = false;
+                        break;
+                    }
+                }
+            }
+
+            // Add continent control bonus if the player owns all territories
+            if (ownsAllInContinent) {
+                reinforcementArmies += continentBonus;
+            }
+        }
+
+        // Update player's army amount with reinforcements
+        int currentArmies = player->getArmyAmount();
+        player->setArmyAmount(currentArmies + reinforcementArmies);
+        std::cout << "Player " << *player->getName() << " receives " << reinforcementArmies 
+                  << " reinforcement armies." << std::endl;
+    }
 }
+
 
 void GameEngine::issueOrdersPhase(){
     
