@@ -109,17 +109,32 @@ Player::~Player() {
 }
 
 
-// Print territories to defend
-void Player::toDefend() {
-    cout << "Territories to defend:\n";
-    for (const auto& territory : *territories) {
-        cout << territory << "\n";  
+// Return a List of Territories to Defend
+std::vector<Territory*> Player::toDefend() const {
+
+    std::vector<Territory*> defendList;
+    for (Territory* territory : *territories) {
+        defendList.push_back(territory);
     }
+    return defendList;
+
 }
 
-// Print territories to attack
-void Player::toAttack() {
-    cout << "Territories to attack:\n";
+// toAttack returns a list of adjacent territories not owned by the player
+std::vector<Territory*> Player::toAttack() const {
+    std::vector<Territory*> attackList;
+
+    // Loop through each territory owned by the player to find adjacent ones not owned by the player
+    for (Territory* territory : *territories) {
+        const std::vector<Territory*>* adjacent = territory->getAdjacentTerritories();
+
+        for (Territory* adj : *adjacent) {
+            if (adj->getLandOccupier() != this) {  // Only add if the territory is not owned by the player
+                attackList.push_back(adj);
+            }
+        }
+    }
+    return attackList;
 }
 
 // Issue an order

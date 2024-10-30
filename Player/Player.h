@@ -49,9 +49,9 @@ public:
 
     void issueOrder(Order*);
 
-    void toDefend();
+    std::vector<Territory*> toDefend() const;
 
-    void toAttack();
+    vector<Territory*> toAttack() const;
 
     void addTerritory(Territory* territory);
 
