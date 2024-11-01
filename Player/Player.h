@@ -10,14 +10,6 @@
 
 class Territory;
 
-
-// class Cards{
-
-//     public:
-//     Card();
-// }
-
-
 class Player
 {
 private:
@@ -47,7 +39,7 @@ public:
 
     friend ostream& operator<<(ostream& os, const Player& player);
 
-    void issueOrder(Order*);
+    void issueOrder();
 
     std::vector<Territory*> toDefend() const;
 
@@ -57,12 +49,22 @@ public:
 
     void printOwnedTerritories() const;
 
+    const std::vector<Card*>& getCards() const { return *cards; }
     void addCard(Card* card);
 
     std::string* getName() const { return name; }
 
      const std::vector<Territory*>* getTerritories() const {
         return territories;
+    }
+
+      OrdersList* getOrdersList() const {
+        return orders;
+    }
+
+    // Accessor for territories list size
+    size_t getTerritoryCount() const {
+        return territories->size();
     }
 
     

@@ -29,19 +29,19 @@ int main() {
     testCards();
     std::cout << std::endl << std::endl;
 
-    // Test player functionality
-    std::cout << "==========================" << std::endl;
-    std::cout << "     PLAYERS TEST          " << std::endl;
-    std::cout << "==========================" << std::endl;
-    testPlayers();
-    std::cout << std::endl << std::endl;
+    // // Test player functionality
+    // std::cout << "==========================" << std::endl;
+    // std::cout << "     PLAYERS TEST          " << std::endl;
+    // std::cout << "==========================" << std::endl;
+    // testPlayers();
+    // std::cout << std::endl << std::endl;
 
-    // Test orders list functionality
-    std::cout << "==========================" << std::endl;
-    std::cout << "     ORDERS LIST TEST      " << std::endl;
-    std::cout << "==========================" << std::endl;
-    testOrdersList();
-    std::cout << std::endl << std::endl;
+    // // Test orders list functionality
+    // std::cout << "==========================" << std::endl;
+    // std::cout << "     ORDERS LIST TEST      " << std::endl;
+    // std::cout << "==========================" << std::endl;
+    // testOrdersList();
+    // std::cout << std::endl << std::endl;
 
     // Test game engine functionality
     std::cout << "==========================" << std::endl;

@@ -34,13 +34,12 @@ ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
     }
     return os;
 }
-
+//Assignment operator
 GameEngine& GameEngine::operator=(const GameEngine& other) {
     if (this != &other) {  // Check for self
         delete[] map;
         delete[] commands;
 
-        // Allocate new memory for map and commands
         map = new string[8];
         commands = new string[11];
 
@@ -162,7 +161,7 @@ void GameEngine::startupPhase() {
     std::cout << "Welcome to the Game Startup Phase. Please enter your commands:\n";
     MapLoader x;
     std::vector<std::string> mapFiles;
-    std::string mapsDirectory = "../Maps/maps";  // Directory where your map files are stored
+    std::string mapsDirectory = "../Maps/maps";  // Directory where the map files are stored
 
 
     while (true) {
@@ -268,11 +267,11 @@ int numPlayers = p.size();
     while (it != m.end()) {
         Territory* territory = it->second;
         // Assign the current territory to the current player
-        p[playerIndex]->addTerritory(it->second); // Assuming `addTerritory` is a method in the Player class
+        p[playerIndex]->addTerritory(it->second); 
 
         territory->setLandOccupier(p[playerIndex]);
 
-        // Move to the next territory
+    
         ++it;
 
         // Move to the next player, wrap around if at the end of the player list
@@ -287,7 +286,7 @@ void GameEngine::shufflePlayers() {
         return;
     }
 
-    // Create a random number generator and seed it
+    // Create a random number generator 
     std::random_device rd;
     std::mt19937 g(rd());
 
@@ -305,7 +304,7 @@ void GameEngine::assignArmyAmount(int amount) {
 
     // Iterate through each player in the list and assign them the given army amount
     for (Player* player : *playerList) {
-        player->setArmyAmount(amount);  // Use the setter method to assign armyamount
+        player->setArmyAmount(amount);  
     }
 
     std::cout << "Each player has been assigned " << amount << " armies." << std::endl;
@@ -346,11 +345,11 @@ void GameEngine::mainGameLoop() {
         for (Player* player : *playerList) {
             bool ownsAllTerritories = true;
 
-            // Check each territory in `map->Territories` to see if the player owns it
+            
         for (const auto& territoryPair : *Cmap->Territories) {
                 Territory* territory = territoryPair.second;
 
-                // Check if the player's territories contain this map territory
+                
                 if (std::find(player->getTerritories()->begin(), player->getTerritories()->end(), territory) == player->getTerritories()->end()) {
                     ownsAllTerritories = false;
                     break;
@@ -373,7 +372,7 @@ void GameEngine::reinforcementPhase() {
         int territoryCount = player->getTerritories()->size();
         int reinforcementArmies = std::max(territoryCount / 3, 3);  // Minimum reinforcement rule
 
-        // Check for continent control and add control bonus
+        // Check for continent name and add bonus if player owns a continent
         for (const auto& continentPair : *Cmap->Continents) {
             const std::string& continentName = continentPair.first;
             int continentBonus = continentPair.second;
@@ -405,17 +404,74 @@ void GameEngine::reinforcementPhase() {
 }
 
 
-void GameEngine::issueOrdersPhase(){
-    
+void GameEngine::issueOrdersPhase() {
+    bool allPlayersDone = false;
+
+    while (!allPlayersDone) {
+        allPlayersDone = true; // Assume all players are done initially
+
+        for (Player* player : *playerList) {
+            // Check if the player can still issue orders (armyamount > 0 or has cards)
+            if (player->getArmyAmount() > 0 || !player->getCards().empty()) {
+                allPlayersDone = false; // If any player can still issue orders, continue
+                player->issueOrder();   // Call the player's issueOrder method to add an order to their list
+            }
+        }
+    }
 }
 
-void GameEngine::executeOrdersPhase(){
-    
+
+void GameEngine::executeOrdersPhase() {
+    cout << "Starting Orders Execution Phase...\n";
+
+    // Execute all Deploy orders first in a round-robin fashion across all players
+    bool deployOrdersRemaining = true;
+    while (deployOrdersRemaining) {
+        deployOrdersRemaining = false;
+
+        for (Player* player : *playerList) {
+            OrdersList* ordersList = player->getOrdersList(); 
+
+            if (ordersList->hasDeployOrder()) {
+                Order* deployOrder = ordersList->getNextDeployOrder();
+                if (deployOrder) {
+                    deployOrder->execute();  
+                    delete deployOrder;     
+                    deployOrdersRemaining = true; // Set to true if there are more deploy orders
+                }
+            }
+        }
+    }
+
+    // Execute remaining orders in a round-robin style
+    bool ordersRemaining = true;
+    while (ordersRemaining) {
+        ordersRemaining = false;
+
+        for (Player* player : *playerList) {
+            OrdersList* ordersList = player->getOrdersList(); 
+
+            if (!ordersList->isEmpty()) {
+                Order* nextOrder = ordersList->getNextOrder(); // Get the next available order
+                if (nextOrder) {
+                    nextOrder->execute();  
+                    delete nextOrder;      
+                    ordersRemaining = true; // Set to true if there are more orders
+                }
+            }
+        }
+
+        // Eliminate players who no longer control any territories
+        for (auto it = playerList->begin(); it != playerList->end();) {
+            if ((*it)->getTerritoryCount() == 0) { 
+                cout << (*it)->getName() << " has been eliminated.\n";
+                delete *it;              // Free memory for eliminated player
+                it = playerList->erase(it); // Remove player from the list
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    cout << "Orders Execution Phase completed.\n";
 }
-
-
-
-
-
-
-
