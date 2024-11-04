@@ -412,7 +412,7 @@ void GameEngine::issueOrdersPhase() {
 
         for (Player* player : *playerList) {
             // Check if the player can still issue orders (armyamount > 0 or has cards)
-            if (player->getArmyAmount() > 0 || !player->getCards().empty()) {
+            if (player->getArmyAmount() > 0 || !player->getCards()->empty()) {
                 allPlayersDone = false; // If any player can still issue orders, continue
                 player->issueOrder();   // Call the player's issueOrder method to add an order to their list
             }

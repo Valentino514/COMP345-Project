@@ -264,9 +264,9 @@ while (issuingAdvanceOrders) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-
-    
-    Order* order = new Advance(source, destination, reinforcementAmount, this);  
+//Territory* source, Territory* destination, int armyCount, Player* player
+     
+    Order* order = new Advance(this,source,destination,reinforcementAmount);
     orders->addOrder(order); // Add the order to the player's order list
 
     cout << "Advance order issued to move " << reinforcementAmount << " armies from " << source->getName()

@@ -59,7 +59,7 @@ private:
 
 public:
     Advance();  // Default constructor
-    Advance(Territory* source, Territory* destination, int reinforcementAmount, Player* player);  // Parameterized constructor
+    Advance(Player* player, Territory* source, Territory* destination, int reinforcementAmount );  // Parameterized constructor
     Advance(const Advance& other);
     Advance& operator=(const Advance& other);
     ~Advance();

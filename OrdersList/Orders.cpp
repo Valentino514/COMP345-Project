@@ -79,10 +79,12 @@ void Deploy::print(ostream& os) const {
 }
 
 // Advance Class
-Advance::Advance() : Order(), sourceTerritory(nullptr), destinationTerritory(nullptr), reinforcementAmount(0), player(player), isDestinationOwned(false) {}
+Advance::Advance() : Order(), player(nullptr),sourceTerritory(nullptr),reinforcementAmount(0), destinationTerritory(nullptr) {}
+
+//    Advance(Player* player, Territory* source, Territory* destination, int reinforcementAmount );  // Parameterized constructor
 
 Advance::Advance(Territory* source, Territory* destination, int armyCount, Player* player)
-    : Order(), sourceTerritory(source), destinationTerritory(destination), reinforcementAmount(armyCount),player(player),isDestinationOwned(false){}
+    : Order(), player(player), sourceTerritory(source), reinforcementAmount(armyCount),destinationTerritory(destination) {}
 
 Advance::Advance(const Advance& other)
     : Order(other), sourceTerritory(other.sourceTerritory), destinationTerritory(other.destinationTerritory), reinforcementAmount(other.reinforcementAmount){}
