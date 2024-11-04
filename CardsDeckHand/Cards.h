@@ -25,6 +25,7 @@ public:
     // Return the name of the card type as a string
     std::string getCardTypeName() const;
 
+
 private:
     CardType* type;  // Holds the type of the card as a pointer
 };

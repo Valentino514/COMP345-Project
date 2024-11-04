@@ -7,14 +7,13 @@
 
 using namespace std;
 
-// Forward declarations to avoid circular dependencies
 class Territory;
 class Player;
 
 // Base Order Class
 class Order {
 public:
-    string* orderName;  
+    string* orderName;
     Order(); // Default constructor
     virtual ~Order(); // Virtual destructor 
     Order(const Order& other); // Copy constructor 
@@ -26,7 +25,8 @@ public:
     friend ostream& operator<<(ostream& os, const Order& order);
 
 protected:
-    virtual void print(ostream& os) const = 0; 
+    Player* issuingPlayer; // Track issuing player
+    virtual void print(ostream& os) const = 0;
 };
 
 // Deploy Order
@@ -36,8 +36,9 @@ private:
     int* numArmies;
 
 public:
-    Deploy();  // Default constructor
-    Deploy(Territory* targetTerritory, int reinforcementAmount);  // Parameterized constructor
+    Deploy();
+    Deploy(Territory* targetTerritory, int reinforcementAmount);
+    Deploy(Player* player, Territory* targetTerritory, int reinforcementAmount); 
     Deploy(const Deploy& other);
     Deploy& operator=(const Deploy& other);
     ~Deploy();
@@ -55,8 +56,9 @@ private:
     int* numArmies;
 
 public:
-    Advance();  // Default constructor
-    Advance(Territory* source, Territory* destination, int armyCount);  // Parameterized constructor
+    Advance();
+    Advance(Territory* source, Territory* destination, int armyCount);
+    Advance(Player* player, Territory* source, Territory* destination, int armyCount); 
     Advance(const Advance& other);
     Advance& operator=(const Advance& other);
     ~Advance();
@@ -72,8 +74,9 @@ private:
     Territory* targetTerritory;
 
 public:
-    Bomb();  // Default constructor
-    Bomb(Territory* target);  // Parameterized constructor
+    Bomb();
+    Bomb(Territory* target);
+    Bomb(Player* player, Territory* target);
     Bomb(const Bomb& other);
     Bomb& operator=(const Bomb& other);
     ~Bomb();
@@ -89,8 +92,9 @@ private:
     Territory* targetTerritory;
 
 public:
-    Blockade();  // Default constructor
-    Blockade(Territory* target);  // Parameterized constructor
+    Blockade();
+    Blockade(Territory* target);
+    Blockade(Player* player, Territory* target); 
     Blockade(const Blockade& other);
     Blockade& operator=(const Blockade& other);
     ~Blockade();
@@ -100,6 +104,7 @@ public:
     void print(ostream& os) const override;
 };
 
+// Airlift Order
 class Airlift : public Order {
 private:
     Territory* sourceTerritory;
@@ -107,9 +112,10 @@ private:
     int* numArmies;
 
 public:
-    Airlift();  // Default constructor
-    Airlift(Territory* source, Territory* destination, int armyCount);  // Parameterized constructor
-    Airlift(const Airlift& other);  // Copy constructor
+    Airlift();
+    Airlift(Territory* source, Territory* destination, int armyCount);
+    Airlift(Player* player, Territory* source, Territory* destination, int armyCount); 
+    Airlift(const Airlift& other);
     Airlift& operator=(const Airlift& other);
     ~Airlift();
 
@@ -125,9 +131,9 @@ private:
     Player* player2;
 
 public:
-    Negociate();  // Default constructor
-    Negociate(Player* p1, Player* p2);  // Parameterized constructor
-    Negociate(const Negociate& other);  // Copy constructor
+    Negociate();
+    Negociate(Player* issuer, Player* targetPlayer); 
+    Negociate(const Negociate& other);
     Negociate& operator=(const Negociate& other);
     ~Negociate();
 
@@ -142,12 +148,12 @@ private:
     vector<Order*> orders;
 
 public:
-    OrdersList();  
-    ~OrdersList(); 
-    OrdersList& operator=(const OrdersList& other);  
-    void move();  
-    void remove(Order* order);  
-    void addOrder(Order* orderName); 
+    OrdersList();
+    ~OrdersList();
+    OrdersList& operator=(const OrdersList& other);
+    void move();
+    void remove(Order* order);
+    void addOrder(Order* orderName);
     bool hasDeployOrder() const;
     Order* getNextDeployOrder();
     Order* getNextOrder();

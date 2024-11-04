@@ -20,6 +20,8 @@ Card::CardType* Card::getType() const {
     return type;
 }
 
+
+
 // Return the name of the card type as a string
 std::string Card::getCardTypeName() const {
     switch (*type) {
@@ -102,5 +104,7 @@ void Hand::playAll(Deck* deck) {
     }
     handCards->clear();  // Clear the hand after playing all cards
 }
+
+
 
 

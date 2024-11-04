@@ -31,6 +31,11 @@ ostream& operator<<(ostream& os, const Order& order) {
 // Deploy Class
 Deploy::Deploy() : Order(), targetTerritory(nullptr), numArmies(nullptr) {}
 
+Deploy::Deploy(Player* player, Territory* target, int reinforcementAmount)
+    : Order(), targetTerritory(target), numArmies(new int(reinforcementAmount)) {
+    issuingPlayer = player;
+}
+
 Deploy::Deploy(Territory* target, int reinforcementAmount)
     : Order(), targetTerritory(target), numArmies(new int(reinforcementAmount)) {}
 
@@ -66,6 +71,10 @@ void Deploy::print(ostream& os) const {
 // Advance Class
 Advance::Advance() : Order(), sourceTerritory(nullptr), destinationTerritory(nullptr), numArmies(nullptr) {}
 
+Advance::Advance(Player* player, Territory* source, Territory* destination, int armyCount)
+    : Order(), sourceTerritory(source), destinationTerritory(destination), numArmies(new int(armyCount)) {
+    issuingPlayer = player;
+}
 Advance::Advance(Territory* source, Territory* destination, int armyCount)
     : Order(), sourceTerritory(source), destinationTerritory(destination), numArmies(new int(armyCount)) {}
 
@@ -102,7 +111,10 @@ void Advance::print(ostream& os) const {
 // Bomb Class
 Bomb::Bomb() : Order(), targetTerritory(nullptr) {}
 
-Bomb::Bomb(Territory* target) : Order(), targetTerritory(target) {}
+Bomb::Bomb(Player* player, Territory* target)
+    : Order(), targetTerritory(target) {
+    issuingPlayer = player;
+}
 
 Bomb::Bomb(const Bomb& other) : Order(other), targetTerritory(other.targetTerritory) {}
 
@@ -131,7 +143,10 @@ void Bomb::print(ostream& os) const {
 // Blockade Class
 Blockade::Blockade() : Order(), targetTerritory(nullptr) {}
 
-Blockade::Blockade(Territory* target) : Order(), targetTerritory(target) {}
+Blockade::Blockade(Player* player, Territory* target)
+    : Order(), targetTerritory(target) {
+    issuingPlayer = player;
+}
 
 Blockade::Blockade(const Blockade& other) : Order(other), targetTerritory(other.targetTerritory) {}
 
@@ -160,8 +175,10 @@ void Blockade::print(ostream& os) const {
 // Airlift Class
 Airlift::Airlift() : Order(), sourceTerritory(nullptr), destinationTerritory(nullptr), numArmies(nullptr) {}
 
-Airlift::Airlift(Territory* source, Territory* destination, int armyCount)
-    : Order(), sourceTerritory(source), destinationTerritory(destination), numArmies(new int(armyCount)) {}
+Airlift::Airlift(Player* player, Territory* source, Territory* destination, int armyCount)
+    : Order(), sourceTerritory(source), destinationTerritory(destination), numArmies(new int(armyCount)) {
+    issuingPlayer = player;
+}
 
 Airlift::~Airlift() {
     delete numArmies;
@@ -189,7 +206,10 @@ Airlift::Airlift(const Airlift& other)
 // Negotiate Class
 Negociate::Negociate() : Order(), player1(nullptr), player2(nullptr) {}
 
-Negociate::Negociate(Player* p1, Player* p2) : Order(), player1(p1), player2(p2) {}
+Negociate::Negociate(Player* issuer, Player* targetPlayer)
+    : Order(), player1(issuer), player2(targetPlayer) {
+    issuingPlayer = issuer;
+}
 
 Negociate::~Negociate() {}
 
