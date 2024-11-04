@@ -8,26 +8,27 @@
 #include "GameEngine/GameEngine.h"
 
 // Forward declarations for the test functions
-void testLoadMaps();
-void testPlayers();
-void testOrdersList();
-void testCards();
-void testGameEngine();
+// void testLoadMaps();
+// void testPlayers();
+// void testOrdersList();
+// void testCards();
+// void testGameEngine();
+void testStartupPhase();
 
 int main() {
     // Test map loading and validation
-    std::cout << "==========================" << std::endl;
-    std::cout << "     MAP VALIDATION TEST   " << std::endl;
-    std::cout << "==========================" << std::endl;
-    testLoadMaps();
-    std::cout << std::endl << std::endl;
+    // std::cout << "==========================" << std::endl;
+    // std::cout << "     MAP VALIDATION TEST   " << std::endl;
+    // std::cout << "==========================" << std::endl;
+    // testLoadMaps();
+    // std::cout << std::endl << std::endl;
 
-    // Test cards system
-    std::cout << "==========================" << std::endl;
-    std::cout << "      CARDS TEST           " << std::endl;
-    std::cout << "==========================" << std::endl;
-    testCards();
-    std::cout << std::endl << std::endl;
+    // // Test cards system
+    // std::cout << "==========================" << std::endl;
+    // std::cout << "      CARDS TEST           " << std::endl;
+    // std::cout << "==========================" << std::endl;
+    // testCards();
+    // std::cout << std::endl << std::endl;
 
     // // Test player functionality
     // std::cout << "==========================" << std::endl;
@@ -47,7 +48,7 @@ int main() {
     std::cout << "==========================" << std::endl;
     std::cout << "    GAME ENGINE TEST       " << std::endl;
     std::cout << "==========================" << std::endl;
-    testGameEngine();
+    testStartupPhase();
     std::cout << std::endl << std::endl;
 
     return 0;

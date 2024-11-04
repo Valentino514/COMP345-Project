@@ -15,12 +15,20 @@
 using namespace std;
 
 
-GameEngine::GameEngine(){}
+GameEngine::GameEngine() {
+    playerList = new std::vector<Player*>;
+}
 
 GameEngine::GameEngine(GameEngine& other){ }
 
-GameEngine::~GameEngine(){
-    delete[] map;      
+GameEngine::~GameEngine() {
+    if (playerList) {
+        for (Player* player : *playerList) {
+            delete player;
+        }
+        delete playerList;
+    }
+    delete[] map;
     delete[] commands;
 }
 
@@ -162,7 +170,7 @@ void GameEngine::startupPhase() {
     std::cout << "Welcome to the Game Startup Phase. Please enter your commands:\n";
     MapLoader x;
     std::vector<std::string> mapFiles;
-    std::string mapsDirectory = "../Maps/maps";  // Directory where the map files are stored
+    std::string mapsDirectory = "./Map/maps";  // Directory where the map files are stored
 
 
     while (true) {
@@ -188,9 +196,11 @@ void GameEngine::startupPhase() {
             // Verify if the entered map exists in the list
             if (std::find(mapFiles.begin(), mapFiles.end(), chosenMap) != mapFiles.end()) {
                 std::cout << "You have selected: " << chosenMap << "\n";
-                Cmap = x.loadMap(chosenMap);
+                 std::string fullPath = mapsDirectory + "/" + chosenMap;
+                Cmap = x.loadMap(fullPath);
+                
             } else {
-                std::cout << "Invalid map name. Please choose from the available maps.\n";
+                std::cout << "Invalid map name. Please choose from the available maps. Enter your command\n";
             }
         } 
         else if (command == "validatemap") {
@@ -238,14 +248,19 @@ void GameEngine::addplayer() {
         }
     }
 
+    
+    if (!playerList) {
+        playerList = new std::vector<Player*>;
+    }
+
     // Loop to add players
     for (int i = 1; i <= playerAmount; i++) {
         std::string playerName;
         std::cout << "Please enter the name of Player " << i << ": ";
         std::cin >> playerName;
 
-        // Add player to the playerList
-        playerList->push_back(new Player(&playerName)); 
+        // Create a new Player object and add it to playerList
+        playerList->push_back(new Player(playerName)); 
     }
 
     std::cout << playerAmount << " players added successfully!\n";

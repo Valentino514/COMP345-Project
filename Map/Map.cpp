@@ -350,7 +350,7 @@ Map* MapLoader::loadMap(const std::string& path) {
     std::unordered_map<std::string, int> conts;
     std::string input;
     std::ifstream file(path);
-    bool y;
+    bool y=false;
 
     // Check if the file was opened successfully
     if (!file) {

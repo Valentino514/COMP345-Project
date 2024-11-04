@@ -26,7 +26,7 @@ public:
 
 
     Player(string* name, int* armyamount);
-    Player(string* name);
+    Player(string& name);
 
     ~Player(); //destructor
 

@@ -3,12 +3,13 @@
 
 using namespace std;
 
-void testGameEngine(){
+void testStartupPhase() {
+    GameEngine gameEngine;
 
-GameEngine* engine = new GameEngine();
+    // Simulate user input and actions for game startup
+    std::cout << "\n--- Game Startup Phase ---\n";
 
-engine->navigate();
-
-delete engine;
-
+    // Step 1: Load Map
+    std::cout << "Command: loadmap\n";
+    gameEngine.startupPhase();  // Load map via the GameEngine's startup phase method
 }

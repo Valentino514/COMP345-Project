@@ -16,9 +16,9 @@ Player::Player(string* name, int* armyamount) {
     cards = new vector<Card*>;
     territories = new vector<Territory*>;
 }
-Player::Player(string* name) {
-    cout << "Generating player..." << *name << " with 0 armies (default)\n";
-    this->name = new string(*name);  
+Player::Player(string& name) {
+    cout << "Generating player..." << name << " with 0 armies (default)\n";
+    this->name = new string(name);  
     this->armyamount = new int(0);  
     orders = new OrdersList();
     cards = new vector<Card*>;

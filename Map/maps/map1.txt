@@ -1,0 +1,59 @@
+[Map]
+author=Rob Werhand
+image=Brain.bmp
+wrap=yes
+scroll=none
+warn=yes
+
+[Continents]
+Cerebellum=4
+Occipital Lobe=4
+Parietal Lobe=4
+Frontal Lobe=6
+Temporal Lobe=8
+
+[Territories]
+Territory01,402,588,Cerebellum,Territory03,Territory02,Territory38
+Territory02,417,537,Cerebellum,Territory01
+Territory03,390,503,Cerebellum,Territory04,Territory38,Territory01
+Territory04,343,489,Cerebellum,Territory05,Territory35,Territory03
+Territory05,283,471,Cerebellum,Territory06,Territory04,Territory35
+Territory06,310,449,Cerebellum,Territory07,Territory34,Territory35,Territory05
+Territory07,299,417,Cerebellum,Territory12,Territory13,Territory34,Territory06
+Territory08,228,257,Occipital Lobe,Territory09,Territory15,Territory10
+Territory09,210,316,Occipital Lobe,Territory08,Territory10,Territory11
+Territory10,262,278,Occipital Lobe,Territory09,Territory11,Territory08,Territory15,Territory14
+Territory11,254,336,Occipital Lobe,Territory09,Territory10,Territory14,Territory12,Territory13
+Territory12,250,373,Occipital Lobe,Territory11,Territory13,Territory07
+Territory13,318,379,Occipital Lobe,Territory11,Territory12,Territory07,Territory34,Territory14
+Territory14,313,340,Occipital Lobe,Territory11,Territory13,Territory10,Territory34,Territory32
+Territory15,287,191,Parietal Lobe,Territory08,Territory10,Territory32,Territory33,Territory17,Territory18,Territory16
+Territory16,405,250,Parietal Lobe,Territory17,Territory33,Territory21,Territory18,Territory15
+Territory17,356,205,Parietal Lobe,Territory15,Territory16,Territory18
+Territory18,369,131,Parietal Lobe,Territory15,Territory17,Territory16,Territory21,Territory19
+Territory19,420,104,Parietal Lobe,Territory18,Territory21,Territory20
+Territory20,505,124,Parietal Lobe,Territory21,Territory19,Territory22,Territory23,Territory37,Territory33
+Territory21,479,228,Parietal Lobe,Territory16,Territory18,Territory20,Territory19,Territory33
+Territory22,573,126,Frontal Lobe,Territory20,Territory24,Territory23
+Territory23,611,235,Frontal Lobe,Territory20,Territory37,Territory25,Territory24,Territory22
+Territory24,651,140,Frontal Lobe,Territory31,Territory25,Territory28,Territory29,Territory22,Territory23
+Territory25,667,277,Frontal Lobe,Territory41,Territory26,Territory28,Territory23,Territory24
+Territory26,697,339,Frontal Lobe,Territory41,Territory31,Territory27,Territory30,Territory25,Territory28
+Territory27,716,383,Frontal Lobe,Territory40,Territory41,Territory26
+Territory28,723,264,Frontal Lobe,Territory26,Territory25,Territory29,Territory30,Territory24
+Territory29,712,185,Frontal Lobe,Territory31,Territory28,Territory24,Territory30
+Territory30,766,309,Frontal Lobe,Territory31,Territory26,Territory28,Territory29
+Territory31,799,286,Frontal Lobe,Territory30,Territory26,Territory29,Territory24
+Territory32,356,317,Temporal Lobe,Territory14,Territory15,Territory33,Territory34
+Territory33,452,308,Temporal Lobe,Territory15,Territory16,Territory21,Territory32,Territory34,Territory36,Territory37,Territory20
+Territory34,400,352,Temporal Lobe,Territory13,Territory14,Territory07,Territory06,Territory32,Territory35,Territory36,Territory33
+Territory35,435,414,Temporal Lobe,Territory06,Territory05,Territory04,Territory34,Territory36,Territory43,Territory38
+Territory36,477,368,Temporal Lobe,Territory34,Territory33,Territory35,Territory43,Territory37
+Territory37,535,322,Temporal Lobe,Territory20,Territory33,Territory36,Territory43,Territory42,Territory41,Territory23
+Territory38,528,437,Temporal Lobe,Territory03,Territory35,Territory39,Territory44,Territory40,Territory43,Territory01
+Territory39,599,464,Temporal Lobe,Territory38,Territory40
+Territory40,641,411,Temporal Lobe,Territory38,Territory39,Territory44,Territory41,Territory27
+Territory41,611,360,Temporal Lobe,Territory44,Territory42,Territory40,Territory27,Territory26,Territory25,Territory37
+Territory42,559,373,Temporal Lobe,Territory43,Territory44,Territory41,Territory37
+Territory43,508,388,Temporal Lobe,Territory35,Territory36,Territory38,Territory44,Territory42,Territory37
+Territory44,572,403,Temporal Lobe,Territory38,Territory43,Territory40,Territory41,Territory42
