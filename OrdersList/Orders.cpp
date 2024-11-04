@@ -199,9 +199,9 @@ void Advance::print(ostream& os) const {
 }
 
 // Bomb Class
-Bomb::Bomb() : Order(), targetTerritory(nullptr) {}
+Bomb::Bomb() : Order(), targetTerritory(nullptr), player(nullptr) {}
 
-Bomb::Bomb(Territory* target) : Order(), targetTerritory(target), player(player) {}
+Bomb::Bomb(Territory* target, Player* player) : Order(), targetTerritory(target), player(player) {}
 
 Bomb::Bomb(const Bomb& other) : Order(other), targetTerritory(other.targetTerritory), player(other.player) {}
 
@@ -224,7 +224,7 @@ bool Bomb::validate() {
 }
 
 void Bomb::execute() {
-    if (validate){
+    if (validate()){
         cout<<"bomb order validated, current army ammount in target territory:"<<targetTerritory->getArmyAmount()<<'\n';
         player->removeCard(new Card(new Card::CardType(Card::Bomb))); // remove his card
         int newArmyAmmount = (targetTerritory->getArmyAmount())/2; 
@@ -256,6 +256,7 @@ Blockade::~Blockade() {}
 
 bool Blockade::validate() {
     cout << "Validating blockade order\n";
+    return true;
 }
 
 void Blockade::execute() {
@@ -286,7 +287,7 @@ bool Airlift::validate() {
 }
 
 void Airlift::execute() {
-    if(validate){
+    if(validate()){
     cout<<"airlift order validated, current army ammount in source territory: "<<sourceTerritory->getArmyAmount();
     cout<<"\ncurrent army ammount in target territory: "<<destinationTerritory->getArmyAmount()<<endl;
     player->removeCard(new Card(new Card::CardType(Card::Airlift))); //looks bad because we are passing by pointer
@@ -323,11 +324,13 @@ Negociate::Negociate(const Negociate& other)
 
 bool Negociate::validate() {
     cout << "Validating negotiate order\n";
+    return true;
 }
 
 void Negociate::execute() {
     validate();
     cout << "Executing negotiation between " << player1->getName() << " and " << player2->getName() << "\n";
+    
 }
 
 void Negociate::print(ostream& os) const {

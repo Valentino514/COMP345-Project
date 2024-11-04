@@ -77,7 +77,7 @@ private:
 
 public:
     Bomb();  // Default constructor
-    Bomb(Territory* target);  // Parameterized constructor
+    Bomb(Territory* target, Player* player);  // Parameterized constructor
     Bomb(const Bomb& other);
     Bomb& operator=(const Bomb& other);
     ~Bomb();
