@@ -5,6 +5,7 @@
 #include <utility>
 #include <sstream>
 #include <vector>
+#include <limits>
 using namespace std;
 
 Player::Player(string* name, int* armyamount) {
