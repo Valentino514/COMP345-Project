@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "Player.h"
 #include <fstream>
 #include <utility>
@@ -176,7 +177,8 @@ void Player::issueOrder() {
         }
 
         // Create a Deploy order and add to orders list
-         Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount);
+         Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount, this);
+         deployOrder->execute();
          orders->addOrder(deployOrder);  
         setArmyAmount(getArmyAmount() - reinforcementAmount);
         cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << "." << endl;
@@ -253,20 +255,20 @@ while (issuingAdvanceOrders) {
     }
 
     // Choose army amount to move or attack
-    int numArmies = 0;
+    int reinforcementAmount = 0;
     while (true) {
         cout << "Enter number of armies to move: ";
-        if (cin >> numArmies && numArmies > 0) break;
+        if (cin >> reinforcementAmount && reinforcementAmount > 0) break;
         cout << "Invalid number. Enter a positive integer: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
     
-    Order* order = new Advance(source, destination, numArmies);  
+    Order* order = new Advance(source, destination, reinforcementAmount, this);  
     orders->addOrder(order); // Add the order to the player's order list
 
-    cout << "Advance order issued to move " << numArmies << " armies from " << source->getName()
+    cout << "Advance order issued to move " << reinforcementAmount << " armies from " << source->getName()
          << " to " << destination->getName() << "." << endl;
 
     // Ask if the player wants to issue another Advance order
@@ -275,6 +277,8 @@ while (issuingAdvanceOrders) {
     cin >> decision;
     issuingAdvanceOrders = (decision == "Y" || decision == "y");
 }
+
+this->resetCardReceived();// player can only get one card per advancing phase
 
 cout << "Orders Issuing phase for Advance orders completed.\n------------------------------------------------" << endl;
 
@@ -296,9 +300,15 @@ void Player::addTerritory(Territory* territory) {
     territories->push_back(territory);  // Add territory to the player's list
 }
 
+void Player::removeTerritory(Territory* territory) {
+    auto it = find(territories->begin(), territories->end(), territory); // Find the territory in the list
+    if (it != territories->end()) { // If found
+        territories->erase(it); // Remove the territory
+    }
+}
 
 void Player::printOwnedTerritories() const {
-    std::cout << "Player " << *name << " owns the following territories:\n";
+    cout << "Player " << *name << " owns the following territories:\n";
     for (auto t : *territories) {
         std::cout << t->getName() << std::endl;  
     }
@@ -306,4 +316,23 @@ void Player::printOwnedTerritories() const {
 
 void Player::addCard(Card* card) {
     cards->push_back(card);  // Adds a card to the player's hand
+}
+
+void Player::removeCard(Card* card) {
+    auto it = find(cards->begin(), cards->end(), card); // Find the card in the hand
+    if (it != cards->end()) { // If found
+        delete *it; // Delete the card to free memory
+        cards->erase(it); // Remove the card from the hand
+    }
+}
+
+
+//checks if player has a specific card
+bool Player::hasCard(Card::CardType type) const {
+    for (const auto& card : *cards) {
+        if (card->getType() == type) {
+            return true; // Found the card
+        }
+    }
+    return false; // Card not found
 }

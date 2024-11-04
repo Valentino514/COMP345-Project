@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 // Card class definition
 class Card {
@@ -13,14 +14,16 @@ public:
     // Constructor to initialize the card with a type
     Card(CardType* type);
 
-    // Destructor to clean up dynamically allocated memory
+    static Card getRandomCard();
+
+    //destructor
     ~Card();
 
     // Method to play the card (to be expanded later in Assignment 2)
     void play();
 
     // Get the type of the card
-    CardType* getType() const;
+    CardType getType() const;
 
     // Return the name of the card type as a string
     std::string getCardTypeName() const;

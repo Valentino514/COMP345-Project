@@ -5,19 +5,24 @@
 // Card class implementation
 
 // Constructor 
-Card::Card(CardType* t) : type(t) {}
+Card::Card(CardType* t) : type(new CardType(*t)) {}
 
 // Destructor
 Card::~Card() {
     delete type; 
 }
 
+Card Card::getRandomCard() {
+    CardType randomType = static_cast<CardType>(rand() % 5); // Generate random type
+    return Card(new CardType(randomType));
+}
+
 void Card::play() {
     std::cout << "Playing card: " << getCardTypeName() << std::endl;
 }
 
-Card::CardType* Card::getType() const {
-    return type;
+Card::CardType Card::getType() const {
+    return *type;
 }
 
 // Return the name of the card type as a string

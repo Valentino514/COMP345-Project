@@ -20,7 +20,7 @@ public:
     Order(const Order& other); // Copy constructor 
     Order& operator=(const Order& other); // Assignment operator
 
-    virtual void validate() = 0;
+    virtual bool validate() = 0;
     virtual void execute() = 0;
 
     friend ostream& operator<<(ostream& os, const Order& order);
@@ -33,16 +33,17 @@ protected:
 class Deploy : public Order {
 private:
     Territory* targetTerritory;
-    int* numArmies;
+    int* reinforcementAmount;
+    Player* player;
 
 public:
     Deploy();  // Default constructor
-    Deploy(Territory* targetTerritory, int reinforcementAmount);  // Parameterized constructor
+    Deploy(Territory* targetTerritory, int reinforcementAmount,Player* player);  // Parameterized constructor
     Deploy(const Deploy& other);
     Deploy& operator=(const Deploy& other);
     ~Deploy();
 
-    void validate() override;
+    bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
 };
@@ -50,18 +51,20 @@ public:
 // Advance Order
 class Advance : public Order {
 private:
+    Player* player;
     Territory* sourceTerritory;
     Territory* destinationTerritory;
-    int* numArmies;
+    int reinforcementAmount;
+    bool isDestinationOwned;
 
 public:
     Advance();  // Default constructor
-    Advance(Territory* source, Territory* destination, int armyCount);  // Parameterized constructor
+    Advance(Territory* source, Territory* destination, int reinforcementAmount, Player* player);  // Parameterized constructor
     Advance(const Advance& other);
     Advance& operator=(const Advance& other);
     ~Advance();
 
-    void validate() override;
+    bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
 };
@@ -70,6 +73,7 @@ public:
 class Bomb : public Order {
 private:
     Territory* targetTerritory;
+    Player* player;
 
 public:
     Bomb();  // Default constructor
@@ -78,7 +82,7 @@ public:
     Bomb& operator=(const Bomb& other);
     ~Bomb();
 
-    void validate() override;
+    bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
 };
@@ -95,7 +99,7 @@ public:
     Blockade& operator=(const Blockade& other);
     ~Blockade();
 
-    void validate() override;
+    bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
 };
@@ -104,16 +108,17 @@ class Airlift : public Order {
 private:
     Territory* sourceTerritory;
     Territory* destinationTerritory;
-    int* numArmies;
+    int* reinforcementAmount;
+    Player* player;
 
 public:
     Airlift();  // Default constructor
-    Airlift(Territory* source, Territory* destination, int armyCount);  // Parameterized constructor
+    Airlift(Territory* source, Territory* destination, int reinforcementAmount, Player* player);  // Parameterized constructor
     Airlift(const Airlift& other);  // Copy constructor
     Airlift& operator=(const Airlift& other);
     ~Airlift();
 
-    void validate() override;
+    bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
 };
@@ -131,7 +136,7 @@ public:
     Negociate& operator=(const Negociate& other);
     ~Negociate();
 
-    void validate() override;
+    bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
 };
