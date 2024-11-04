@@ -9,6 +9,7 @@
 #include "../CardsDeckHand/Cards.h"
 
 class Territory;
+class GameEngine;
 
 class Player
 {
@@ -39,7 +40,7 @@ public:
 
     friend ostream& operator<<(ostream& os, const Player& player);
 
-    void issueOrder();
+    void issueOrder(const std::vector<Player*>& playerList);
 
     std::vector<Territory*> toDefend() const;
 
@@ -67,7 +68,20 @@ public:
         return territories->size();
     }
 
-    
+    Territory* selectTargetFromAttackList();
+
+    Territory* selectTargetFromDefendList();
+
+    Player* selectPlayerToNegotiate(const vector<Player*>& playerList) ;
+
+    Territory* selectSourceTerritory();
+
+    Territory* selectDestinationTerritory() ;
+
+    void removeCard(Card* card);
+
+    int selectArmyAmount(Territory* sourceTerritory);
 };
+
 
 #endif

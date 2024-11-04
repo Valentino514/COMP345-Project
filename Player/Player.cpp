@@ -6,6 +6,8 @@
 #include <vector>
 using namespace std;
 
+class GameEngine;
+
 Player::Player(string* name, int* armyamount) {
     cout << "Generating player..." << *name << " with " << *armyamount << " armies\n";
     this->name = new string(*name);  
@@ -133,7 +135,7 @@ std::vector<Territory*> Player::toAttack() const {
 }
 
 
-void Player::issueOrder() {
+void Player::issueOrder(const std::vector<Player*>& playerList) {
     // Retrieve territories to defend and attack
      vector<Territory*> toDefend = this->toDefend();
     vector<Territory*> toAttack = this->toAttack();
@@ -151,7 +153,7 @@ void Player::issueOrder() {
         cout << "You have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement (or type 'exit' to finish): ";
         cin >> territoryName;
 
-        if (territoryName == "exit") break;
+        if (territoryName == "exit" && getArmyAmount()==0) break;
 
         // Locate the territory to deploy reinforcements
         Territory* selectedTerritory = nullptr;
@@ -278,7 +280,69 @@ while (issuingAdvanceOrders) {
 
 cout << "Orders Issuing phase for Advance orders completed.\n------------------------------------------------" << endl;
 
+
+ while (!cards->empty()) {
+        cout << *name << " - Cards in hand:" << endl;
+        for (size_t i = 0; i < cards->size(); ++i) {
+            cout << i + 1 << ". " << cards->at(i)->getType() << endl;
+        }
+        cout << "Would you like to play a card? (Y/N): ";
+        char playCardDecision;
+        cin >> playCardDecision;
+        if (playCardDecision != 'Y' && playCardDecision != 'y') {
+            break;
+        }
+
+        int cardChoice = 0;
+        cout << "Select a card to play (enter the number): ";
+        while (!(cin >> cardChoice) || cardChoice < 1 || cardChoice > cards->size()) {
+            cout << "Invalid choice. Please select a valid card number: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+       Card* selectedCard = cards->at(cardChoice - 1);
+
+        Order* cardOrder = nullptr;
+        if (selectedCard->getCardTypeName() == "Bomb") {
+            Territory* target = selectTargetFromAttackList();
+            cardOrder = new Bomb(this, target); // Bomb order targets enemy territory
+            cout << "Bomb order created targeting " << target->getName() << "." << endl;
+        } else if (selectedCard->getCardTypeName() == "Airlift") {
+            Territory* source = selectSourceTerritory();
+            Territory* destination = selectDestinationTerritory();
+            int armyAmount = selectArmyAmount(source);
+            cardOrder = new Airlift(this, source, destination, armyAmount); // Airlift within own territories
+            cout << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
+                 << " to " << destination->getName() << "." << endl;
+        } else if (selectedCard->getCardTypeName() == "Blockade") {
+            Territory* target = selectTargetFromDefendList();
+            cardOrder = new Blockade(this, target); // Blockade on own territory
+            cout << "Blockade order created on " << target->getName() << "." << endl;
+        } else if (selectedCard->getCardTypeName() == "Diplomacy") {
+            //Player* targetPlayer = selectPlayerToNegotiate(*playerList);
+            Player* targetPlayer = selectPlayerToNegotiate(playerList);
+
+            cardOrder = new Negociate(this, targetPlayer); // Negotiate with enemy player
+            cout << "Negotiate order created with " << *(targetPlayer->getName()) << "." << endl;
+         }// else if (selectedCard->getType() == "Reinforcement") {
+        //     int reinforcementArmies = 5;
+        //     setArmyAmount(getArmyAmount() + reinforcementArmies);
+        //     cout << "Reinforcement card played. " << reinforcementArmies << " armies added to your reinforcement pool." << endl;
+        //     removeCard(selectedCard);
+        //     continue;
+        // }
+
+        if (cardOrder) {
+            orders->addOrder(cardOrder);
+        }
+        removeCard(selectedCard);
+    }
+
+    cout << "Orders Issuing phase completed for player " << *name << ".\n------------------------------------------------" << endl;
 }
+
+
+
 
 
 
@@ -307,3 +371,114 @@ void Player::printOwnedTerritories() const {
 void Player::addCard(Card* card) {
     cards->push_back(card);  // Adds a card to the player's hand
 }
+
+
+Territory* Player::selectTargetFromAttackList() {
+    vector<Territory*> attackList = toAttack();
+    cout << "Enemy territories to target:" << endl;
+    for (size_t i = 0; i < attackList.size(); ++i) {
+        cout << i + 1 << ". " << attackList[i]->getName() << " (Armies: " << attackList[i]->getArmyAmount() << ")" << endl;
+    }
+    int choice = 0;
+    cout << "Select a territory to target (enter the number): ";
+    while (!(cin >> choice) || choice < 1 || choice > attackList.size()) {
+        cout << "Invalid choice. Please select a valid territory number: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return attackList[choice - 1];
+}
+
+Territory* Player::selectTargetFromDefendList() {
+    vector<Territory*> defendList = toDefend();
+    cout << "Your territories to target:" << endl;
+    for (size_t i = 0; i < defendList.size(); ++i) {
+        cout << i + 1 << ". " << defendList[i]->getName() << " (Armies: " << defendList[i]->getArmyAmount() << ")" << endl;
+    }
+    int choice = 0;
+    cout << "Select a territory to target (enter the number): ";
+    while (!(cin >> choice) || choice < 1 || choice > defendList.size()) {
+        cout << "Invalid choice. Please select a valid territory number: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return defendList[choice - 1];
+}
+
+Player* Player::selectPlayerToNegotiate(const std::vector<Player*>& playerList) {
+    std::cout << "Players to negotiate with:" << std::endl;
+    int index = 1;
+    for (Player* p : playerList) {
+        if (p != this) { // Exclude self
+            std::cout << index << ". " << *(p->getName()) << std::endl;
+            index++;
+        }
+    }
+
+    int choice = 0;
+    std::cout << "Select a player to negotiate with (enter the number): ";
+    while (!(std::cin >> choice) || choice < 1 || choice >= index) {
+        std::cout << "Invalid choice. Please select a valid player number: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    return playerList[choice - 1];
+}
+
+
+Territory* Player::selectSourceTerritory() {
+    vector<Territory*> defendList = toDefend();
+    cout << "Your territories (to move armies from):" << endl;
+    for (size_t i = 0; i < defendList.size(); ++i) {
+        cout << i + 1 << ". " << defendList[i]->getName() << " (Armies: " << defendList[i]->getArmyAmount() << ")" << endl;
+    }
+    int choice = 0;
+    cout << "Select a source territory (enter the number): ";
+    while (!(cin >> choice) || choice < 1 || choice > defendList.size()) {
+        cout << "Invalid choice. Please select a valid territory number: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return defendList[choice - 1];
+}
+
+Territory* Player::selectDestinationTerritory() {
+   
+    vector<Territory*> defendList = toDefend();
+
+    cout << "Your territories to move armies to:" << endl;
+    for (size_t i = 0; i < defendList.size(); ++i) {
+        cout << i + 1 << ". " << defendList[i]->getName() << " (Armies: " << defendList[i]->getArmyAmount() << ")" << endl;
+    }
+
+    int choice = 0;
+    cout << "Select a destination territory (enter the number): ";
+    while (!(cin >> choice) || choice < 1 || choice > defendList.size()) {
+        cout << "Invalid choice. Please select a valid territory number: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    return defendList[choice - 1];
+}
+
+int Player::selectArmyAmount(Territory* sourceTerritory) {
+    int maxAmount = sourceTerritory->getArmyAmount();
+    int amount = 0;
+    cout << "Enter the number of armies to move (available: " << maxAmount << "): ";
+    while (!(cin >> amount) || amount < 1 || amount > maxAmount) {
+        cout << "Invalid amount. Enter a number between 1 and " << maxAmount << ": ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    return amount;
+}
+
+void Player::removeCard(Card* card) {
+    auto it = std::find(cards->begin(), cards->end(), card);
+    if (it != cards->end()) {
+        delete *it;  // Deallocate the card if needed
+        cards->erase(it);
+    }
+}
+
