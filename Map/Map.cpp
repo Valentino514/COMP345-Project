@@ -279,11 +279,13 @@ Territory::Territory(std::string* name, std::string* continent, std::vector<Terr
 
 // Destructor
 Territory::~Territory() {
+
+    
     delete TerritoryName;
     delete continent;
     delete AdjTerritories;
     delete armyAmount;
-    if (territoryOwner) delete territoryOwner;
+    territoryOwner = nullptr;
 }
 
 // Copy Constructor

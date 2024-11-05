@@ -24,13 +24,19 @@ GameEngine::GameEngine(GameEngine& other){ }
 GameEngine::~GameEngine() {
     if (playerList) {
         for (Player* player : *playerList) {
-            delete player;
+                std::cout<<"Player "<<(*player->getName())<< " has been eliminated \n";
+
+
+            delete player; // Deletes each Player object
+
         }
-        delete playerList;
+        delete playerList; // Deletes the vector itself
+        playerList = nullptr;
     }
     delete[] map;
     delete[] commands;
 }
+
 
 ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
     os << "Map States:\n";
@@ -231,7 +237,10 @@ void GameEngine::startupPhase() {
         else {
             std::cout << "Unknown command. Please try again.\n";
         }
+
+        
     }
+    mainGameLoop();
 }
 
 

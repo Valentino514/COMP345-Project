@@ -85,25 +85,31 @@ Player& Player::operator=(const Player& other) {
 }
 
 
-// Destructor
 Player::~Player() {
+   
     delete name;
-    delete armyamount;  
+    delete armyamount;
 
-    for (Territory* t : *territories) {
-        delete t;
+
+    // Delete territories only if they are owned by the Player class
+    if (territories) {
+        for (Territory* t : *territories) {
+            delete t;
+        }
+        delete territories;
     }
-    territories->clear();
-    delete territories;
 
-    for (Card* c : *cards) {
-        delete c;
+    // Delete cards only if they are owned by the Player class
+    if (cards) {
+        for (Card* c : *cards) {
+            delete c;
+        }
+        delete cards;
     }
-    cards->clear();
-    delete cards;
 
-    delete orders;  
+    delete orders;
 }
+
 
 
 // Return a List of Territories to Defend
