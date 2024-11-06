@@ -2,8 +2,8 @@
 #include "Orders.h"
 #include "../Map/Map.h"
 #include "../Player/Player.h"
-#include <cstdlib> // for rand and srand
-#include <ctime> // for time
+#include <cstdlib> // for random
+#include <ctime> // for random
 
 using namespace std;
 
@@ -83,7 +83,7 @@ void Deploy::print(ostream& os) const {
 
 // Default constructor
 Advance::Advance()
-    : Order(), player(nullptr), sourceTerritory(nullptr), destinationTerritory(nullptr), reinforcementAmount(0) {}
+    : Order(), player(nullptr), sourceTerritory(nullptr), destinationTerritory(nullptr), reinforcementAmount(0),isDestinationOwned(false) {}
 
 // Parameterized constructor
 Advance::Advance(Player* player, Territory* source, Territory* destination, int armyCount)
@@ -243,7 +243,11 @@ void Bomb::execute() {
         targetTerritory->setArmyAmount(newArmyAmmount);
         cout<<"new army ammount in target territory:"<<targetTerritory->getArmyAmount()<<'\n';
 
+    }else{
+        cout<<"blockade validation failed";
+        return;
     }
+    
 }
 
 void Bomb::print(ostream& os) const {
