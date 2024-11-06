@@ -1,4 +1,6 @@
 #include "CommandProcessing.h"
+#include <algorithm>
+#include <sstream>
 
 // Command Class Implementation
 
@@ -37,6 +39,18 @@ std::string Command::getEffect() const {
     return *effectText;
 }
 
+std::string Command::stringToLog() const {
+    return "Command: " + *commandText + ", Effect: " + *effectText;
+}
+
+void Command::execute(CommandProcessor* processor) {
+    std::cout << "Executing command: " << *commandText << std::endl;
+    saveEffect("Executed"); 
+    if (processor) {
+        processor->notify();
+    }
+}
+
 void Command::copy(const Command& other) {
     commandText = new std::string(*other.commandText);
     effectText = new std::string(*other.effectText);
@@ -51,6 +65,7 @@ std::ostream& operator<<(std::ostream& os, const Command& command) {
 
 CommandProcessor::CommandProcessor() {
     commands = new std::vector<Command*>();
+    attach(new LogObserver());
 }
 
 CommandProcessor::CommandProcessor(const CommandProcessor& other) {
@@ -77,6 +92,10 @@ Command* CommandProcessor::getCommand() {
 
 void CommandProcessor::processInput(int argc, char* argv[]) {
     readCommand(argc, argv);
+    Command* command = new Command("EmptyCommand");
+    command->execute(this);
+    commands->push_back(command);
+    notify();
 }
 
 void CommandProcessor::readCommand(int argc, char* argv[]) {
@@ -88,10 +107,28 @@ void CommandProcessor::readCommand(int argc, char* argv[]) {
 
 void CommandProcessor::saveCommand(Command* command) {
     commands->push_back(command);
+    command->execute(this);
 }
 
 void CommandProcessor::validate() {
     // Implement validation logic
+}
+
+void CommandProcessor::notify() {
+    for (Observer* observer : observers) {
+        observer->update();
+    }
+}
+
+std::string CommandProcessor::stringToLog() const {
+    std::ostringstream oss;
+    oss << "CommandProcessor with " << commands->size() << " commands.";
+    // You can add more details here as needed
+    return oss.str();
+}
+
+void CommandProcessor::attach(Observer* observer) {
+    observers.push_back(observer);
 }
 
 void CommandProcessor::copy(const CommandProcessor& other) {
@@ -106,6 +143,7 @@ void CommandProcessor::clear() {
     }
     commands->clear();
 }
+
 
 std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp) {
     for (const Command* cmd : *cp.commands) {

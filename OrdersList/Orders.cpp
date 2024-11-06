@@ -19,6 +19,12 @@ Order& Order::operator=(const Order& other) {
     return *this;
 }
 
+void Order::notify() {
+    if (ordersList) {
+        ordersList->notify();
+    }
+}
+
 ostream& operator<<(ostream& os, const Order& order) {
     order.print(os);  
     return os;
@@ -48,6 +54,10 @@ void Deploy::print(ostream& os) const {
     os << "deploy: new soldiers are deployed on selected territory\n";
 }
 
+string Deploy::stringToLog() const {
+    return "Deploy Order: " + *orderName;
+}
+
 //Advance Class
 Advance::Advance() : Order() {}
 
@@ -68,6 +78,10 @@ void Advance::execute() {
 
 void Advance::print(ostream& os) const {
     os << "advance: selected soldiers move into selected territory\n";
+}
+
+string Advance::stringToLog() const {
+    return "Advance Order: " + *orderName;
 }
 
 //Bomb Class
@@ -92,6 +106,10 @@ void Bomb::print(ostream& os) const {
     os << "bomb: drop bombs on selected territory\n";
 }
 
+string Bomb::stringToLog() const {
+    return "Bomb Order: " + *orderName;
+}
+
 //Blockade Class
 Blockade::Blockade() : Order() {}
 
@@ -111,7 +129,11 @@ void Blockade::execute() {
 }
 
 void Blockade::print(ostream& os) const {
-    os << "create a blockade on selected territory\n";
+    os << "blockade: create a blockade on selected territory\n";
+}
+
+string Blockade::stringToLog() const {
+    return "Blockade Order: " + *orderName;
 }
 
 //Airlift Class
@@ -133,7 +155,11 @@ void Airlift::execute() {
 }
 
 void Airlift::print(ostream& os) const {
-    os << "airlifts selected soldiers to selected territory\n";
+    os << "airlift: airlifts selected soldiers to selected territory\n";
+}
+
+string Airlift::stringToLog() const {
+    return "Airlift Order: " + *orderName;
 }
 
 //Negociate Class
@@ -155,11 +181,14 @@ void Negociate::execute() {
 }
 
 void Negociate::print(ostream& os) const {
-    os << "create a negotiation contract with selected territory\n";
+    os << "negotiate: create a negotiation contract with selected territory\n";
+}
+
+string Negociate::stringToLog() const {
+    return "Negociate Order: " + *orderName;
 }
 
 //OrdersList Class
-OrdersList::OrdersList() {}
 
 OrdersList::~OrdersList() {
     for (Order* order : orders) {
@@ -170,36 +199,58 @@ OrdersList::~OrdersList() {
 
 void OrdersList::addOrder(Order* orderName) {
     orders.push_back(orderName); //add new order to list
+    orderName->setOrdersList(this);
+}
+
+void OrdersList::notify() {
+    for (auto& observer : observers) {
+        observer->update();
+    }
+}
+
+void OrdersList::addObserver(Observer* observer) {
+    observers.push_back(observer);
+    observer->setSubject(this);  // Set the subject (OrdersList) for the observer
 }
 
 void OrdersList::move() {
-    int position = 0;
-    int next;
+    position = 0;  // Start from the first order
 
-    if (orders.empty()) {
-        cout << "Orders are empty" << endl;
+    std::ofstream logFile("gamelog.txt", std::ios::app);
+    if (!logFile) {
+        std::cerr << "Error opening log file!" << std::endl;
         return;
     }
 
-    // Display first order
-    cout << "Current order selected: " << *orders[position] << endl;
-
-    cout << "Press any number to see next order or 0 to exit: ";
-    cin >> next;
-
-    while (next != 0) {
-        position++; 
-
-        // Check the bounds
-        if (position >= orders.size()) {
-            position = 0;  // Loop back to the beginning if the end is reached
-        }
-
-        cout << "Order selected: " << *orders[position] << endl;
-        cout << "Press 1 to see next order or 0 to exit: ";
-        cin >> next;
+    if (orders.empty()) {
+        std::cout << "Orders are empty" << std::endl;
+        return;
     }
+
+    std::cout << "Executing orders..." << std::endl;
+    while (position < orders.size()) {
+        std::cout << "Current order selected: " << *orders[position] << std::endl;
+        orders[position]->execute();
+        notify();  // Notify observers with the updated position
+
+        logFile << "Executing order: " << *orders[position] << std::endl;
+
+        int next;
+        std::cout << "Press 1 to see next order or 0 to exit: ";
+        std::cin >> next;
+        if (next == 0) break;
+
+        ++position;  // Move to the next order
+        if (position >= orders.size()) {
+            std::cout << "All orders have been processed!" << std::endl;
+            break;
+        }
+    }
+
+    logFile.close();
 }
+
+
 
 void OrdersList::remove(Order* order) {
     if (order == nullptr) {
@@ -216,6 +267,17 @@ void OrdersList::remove(Order* order) {
         }
     }
     cout << "Order not found." << endl;
+}
+
+Order* OrdersList::getCurrentOrder() const {
+    if (position >= 0 && position < orders.size()) {
+        return orders[position];
+    }
+    return nullptr;
+}
+
+std::string OrdersList::stringToLog() const {
+    return "Logging OrdersList...";
 }
 
 OrdersList& OrdersList::operator=(const OrdersList& other) {

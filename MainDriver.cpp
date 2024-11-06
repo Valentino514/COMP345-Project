@@ -50,5 +50,12 @@ int main() {
     testGameEngine();
     std::cout << std::endl << std::endl;
 
+    // Test logging observer functionality
+    std::cout << "==========================" << std::endl;
+    std::cout << "  LOGGING OBSERVER TEST    " << std::endl;
+    std::cout << "==========================" << std::endl;
+    testLoggingObserver();
+    std::cout << std::endl << std::endl;
+
     return 0;
 }
