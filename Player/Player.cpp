@@ -110,7 +110,21 @@ Player::~Player() {
     delete orders;
 }
 
+// Adds a player to the negotiated list if not already present
+void Player::addNegotiatedPlayer(Player* player) {
+    if (std::find(negotiatedPlayers.begin(), negotiatedPlayers.end(), player) == negotiatedPlayers.end()) {
+        negotiatedPlayers.push_back(player);
+    }
+}
 
+// Checks if this player has a truce with the specified player
+bool Player::isNegotiatedWith(const Player* player) const {
+    return std::find(negotiatedPlayers.begin(), negotiatedPlayers.end(), player) != negotiatedPlayers.end();
+}
+
+void Player::clearNegotiations() {
+    negotiatedPlayers.clear();
+}
 
 // Return a List of Territories to Defend
 std::vector<Territory*> Player::toDefend() const {

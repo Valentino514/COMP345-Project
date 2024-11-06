@@ -89,9 +89,11 @@ public:
 // Blockade Order
 class Blockade : public Order {
 private:
-    Territory* targetTerritory;
+    static Player* neutralPlayer;
+    Territory* targetTerritory; 
 
 public:
+Player* Blockade::getOrCreateNeutralPlayer();
     Blockade();
     Blockade(Territory* target);
     Blockade(Player* player, Territory* target); 

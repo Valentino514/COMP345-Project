@@ -14,7 +14,8 @@ class GameEngine;
 class Player
 {
 private:
-
+    
+    std::vector<Player*> negotiatedPlayers; // Players with whom this player has a truce
     vector<Territory*>* territories;
     vector<Card*>* cards;
     OrdersList *orders;
@@ -25,6 +26,7 @@ private:
 public:
 
 
+    void clearNegotiations(); // Clears the list of negotiated players
     Player(string* name, int* armyamount);
     Player(string& name);
 
@@ -63,10 +65,15 @@ public:
         return orders;
     }
 
+
     // Accessor for territories list size
     size_t getTerritoryCount() const {
         return territories->size();
     }
+    // Methods to manage negotiated players
+    void addNegotiatedPlayer(Player* player);
+
+    bool isNegotiatedWith(const Player* player) const;
 
     Territory* selectTargetFromAttackList();
 

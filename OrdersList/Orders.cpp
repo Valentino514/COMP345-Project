@@ -160,17 +160,46 @@ Blockade& Blockade::operator=(const Blockade& other) {
 Blockade::~Blockade() {}
 
 void Blockade::validate() {
-    cout << "Validating blockade order\n";
+    if (targetTerritory->getLandOccupier() != issuingPlayer) {
+        std::cout << "Invalid blockade order: Target territory does not belong to issuing player.\n";
+    } else {
+        std::cout << "Blockade order is valid.\n";
+    }
+}
+
+// Static variable to hold the neutral player instance
+static Player* neutralPlayer = nullptr;
+
+
+Player* Blockade::getOrCreateNeutralPlayer() {
+    if (!neutralPlayer) {
+        std::string neutralName = "Neutral";
+        int neutralArmy = 0;  // Neutral player starts with no armies
+        neutralPlayer = new Player(&neutralName, &neutralArmy);  // Dynamically allocate neutral player(make sure to deallocate at the end of the game )
+        std::cout << "Neutral player created.\n";
+    }
+    return neutralPlayer;
 }
 
 void Blockade::execute() {
     validate();
-    cout << "Executing blockade on " << targetTerritory->getName() << "\n";
+    if (targetTerritory->getLandOccupier() == issuingPlayer) {
+        // Double the army units on the target territory
+        targetTerritory->setArmyAmount(targetTerritory->getArmyAmount() * 2);
+        
+        // Transfer ownership to the neutral player
+        Player* neutral = getOrCreateNeutralPlayer();
+        targetTerritory->setLandOccupier(neutral);
+        
+        std::cout << "Executing blockade: Army units doubled, territory ownership transferred to Neutral player.\n";
+    }
 }
 
-void Blockade::print(ostream& os) const {
+
+void Blockade::print(std::ostream& os) const {
     os << "blockade: on " << targetTerritory->getName() << "\n";
 }
+
 
 // Airlift Class
 Airlift::Airlift() : Order(), sourceTerritory(nullptr), destinationTerritory(nullptr), numArmies(nullptr) {}
@@ -203,7 +232,8 @@ Airlift::Airlift(const Airlift& other)
       destinationTerritory(other.destinationTerritory),
       numArmies(new int(*other.numArmies)) {}
 
-// Negotiate Class
+
+// Negociate Class
 Negociate::Negociate() : Order(), player1(nullptr), player2(nullptr) {}
 
 Negociate::Negociate(Player* issuer, Player* targetPlayer)
@@ -211,25 +241,42 @@ Negociate::Negociate(Player* issuer, Player* targetPlayer)
     issuingPlayer = issuer;
 }
 
+Negociate::Negociate(const Negociate& other)
+    : Order(other), player1(other.player1), player2(other.player2) {}
+
+Negociate& Negociate::operator=(const Negociate& other) {
+    if (this == &other) return *this;
+    Order::operator=(other);
+    player1 = other.player1;
+    player2 = other.player2;
+    return *this;
+}
+
 Negociate::~Negociate() {}
 
-Negociate::Negociate(const Negociate& other)
-    : Order(other),
-      player1(other.player1),
-      player2(other.player2) {}
-
 void Negociate::validate() {
-    cout << "Validating negotiate order\n";
+    if (player1 == player2) {
+        std::cout << "Invalid negotiate order: Cannot negotiate with oneself.\n";
+    } else {
+        std::cout << "Negotiate order is valid.\n";
+    }
 }
 
 void Negociate::execute() {
     validate();
-    cout << "Executing negotiation between " << player1->getName() << " and " << player2->getName() << "\n";
+    if (player1 != player2) {
+        // Adds the negotiation effect (truce) for the current turn
+        player1->addNegotiatedPlayer(player2);  // Assuming this will add player2 to a truce list for player1
+        player2->addNegotiatedPlayer(player1);  // Assuming this will add player1 to a truce list for player2
+        std::cout << "Executing negotiation: " << *(player1->getName()) << " and " << *(player2->getName())
+                  << " cannot attack each other this turn.\n";
+    }
 }
 
-void Negociate::print(ostream& os) const {
-    os << "negotiate: between " << player1->getName() << " and " << player2->getName() << "\n";
+void Negociate::print(std::ostream& os) const {
+    os << "negotiate: between " << *(player1->getName()) << " and " << *(player2->getName()) << "\n";
 }
+
 
 OrdersList::OrdersList() {}
 
