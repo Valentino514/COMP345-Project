@@ -51,15 +51,17 @@ public:
 // Advance Order
 class Advance : public Order {
 private:
+    bool isDestinationOwned=false;
     Player* player;
     Territory* sourceTerritory;
     Territory* destinationTerritory;
     int reinforcementAmount;
-    bool isDestinationOwned;
+    
 
 public:
+    
     Advance();  // Default constructor
-    Advance(Player* player, Territory* source, Territory* destination, int reinforcementAmount );  // Parameterized constructor
+    Advance(Player* player, Territory* source, Territory* destination, int reinforcementAmount); // Parameterized constructor
     Advance(const Advance& other);
     Advance& operator=(const Advance& other);
     ~Advance();

@@ -2,9 +2,10 @@
 #include "Orders.h"
 #include "../Map/Map.h"
 #include "../Player/Player.h"
-#include <iostream>
+#include <cstdlib> // for rand and srand
+#include <ctime> // for time
 
-
+using namespace std;
 
 // Base Order Class
 Order::Order() : orderName(nullptr) {}
@@ -78,26 +79,38 @@ void Deploy::print(ostream& os) const {
     os << "deploy: " << *reinforcementAmount << " soldiers to " << targetTerritory->getName() << "\n";
 }
 
-// Advance Class
-Advance::Advance() : Order(), player(nullptr),sourceTerritory(nullptr),reinforcementAmount(0), destinationTerritory(nullptr) {}
+// Implementation of Advance member functions
 
-//    Advance(Player* player, Territory* source, Territory* destination, int reinforcementAmount );  // Parameterized constructor
+// Default constructor
+Advance::Advance()
+    : Order(), player(nullptr), sourceTerritory(nullptr), destinationTerritory(nullptr), reinforcementAmount(0) {}
 
-Advance::Advance(Territory* source, Territory* destination, int armyCount, Player* player)
-    : Order(), player(player), sourceTerritory(source), reinforcementAmount(armyCount),destinationTerritory(destination) {}
+// Parameterized constructor
+Advance::Advance(Player* player, Territory* source, Territory* destination, int armyCount)
+    : Order(), player(player), sourceTerritory(source), destinationTerritory(destination), reinforcementAmount(armyCount) {}
 
+// Copy constructor
 Advance::Advance(const Advance& other)
-    : Order(other), sourceTerritory(other.sourceTerritory), destinationTerritory(other.destinationTerritory), reinforcementAmount(other.reinforcementAmount){}
+    : Order(other),
+      player(other.player),  
+      sourceTerritory(other.sourceTerritory),
+      destinationTerritory(other.destinationTerritory),
+      reinforcementAmount(other.reinforcementAmount),
+      isDestinationOwned(other.isDestinationOwned) {} 
 
+
+// Assignment operator
+// Assignment operator
 Advance& Advance::operator=(const Advance& other) {
     if (this == &other) return *this;
     Order::operator=(other);
-    reinforcementAmount = other.reinforcementAmount;
+    player = other.player;  
     sourceTerritory = other.sourceTerritory;
     destinationTerritory = other.destinationTerritory;
+    reinforcementAmount = other.reinforcementAmount;
+    isDestinationOwned = other.isDestinationOwned; // Added this line
     return *this;
 }
-
 Advance::~Advance() {
 
 }
@@ -109,19 +122,16 @@ bool Advance::validate() { //check if source and destination location is valid
 
     bool isSourceOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->sourceTerritory;});
     cout<<"does player own the source territory:"<<isSourceOwned<<'\n';
-    isDestinationOwned =  any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->destinationTerritory;});
-    cout<<"does player own the target territory:"<<isDestinationOwned<<'\n';
+    this->isDestinationOwned =  any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->destinationTerritory;});
+    cout<<"does player own the target territory:"<<this->isDestinationOwned<<'\n';
     bool isDestinationAdjacent = false;
-    if(!isDestinationOwned){
+    if(!(this->isDestinationOwned)){
         const vector<Territory*> enemy_trt = player->toAttack();
         isDestinationAdjacent = any_of(enemy_trt.begin(), enemy_trt.end(), [this](Territory *t){return t == this->destinationTerritory;});
         cout<<" is the territory adjacent to the player:"<<isDestinationAdjacent<<'\n';
     }
-    return (isSourceOwned && (isDestinationAdjacent || isDestinationOwned));
+    return (isSourceOwned && (isDestinationAdjacent || this->isDestinationOwned));
 }
-
-#include <cstdlib> // for rand and srand
-#include <ctime> // for time
 
 void Advance::execute() {
     if (validate()){
