@@ -2,6 +2,8 @@
 #define _GAMEENGINE_
 
 #include <ostream>
+#include <unordered_map>
+#include <vector>
 
 
 using namespace std;
