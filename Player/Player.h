@@ -20,6 +20,7 @@ private:
     vector<Card*>* cards;
     OrdersList *orders;
     string* name;
+    bool cardReceivedinTurn;
     int* armyamount;
     
 
@@ -53,13 +54,26 @@ public:
     void printOwnedTerritories() const;
 
     const std::vector<Card*>& getCards() const { return *cards; }
+
     void addCard(Card* card);
+
+    void removeCard(Card* card) ;
+
+    void cardReceived(){cardReceivedinTurn = true;}
+
+    void resetCardReceived() { cardReceivedinTurn = false; } //reset for the next turn
+
+    bool canReceiveCard() const { return !cardReceivedinTurn; } //check if player can receive a card
+
+    bool hasCard(Card::CardType type) const;
 
     std::string* getName() const { return name; }
 
      const std::vector<Territory*>* getTerritories() const {
         return territories;
     }
+
+    void removeTerritory(Territory* territory);
 
       OrdersList* getOrdersList() const {
         return orders;
@@ -83,9 +97,7 @@ public:
 
     Territory* selectSourceTerritory();
 
-    Territory* selectDestinationTerritory() ;
-
-    void removeCard(Card* card);
+    Territory* selectDestinationTerritory();
 
     int selectArmyAmount(Territory* sourceTerritory);
 };

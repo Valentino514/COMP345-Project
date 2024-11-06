@@ -13,6 +13,8 @@ public:
     // Constructor to initialize the card with a type
     Card(CardType* type);
 
+    static Card getRandomCard();
+
     // Destructor to clean up dynamically allocated memory
     ~Card();
 
@@ -20,7 +22,7 @@ public:
     void play();
 
     // Get the type of the card
-    CardType* getType() const;
+    CardType getType() const;
 
     // Return the name of the card type as a string
     std::string getCardTypeName() const;

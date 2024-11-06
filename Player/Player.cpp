@@ -1,12 +1,13 @@
 #include <iostream>
+#include <algorithm>
 #include "Player.h"
 #include <fstream>
 #include <utility>
 #include <sstream>
 #include <vector>
+#include <limits>
 using namespace std;
 
-class GameEngine;
 
 Player::Player(string* name, int* armyamount) {
     cout << "Generating player..." << *name << " with " << *armyamount << " armies\n";
@@ -198,7 +199,7 @@ void Player::issueOrder(const std::vector<Player*>& playerList) {
         }
 
         // Create a Deploy order and add to orders list
-         Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount);
+         Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,this);
          orders->addOrder(deployOrder);  
         setArmyAmount(getArmyAmount() - reinforcementAmount);
         cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << "." << endl;
@@ -285,7 +286,7 @@ while (issuingAdvanceOrders) {
     }
 
     
-    Order* order = new Advance(source, destination, numArmies);  
+    Order* order = new Advance(this, source, destination, numArmies);  
     orders->addOrder(order); // Add the order to the player's order list
 
     cout << "Advance order issued to move " << numArmies << " armies from " << source->getName()
@@ -325,13 +326,13 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
         Order* cardOrder = nullptr;
         if (selectedCard->getCardTypeName() == "Bomb") {
             Territory* target = selectTargetFromAttackList();
-            cardOrder = new Bomb(this, target); // Bomb order targets enemy territory
+            cardOrder = new Bomb(target,this); // Bomb order targets enemy territory
             cout << "Bomb order created targeting " << target->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Airlift") {
             Territory* source = selectSourceTerritory();
             Territory* destination = selectDestinationTerritory();
             int armyAmount = selectArmyAmount(source);
-            cardOrder = new Airlift(this, source, destination, armyAmount); // Airlift within own territories
+            cardOrder = new Airlift(source, destination, armyAmount,this); // Airlift within own territories
             cout << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
                  << " to " << destination->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Blockade") {
@@ -482,6 +483,13 @@ Territory* Player::selectDestinationTerritory() {
     return defendList[choice - 1];
 }
 
+void Player::removeTerritory(Territory* territory) {
+    auto it = find(territories->begin(), territories->end(), territory); // Find the territory in the list
+    if (it != territories->end()) { // If found
+        territories->erase(it); // Remove the territory
+    }
+}
+
 int Player::selectArmyAmount(Territory* sourceTerritory) {
     int maxAmount = sourceTerritory->getArmyAmount();
     int amount = 0;
@@ -495,10 +503,20 @@ int Player::selectArmyAmount(Territory* sourceTerritory) {
 }
 
 void Player::removeCard(Card* card) {
-    auto it = std::find(cards->begin(), cards->end(), card);
-    if (it != cards->end()) {
-        delete *it;  // Deallocate the card if needed
-        cards->erase(it);
+    auto it = find(cards->begin(), cards->end(), card); // Find the card in the hand
+    if (it != cards->end()) { // If found
+        delete *it; // Delete the card to free memory
+        cards->erase(it); // Remove the card from the hand
     }
 }
 
+
+//checks if player has a specific card
+bool Player::hasCard(Card::CardType type) const {
+    for (const auto& card : *cards) {
+        if (card->getType() == type) {
+            return true; // Found the card
+        }
+    }
+    return false; // Card not found
+}
