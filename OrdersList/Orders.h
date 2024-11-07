@@ -75,13 +75,12 @@ public:
 // Bomb Order
 class Bomb : public Order {
 private:
-    Territory* sourceTerritory;
     Territory* targetTerritory;
     Player* player;
 
 public:
     Bomb();  // Default constructor
-    Bomb(Territory* source,Territory* target, Player* player);  // Parameterized constructor
+    Bomb(Territory* target, Player* player);  // Parameterized constructor
     Bomb(const Bomb& other);
     Bomb& operator=(const Bomb& other);
     ~Bomb();

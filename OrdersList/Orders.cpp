@@ -118,7 +118,7 @@ Advance::~Advance() {
 bool Advance::validate() { //check if source and destination location is valid
     cout<<"validating advance order\n";
     const vector<Territory*>* player_trt = player->getTerritories();
-    const vector<Territory*>* adjacentTerrritories = sourceTerritory->getAdjacentTerritories();
+     const vector<Territory*>* adjacentTerrritories = sourceTerritory->getAdjacentTerritories();
 
     bool isSourceOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->sourceTerritory;});
     cout<<"does player own the source territory:"<<isSourceOwned<<'\n';
@@ -206,16 +206,15 @@ void Advance::print(ostream& os) const {
 }
 
 // Bomb Class
-Bomb::Bomb() : Order(), sourceTerritory(nullptr), targetTerritory(nullptr), player(nullptr) {}
+Bomb::Bomb() : Order(), targetTerritory(nullptr), player(nullptr) {}
 
-Bomb::Bomb(Territory* source, Territory* target, Player* player) : Order(),sourceTerritory(source), targetTerritory(target), player(player) {}
+Bomb::Bomb(Territory* target, Player* player) : Order(), targetTerritory(target), player(player) {}
 
-Bomb::Bomb(const Bomb& other) : Order(other), sourceTerritory(other.sourceTerritory), targetTerritory(other.targetTerritory), player(other.player) {}
+Bomb::Bomb(const Bomb& other) : Order(other), targetTerritory(other.targetTerritory), player(other.player) {}
 
 Bomb& Bomb::operator=(const Bomb& other) {
     if (this == &other) return *this;
     Order::operator=(other);
-    sourceTerritory = other.sourceTerritory;
     targetTerritory = other.targetTerritory;
     player = other.player;
     return *this;
@@ -225,10 +224,10 @@ Bomb::~Bomb() {}
 
 bool Bomb::validate() {
     cout<<"validating bomb order";
-    const vector<Territory*>* adjacentTerrritories = sourceTerritory->getAdjacentTerritories();
-    bool isDestinationAdjacent = any_of(adjacentTerrritories->begin(), adjacentTerrritories->end(), [this](Territory *t){return t == this->targetTerritory;});
+    vector<Territory*> enemy_trt = player->toAttack();
+    bool isTargetAdjacent = any_of(enemy_trt.begin(), enemy_trt.end(), [this](Territory *t){return t == this->targetTerritory;});
 
-    return (isDestinationAdjacent && player->hasCard(Card::Bomb));
+    return (isTargetAdjacent && player->hasCard(Card::Bomb));
 }
 
 void Bomb::execute() {
@@ -280,7 +279,7 @@ bool Blockade::validate() {
 }
 
 // Static variable to hold the neutral player instance
-static Player* neutralPlayer = nullptr;
+ Player* Blockade::neutralPlayer = nullptr;
 
 
 Player* Blockade::getOrCreateNeutralPlayer() {
