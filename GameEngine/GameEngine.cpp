@@ -229,6 +229,7 @@ void GameEngine::startupPhase() {
                 DistributeTerritories(*Cmap->Territories,*playerList);
                 shufflePlayers();
                 assignArmyAmount(50);
+                DrawTwoCards();
                 break;  // Exit the loop once game starts
             } else {
                 std::cout << "No map loaded. Please load and validate a map before starting the game.\n";

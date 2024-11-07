@@ -6,6 +6,8 @@
 #include <sstream>
 #include <vector>
 #include <limits>
+#include <unordered_set>
+
 using namespace std;
 
 
@@ -138,17 +140,21 @@ std::vector<Territory*> Player::toDefend() const {
 
 }
 
+
 // toAttack returns a list of adjacent territories not owned by the player
 std::vector<Territory*> Player::toAttack() const {
     std::vector<Territory*> attackList;
+    std::unordered_set<Territory*> addedTerritories;
 
     // Loop through each territory owned by the player to find adjacent ones not owned by the player
     for (Territory* territory : *territories) {
         const std::vector<Territory*>* adjacent = territory->getAdjacentTerritories();
 
         for (Territory* adj : *adjacent) {
-            if (adj->getLandOccupier() != this) {  // Only add if the territory is not owned by the player
+            // Only add if the territory is not owned by the player and hasn't been added before
+            if (adj->getLandOccupier() != this && addedTerritories.find(adj) == addedTerritories.end()) {
                 attackList.push_back(adj);
+                addedTerritories.insert(adj);  // Mark this territory as added
             }
         }
     }
@@ -209,6 +215,9 @@ void Player::issueOrder(const std::vector<Player*>& playerList) {
 
   bool issuingAdvanceOrders = true;
 while (issuingAdvanceOrders) {
+    toDefend=this->toDefend();
+    toAttack = this->toAttack();
+
     cout << "Territories available to move/attack from:" << endl;
     cout << "------------------------------------------------" << endl;
     for (size_t i = 0; i < toDefend.size(); ++i) {
@@ -246,7 +255,13 @@ while (issuingAdvanceOrders) {
     // Display enemy territories (for attack)
     cout << "\nEnemy territories (to attack):" << endl;
     for (Territory* t : toAttack) {
-        cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
+        for(Territory* s: *source->getAdjacentTerritories()){
+            if (t->getName()==s->getName())
+            {
+               cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
+            }
+            
+        }
     }
 
     // Get destination territory
@@ -293,8 +308,8 @@ while (issuingAdvanceOrders) {
          << " to " << destination->getName() << "." << endl;
 
     // Ask if the player wants to issue another Advance order
-    string decision;
-    cout << "Would you like to issue another order? (Y/N): ";
+     string decision;
+    cout << "Would you like to issue another Advance order? (Y/N): ";
     cin >> decision;
     issuingAdvanceOrders = (decision == "Y" || decision == "y");
 }
@@ -305,7 +320,7 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
  while (!cards->empty()) {
         cout << *name << " - Cards in hand:" << endl;
         for (size_t i = 0; i < cards->size(); ++i) {
-            cout << i + 1 << ". " << cards->at(i)->getType() << endl;
+            cout << i + 1 << ". " << cards->at(i)->getCardTypeName() << endl;
         }
         cout << "Would you like to play a card? (Y/N): ";
         char playCardDecision;
@@ -327,17 +342,20 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
         if (selectedCard->getCardTypeName() == "Bomb") {
             Territory* target = selectTargetFromAttackList();
             cardOrder = new Bomb(target,this); // Bomb order targets enemy territory
+
             cout << "Bomb order created targeting " << target->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Airlift") {
             Territory* source = selectSourceTerritory();
             Territory* destination = selectDestinationTerritory();
             int armyAmount = selectArmyAmount(source);
             cardOrder = new Airlift(source, destination, armyAmount,this); // Airlift within own territories
+
             cout << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
                  << " to " << destination->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Blockade") {
             Territory* target = selectTargetFromDefendList();
             cardOrder = new Blockade(this, target); // Blockade on own territory
+
             cout << "Blockade order created on " << target->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Diplomacy") {
             //Player* targetPlayer = selectPlayerToNegotiate(*playerList);

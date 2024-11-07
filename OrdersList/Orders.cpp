@@ -125,6 +125,8 @@ bool Advance::validate() { //check if source and destination location is valid
     this->isDestinationOwned =  any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->destinationTerritory;});
     cout<<"does player own the target territory:"<<this->isDestinationOwned<<'\n';
     bool isDestinationAdjacent = any_of(adjacentTerrritories->begin(), adjacentTerrritories->end(), [this](Territory *t){return t == this->destinationTerritory;});
+    cout<<"is territory to advance adjacent?: "<<isDestinationAdjacent<<endl;
+
     return (isSourceOwned && isDestinationAdjacent);
 }
 
@@ -168,19 +170,20 @@ void Advance::execute() {
 
             // If all defending units are eliminated, the attacker captures the territory
             if (enemyTroops == 0) {
-                cout<<"player managed to elimate the enemy units\n";
+                cout<<"player"<<player->getName()<<" managed to elimate the enemy units\n";
                 destinationTerritory->setLandOccupier(player); 
                 destinationTerritory->setArmyAmount(attackerTroops); 
                 player->addTerritory(destinationTerritory); 
                 cout<<"updated player territories:\n";
-                player->printOwnedTerritories();
+                //player->printOwnedTerritories();
                 enemy->removeTerritory(destinationTerritory);
                 cout<<"updated enemy territories:\n";
-                enemy->printOwnedTerritories();
+                //enemy->printOwnedTerritories();
                 if(player->canReceiveCard()){
                     Card* newCard = new Card(new Card::CardType(Card::getRandomCard().getType())); // Create a new random card
                     player->addCard(newCard); // Add the new card to the player's hand
                     player->cardReceived(); // Mark that the player has received a card this turn
+                    player->getCards();
                 }
                     
             } else {
