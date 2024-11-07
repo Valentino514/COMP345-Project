@@ -118,19 +118,14 @@ Advance::~Advance() {
 bool Advance::validate() { //check if source and destination location is valid
     cout<<"validating advance order\n";
     const vector<Territory*>* player_trt = player->getTerritories();
-    const vector<Territory*> enemy_trt = player->toAttack();
+    const vector<Territory*>* adjacentTerrritories = sourceTerritory->getAdjacentTerritories();
 
     bool isSourceOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->sourceTerritory;});
     cout<<"does player own the source territory:"<<isSourceOwned<<'\n';
     this->isDestinationOwned =  any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->destinationTerritory;});
     cout<<"does player own the target territory:"<<this->isDestinationOwned<<'\n';
-    bool isDestinationAdjacent = false;
-    if(!(this->isDestinationOwned)){
-        const vector<Territory*> enemy_trt = player->toAttack();
-        isDestinationAdjacent = any_of(enemy_trt.begin(), enemy_trt.end(), [this](Territory *t){return t == this->destinationTerritory;});
-        cout<<" is the territory adjacent to the player:"<<isDestinationAdjacent<<'\n';
-    }
-    return (isSourceOwned && (isDestinationAdjacent || this->isDestinationOwned));
+    bool isDestinationAdjacent = any_of(adjacentTerrritories->begin(), adjacentTerrritories->end(), [this](Territory *t){return t == this->destinationTerritory;});
+    return (isSourceOwned && isDestinationAdjacent);
 }
 
 void Advance::execute() {
@@ -211,15 +206,16 @@ void Advance::print(ostream& os) const {
 }
 
 // Bomb Class
-Bomb::Bomb() : Order(), targetTerritory(nullptr), player(nullptr) {}
+Bomb::Bomb() : Order(), sourceTerritory(nullptr), targetTerritory(nullptr), player(nullptr) {}
 
-Bomb::Bomb(Territory* target, Player* player) : Order(), targetTerritory(target), player(player) {}
+Bomb::Bomb(Territory* source, Territory* target, Player* player) : Order(),sourceTerritory(source), targetTerritory(target), player(player) {}
 
-Bomb::Bomb(const Bomb& other) : Order(other), targetTerritory(other.targetTerritory), player(other.player) {}
+Bomb::Bomb(const Bomb& other) : Order(other), sourceTerritory(other.sourceTerritory), targetTerritory(other.targetTerritory), player(other.player) {}
 
 Bomb& Bomb::operator=(const Bomb& other) {
     if (this == &other) return *this;
     Order::operator=(other);
+    sourceTerritory = other.sourceTerritory;
     targetTerritory = other.targetTerritory;
     player = other.player;
     return *this;
@@ -229,10 +225,10 @@ Bomb::~Bomb() {}
 
 bool Bomb::validate() {
     cout<<"validating bomb order";
-    vector<Territory*> enemy_trt = player->toAttack();
-    bool isTargetAdjacent = any_of(enemy_trt.begin(), enemy_trt.end(), [this](Territory *t){return t == this->targetTerritory;});
+    const vector<Territory*>* adjacentTerrritories = sourceTerritory->getAdjacentTerritories();
+    bool isDestinationAdjacent = any_of(adjacentTerrritories->begin(), adjacentTerrritories->end(), [this](Territory *t){return t == this->targetTerritory;});
 
-    return (isTargetAdjacent && player->hasCard(Card::Bomb));
+    return (isDestinationAdjacent && player->hasCard(Card::Bomb));
 }
 
 void Bomb::execute() {
