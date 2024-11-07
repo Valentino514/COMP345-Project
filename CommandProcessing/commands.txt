@@ -1,0 +1,6 @@
+loadmap valid_map.map
+validatemap
+addplayer Player1
+addplayer Player2
+gamestart
+quit

@@ -70,7 +70,6 @@ CommandProcessor& CommandProcessor::operator=(const CommandProcessor& other) {
 
 CommandProcessor::~CommandProcessor() {
     clear();
-    // clearPlayers();
     delete commands;
 }
 
@@ -82,13 +81,29 @@ void CommandProcessor::processInput() {
     readCommand();
 }
 
-void CommandProcessor::readCommand() {
+std::string* CommandProcessor::readCommand() {
     std::string input;
     std::cout << "Enter a command: ";
     std::getline(std::cin, input);
-    Command* cmd = new Command(input);
+
+    // Allocate a C-style array of two strings
+    static std::string result[2];
+    
+    size_t spacePos = input.find(' ');
+    if (spacePos != std::string::npos) {
+        result[0] = input.substr(0, spacePos);       // Command name
+        result[1] = input.substr(spacePos + 1);      // Argument
+    } else {
+        result[0] = input;       // Command name only
+        result[1] = "";          // No argument
+    }
+
+    
+    // Create and validate the Command
+    Command* cmd = new Command(input);  // You can store the entire input if needed
     validate(cmd);
     saveCommand(cmd);
+    return result;
 }
 
 void CommandProcessor::saveCommand(Command* command) {
@@ -100,19 +115,17 @@ bool CommandProcessor::validate(Command* command) {
     bool isValid = false;
 
     if (currentState == "start" && cmd.rfind("loadmap", 0) == 0) {
-        // Extract the map filename from the command
-        currentState="maploaded";
-         isValid=true;
-        cout<<"the command : loadmap is valid";
-            } else if (currentState == "maploaded" && cmd == "validatemap") {
-                currentState="mapvalidated";
-         isValid=true;
-        cout<<"the command : validatemap is valid";
+        currentState = "maploaded";
+        isValid = true;
+        std::cout << "The command: loadmap is valid" << std::endl;
+    } else if (currentState == "maploaded" && cmd == "validatemap") {
+        currentState = "mapvalidated";
+        isValid = true;
+        std::cout << "The command: validatemap is valid" << std::endl;
     } else if (currentState == "mapvalidated" && cmd.rfind("addplayer", 0) == 0) {
-                        currentState="playersadded";
-
-         isValid=true;
-        cout<<" the command : addplayer is valid"<<endl;
+        currentState = "playersadded";
+        isValid = true;
+        std::cout << "The command: addplayer is valid" << std::endl;
     } else if (currentState == "playersadded" && cmd == "gamestart") {
         currentState = "assignreinforcement";
         isValid = true;
@@ -124,21 +137,6 @@ bool CommandProcessor::validate(Command* command) {
     command->saveEffect(isValid ? "Command valid." : "Invalid command for the current state.");
     return isValid;
 }
-
-
-// void CommandProcessor::createPlayer(const std::string& playerName) {
-//     std::string* namePtr = new std::string(playerName);  // Allocate a new string for the player's name
-//     Player* newPlayer = new Player(namePtr);  // Create a new Player with the name
-//     players.push_back(newPlayer);  // Add the new Player to the players vector
-//     std::cout << "Player " << playerName << " created and added to the game." << std::endl;
-// }
-
-// void CommandProcessor::clearPlayers() {
-//     for (Player* player : players) {
-//         delete player;
-//     }
-//     players.clear();
-// }
 
 void CommandProcessor::copy(const CommandProcessor& other) {
     for (Command* cmd : *other.commands) {
@@ -176,10 +174,21 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
     }
 }
 
-void FileCommandProcessorAdapter::readCommand() {
+std::string* FileCommandProcessorAdapter::readCommand() {
+    static std::string result[2];
     if (commandFile.is_open() && !commandFile.eof()) {
         std::string line;
         if (std::getline(commandFile, line)) {
+            size_t spacePos = line.find(' ');
+            if (spacePos != std::string::npos) {
+                result[0] = line.substr(0, spacePos);       // Command name
+                result[1] = line.substr(spacePos + 1);      // Argument
+            } else {
+                result[0] = line;       // Command name only
+                result[1] = "";         // No argument
+            }
+
+            // Create and validate the Command
             Command* cmd = new Command(line);
             validate(cmd);
             saveCommand(cmd);
@@ -189,4 +198,5 @@ void FileCommandProcessorAdapter::readCommand() {
     } else {
         std::cerr << "Error: File is not open or has been fully read." << std::endl;
     }
+    return result;
 }
