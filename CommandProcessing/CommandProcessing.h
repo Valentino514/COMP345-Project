@@ -32,9 +32,11 @@ private:
 class CommandProcessor {
 public:
     CommandProcessor(Map* gameMap);                    // Constructor with map pointer
+     CommandProcessor();
     CommandProcessor(const CommandProcessor& other);   // Copy constructor
     CommandProcessor& operator=(const CommandProcessor& other); // Assignment operator
     virtual ~CommandProcessor();                       // Destructor
+        std::string readCommand1();
 
     Command* getCommand();                             // Retrieves the latest command
     virtual void processInput();                       // Processes user input

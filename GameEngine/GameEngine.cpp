@@ -9,6 +9,7 @@
 #include <filesystem> 
 #include <algorithm>
 #include <random>
+#include "../CommandProcessing/CommandProcessing.h"
 
 
 
@@ -172,19 +173,17 @@ void GameEngine::navigate() {
 
 
 void GameEngine::startupPhase() {
-    std::string command;
-    std::cout << "Welcome to the Game Startup Phase. Please enter your commands:\n";
+    std::cout << "Welcome to the Game Startup Phase.\n";
     MapLoader x;
     std::vector<std::string> mapFiles;
     std::string mapsDirectory = "./Map/maps";  // Directory where the map files are stored
-
+    CommandProcessor cp;
 
     while (true) {
-        std::cout << "> ";
-        std::cin >> command;
+        std::cout << "Please enter your command:\n";
+        std::string command = cp.readCommand1();  // Read the entire command as a single string
 
         if (command == "loadmap") {
-            // List available map files
             std::cout << "Here is a list of maps, please choose one:\n";
             for (const auto& entry : std::filesystem::directory_iterator(mapsDirectory)) {
                 if (entry.is_regular_file()) {
@@ -194,22 +193,18 @@ void GameEngine::startupPhase() {
                 }
             }
 
-            // Ask the user to select a map
             std::string chosenMap;
             std::cout << "Please enter the name of the map you want to load: ";
             std::cin >> chosenMap;
 
-            // Verify if the entered map exists in the list
             if (std::find(mapFiles.begin(), mapFiles.end(), chosenMap) != mapFiles.end()) {
                 std::cout << "You have selected: " << chosenMap << "\n";
-                 std::string fullPath = mapsDirectory + "/" + chosenMap;
+                std::string fullPath = mapsDirectory + "/" + chosenMap;
                 Cmap = x.loadMap(fullPath);
-                
             } else {
-                std::cout << "Invalid map name. Please choose from the available maps. Enter your command\n";
+                std::cout << "Invalid map name. Please choose from the available maps.\n";
             }
-        } 
-        else if (command == "validatemap") {
+        } else if (command == "validatemap") {
             if (Cmap != nullptr) {
                 if (Cmap->validate()) {
                     std::cout << "Map is valid.\n";
@@ -219,46 +214,43 @@ void GameEngine::startupPhase() {
             } else {
                 std::cout << "No map loaded. Please load a map first.\n";
             }
-        } 
-        else if (command == "addplayer") {
-            std::string playerName;
-            addplayer();  
-        } 
-        else if (command == "gamestart") {
-            if (map != nullptr) {
-                DistributeTerritories(*Cmap->Territories,*playerList);
+        } else if (command == "addplayer") {
+            addplayer();
+        } else if (command == "gamestart") {
+            if (Cmap != nullptr) {
+                DistributeTerritories(*Cmap->Territories, *playerList);
                 shufflePlayers();
                 assignArmyAmount(50);
                 DrawTwoCards();
-                break;  // Exit the loop once game starts
+                break;  // Exit the loop once the game starts
             } else {
                 std::cout << "No map loaded. Please load and validate a map before starting the game.\n";
             }
-        } 
-        else {
+        } else {
             std::cout << "Unknown command. Please try again.\n";
         }
-
-        
     }
+
     mainGameLoop();
 }
 
-
 void GameEngine::addplayer() {
     int playerAmount;
+
     while (true) {
         std::cout << "Please Enter the number of Players (2-6): ";
         std::cin >> playerAmount;
 
-        if (playerAmount >= 2 && playerAmount <= 6) {
-            break;
+        // Check if the input is a valid integer within the range 2-6
+        if (std::cin.fail() || playerAmount < 2 || playerAmount > 6) {
+            std::cin.clear(); // Clear the error flag
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+            std::cout << "Invalid Player Amount. Please enter a number between 2 and 6.\n";
         } else {
-            std::cout << "\nInvalid Player Amount. Please try again.\n";
+            break;
         }
     }
 
-    
     if (!playerList) {
         playerList = new std::vector<Player*>;
     }

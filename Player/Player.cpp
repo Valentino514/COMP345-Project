@@ -20,7 +20,7 @@ Player::Player(string* name, int* armyamount) {
     territories = new vector<Territory*>;
 }
 Player::Player(string& name) {
-    cout << "Generating player..." << name << " with 0 armies (default)\n";
+    cout << "Generating player... " << name << " with 0 armies (default)\n";
     this->name = new string(name);  
     this->armyamount = new int(0);  
     orders = new OrdersList();
@@ -177,7 +177,7 @@ void Player::issueOrder(const std::vector<Player*>& playerList) {
         string territoryName;
         int reinforcementAmount = 0;
         
-        cout << "You have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement (or type 'exit' to finish): ";
+        cout << "You have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
         cin >> territoryName;
 
         if (territoryName == "exit" && getArmyAmount()==0) break;

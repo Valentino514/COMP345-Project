@@ -10,6 +10,6 @@ void testStartupPhase() {
     std::cout << "\n--- Game Startup Phase ---\n";
 
     // Step 1: Load Map
-    std::cout << "Command: loadmap\n";
+    
     gameEngine.startupPhase();  // Load map via the GameEngine's startup phase method
 }

@@ -54,6 +54,11 @@ CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
     commands = new std::vector<Command*>();
     currentState = "start";
 }
+CommandProcessor::CommandProcessor()  {
+    commands = new std::vector<Command*>();
+    currentState = "start";
+}
+
 
 CommandProcessor::CommandProcessor(const CommandProcessor& other) {
     commands = new std::vector<Command*>();
@@ -106,6 +111,20 @@ std::string* CommandProcessor::readCommand() {
     return result;
 }
 
+std::string CommandProcessor::readCommand1() {
+    std::string input;
+
+    // Directly read the input without extra clearing or ignoring
+    std::cin >> input;
+
+    // Create and validate the Command
+    Command* cmd = new Command(input);
+    validate(cmd);
+    saveCommand(cmd);
+
+    return input;  // Return the entire command as a single string
+}
+
 void CommandProcessor::saveCommand(Command* command) {
     commands->push_back(command);
 }
@@ -129,6 +148,7 @@ bool CommandProcessor::validate(Command* command) {
     } else if (currentState == "playersadded" && cmd == "gamestart") {
         currentState = "assignreinforcement";
         isValid = true;
+        std::cout << "The command: gamestart is valid" << std::endl;
     } else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
         currentState = (cmd == "replay") ? "start" : "exit";
         isValid = true;
