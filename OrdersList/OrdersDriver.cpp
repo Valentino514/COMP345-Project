@@ -1,43 +1,23 @@
 #include <iostream>
+#include "../Player/Player.h"
 #include "Orders.h"
+#include <string>
+#include "testOrders.h"
 
 using namespace std;
 
 //use g++ Orders.cpp OrdersDriver.cpp to test it
-void testOrdersList();
 
-void testOrdersList(){
-    // Creating order objects
-    Order* deploy = new Deploy();
-    Order* advance = new Advance();
-    Order* bomb = new Bomb();
-    Order* blockade = new Blockade();
-    Order* airlift = new Airlift();
-    Order* negociate = new Negociate();
+void testOrderExecution(){
 
-    // Creating orders list
-    OrdersList orders;
+    testOrders test;
 
-    // Adding orders to orders list
-    orders.addOrder(deploy);
-    orders.addOrder(advance);
-    orders.addOrder(bomb);
-    orders.addOrder(blockade);
-    orders.addOrder(airlift);
-    orders.addOrder(negociate);
+    // Simulate user input and actions for game startup
+    std::cout << "\n--- Game Startup Phase ---\n";
 
-    // Validating and executing orders
-    deploy->execute();
-    advance->execute();
-    bomb->execute();
-    blockade->execute();
-    airlift->execute();
-    negociate->execute();
+    // Step 1: Load Map
+    
+    test.testTheOrders();  // Load map via the GameEngine's startup phase method
 
-    cout<<*airlift;
 
-    // Moving through the orders
-    orders.move();
-
-    orders.remove(bomb);
 }
