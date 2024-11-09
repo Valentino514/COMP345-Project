@@ -182,7 +182,7 @@ void GameEngine::startupPhase() {
     while (true) {
         std::cout << "Please enter your command:\n";
         std::string command = cp.readCommand1();  // Read the entire command as a single string
-
+        std::cout <<endl;
         if (command == "loadmap") {
             std::cout << "Here is a list of maps, please choose one:\n";
             for (const auto& entry : std::filesystem::directory_iterator(mapsDirectory)) {
@@ -194,11 +194,11 @@ void GameEngine::startupPhase() {
             }
 
             std::string chosenMap;
-            std::cout << "Please enter the name of the map you want to load: ";
+            std::cout << "\nPlease enter the name of the map you want to load: ";
             std::cin >> chosenMap;
 
             if (std::find(mapFiles.begin(), mapFiles.end(), chosenMap) != mapFiles.end()) {
-                std::cout << "You have selected: " << chosenMap << "\n";
+                std::cout << "You have selected: " << chosenMap << "\n\n";
                 std::string fullPath = mapsDirectory + "/" + chosenMap;
                 Cmap = x.loadMap(fullPath);
             } else {
@@ -207,7 +207,7 @@ void GameEngine::startupPhase() {
         } else if (command == "validatemap") {
             if (Cmap != nullptr) {
                 if (Cmap->validate()) {
-                    std::cout << "Map is valid.\n";
+                    std::cout << "Map is valid.\n\n";
                 } else {
                     std::cout << "Map is invalid.\n";
                 }
@@ -216,8 +216,11 @@ void GameEngine::startupPhase() {
             }
         } else if (command == "addplayer") {
             addplayer();
+            std::cout <<endl;
+
         } else if (command == "gamestart") {
             if (Cmap != nullptr) {
+                std::cout <<endl;
                 DistributeTerritories(*Cmap->Territories, *playerList);
                 shufflePlayers();
                 assignArmyAmount(50);
@@ -240,12 +243,13 @@ void GameEngine::addplayer() {
     while (true) {
         std::cout << "Please Enter the number of Players (2-6): ";
         std::cin >> playerAmount;
+        std::cout <<endl;
 
         // Check if the input is a valid integer within the range 2-6
         if (std::cin.fail() || playerAmount < 2 || playerAmount > 6) {
             std::cin.clear(); // Clear the error flag
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
-            std::cout << "Invalid Player Amount. Please enter a number between 2 and 6.\n";
+            std::cout << "Invalid Player Amount. Please enter a number between 2 and 6.\n\n";
         } else {
             break;
         }
@@ -263,6 +267,8 @@ void GameEngine::addplayer() {
 
         // Create a new Player object and add it to playerList
         playerList->push_back(new Player(playerName)); 
+        std::cout <<endl;
+        
     }
 
     std::cout << playerAmount << " players added successfully!\n";
@@ -324,8 +330,9 @@ void GameEngine::assignArmyAmount(int amount) {
     for (Player* player : *playerList) {
         player->setArmyAmount(amount);  
     }
-
-    std::cout << "Each player has been assigned " << amount << " armies." << std::endl;
+    
+    std::cout<<endl;
+    std::cout << "Each player has been assigned " << amount << " armies.\n" << std::endl;
 }
 
 void GameEngine::DrawTwoCards() {
@@ -344,7 +351,7 @@ void GameEngine::DrawTwoCards() {
         if (card1) player->addCard(card1);  
         if (card2) player->addCard(card2);
 
-        std::cout << "Drew two cards for player: " << *(player->getName()) << std::endl;
+        std::cout << "Drew two cards for player: " << *(player->getName())<<"\n" << std::endl;
     }
 }
 
@@ -352,7 +359,7 @@ void GameEngine::mainGameLoop() {
     bool gameRunning = true;
 
     do {
-        std::cout << "------------------- Starting Reinforcement Phase -------------------" << std::endl;
+        std::cout << "------------------- Starting Reinforcement Phase -------------------\n" << std::endl;
         
         // Execute the game phases
         reinforcementPhase();
@@ -417,7 +424,7 @@ void GameEngine::reinforcementPhase() {
         int currentArmies = player->getArmyAmount();
         player->setArmyAmount(currentArmies + reinforcementArmies);
         std::cout << "Player " << *player->getName() << " receives " << reinforcementArmies 
-                  << " reinforcement armies." << std::endl;
+                  << " reinforcement armies.\n" << std::endl;
     }
 }
 

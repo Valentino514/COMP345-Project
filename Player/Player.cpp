@@ -168,7 +168,7 @@ void Player::issueOrder(const std::vector<Player*>& playerList) {
     vector<Territory*> toAttack = this->toAttack();
 
     // Reinforcement phase
-    cout << *name << " - Select territories to reinforce." << endl;
+    cout<< "Player " << *name << " - Select territories to reinforce.\n" << endl;
     for (size_t i = 0; i < toDefend.size(); ++i) {
         cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies." << endl;
     }
@@ -177,8 +177,9 @@ void Player::issueOrder(const std::vector<Player*>& playerList) {
         string territoryName;
         int reinforcementAmount = 0;
         
-        cout << "You have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
+        cout << "\nYou have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
         cin >> territoryName;
+        std::cout <<"\n";
 
         if (territoryName == "exit" && getArmyAmount()==0) break;
 
@@ -192,7 +193,7 @@ void Player::issueOrder(const std::vector<Player*>& playerList) {
         }
 
         if (!selectedTerritory) {
-            cout << "Territory not found. Try again." << endl;
+            cout << "Territory not found. Try again.\n" << endl;
             continue;
         }
 
@@ -208,10 +209,10 @@ void Player::issueOrder(const std::vector<Player*>& playerList) {
          Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,this);
          orders->addOrder(deployOrder);  
         setArmyAmount(getArmyAmount() - reinforcementAmount);
-        cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << "." << endl;
+        cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << ".\n" << endl;
     }
 
-    cout << "Reinforcement phase completed.\n------------------------------------------------" << endl;
+    cout << "\n------------------------------------------------\n         Reinforcement phase completed\n------------------------------------------------\n\n" << endl;
 
   bool issuingAdvanceOrders = true;
 while (issuingAdvanceOrders) {
@@ -219,7 +220,7 @@ while (issuingAdvanceOrders) {
     toAttack = this->toAttack();
 
     cout << "Territories available to move/attack from:" << endl;
-    cout << "------------------------------------------------" << endl;
+    cout << "------------------------------------------------\n" << endl;
     for (size_t i = 0; i < toDefend.size(); ++i) {
         cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies available." << endl;
     }
