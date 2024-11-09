@@ -83,20 +83,20 @@ void Deploy::print(ostream& os) const {
 
 // Default constructor
 Advance::Advance()
-    : Order(), player(nullptr), sourceTerritory(nullptr), destinationTerritory(nullptr), reinforcementAmount(0),isDestinationOwned(false) {}
+    : Order(), isDestinationOwned(false), player(nullptr), sourceTerritory(nullptr), destinationTerritory(nullptr), reinforcementAmount(0) {}
 
 // Parameterized constructor
 Advance::Advance(Player* player, Territory* source, Territory* destination, int armyCount)
-    : Order(), player(player), sourceTerritory(source), destinationTerritory(destination), reinforcementAmount(armyCount) {}
+    : Order(), isDestinationOwned(false), player(player), sourceTerritory(source), destinationTerritory(destination), reinforcementAmount(armyCount) {}
 
 // Copy constructor
 Advance::Advance(const Advance& other)
     : Order(other),
-      player(other.player),  
+      isDestinationOwned(other.isDestinationOwned),
+      player(other.player),
       sourceTerritory(other.sourceTerritory),
       destinationTerritory(other.destinationTerritory),
-      reinforcementAmount(other.reinforcementAmount),
-      isDestinationOwned(other.isDestinationOwned) {} 
+      reinforcementAmount(other.reinforcementAmount) {}
 
 
 // Assignment operator

@@ -52,7 +52,7 @@ public:
 // Advance Order
 class Advance : public Order {
 private:
-    bool isDestinationOwned=false;
+    bool isDestinationOwned;
     Player* player;
     Territory* sourceTerritory;
     Territory* destinationTerritory;
