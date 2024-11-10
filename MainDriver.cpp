@@ -6,6 +6,7 @@
 #include "Map/Map.h"
 #include "OrdersList/Orders.h"
 #include "GameEngine/GameEngine.h"
+#include "OrdersList/OrdersDriver.h"
 
 // Forward declarations for the test functions
 // void testLoadMaps();
@@ -51,6 +52,7 @@ int main() {
     std::cout << "==========================" << std::endl;
     testMainGameLoop();
     testStartupPhase();
+    testOrderExecution();
     std::cout << std::endl << std::endl;
 
     return 0;

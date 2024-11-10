@@ -170,20 +170,22 @@ void Advance::execute() {
 
             // If all defending units are eliminated, the attacker captures the territory
             if (enemyTroops == 0) {
-                cout<<"player"<<player->getName()<<" managed to elimate the enemy units\n";
+                cout<<"player "<<*(player->getName())<<" managed to elimate the enemy units\n";
                 destinationTerritory->setLandOccupier(player); 
                 destinationTerritory->setArmyAmount(attackerTroops); 
                 player->addTerritory(destinationTerritory); 
-                cout<<"updated player territories:\n";
+                //cout<<"updated player territories:\n";
                 //player->printOwnedTerritories();
                 enemy->removeTerritory(destinationTerritory);
-                cout<<"updated enemy territories:\n";
+               // cout<<"updated enemy territories:\n";
                 //enemy->printOwnedTerritories();
                 if(player->canReceiveCard()){
                     Card* newCard = new Card(new Card::CardType(Card::getRandomCard().getType())); // Create a new random card
+                    cout<<"player received a new card "<<newCard->getCardTypeName()<<endl;
                     player->addCard(newCard); // Add the new card to the player's hand
                     player->cardReceived(); // Mark that the player has received a card this turn
-                    player->getCards();
+                }else{
+                    cout<<"player will already received a card for this turn"<<endl;
                 }
                     
             } else {
@@ -200,6 +202,8 @@ void Advance::execute() {
             cout<<"player has "<<remainingSourceArmy<<" remaining in the territory he attacked from \n";
 
         }
+    }else{
+        cout<<"validation for advance order failed"<<endl;
     }
 }
 
@@ -226,7 +230,7 @@ Bomb& Bomb::operator=(const Bomb& other) {
 Bomb::~Bomb() {}
 
 bool Bomb::validate() {
-    cout<<"validating bomb order";
+    cout<<"validating bomb order"<<endl;
     vector<Territory*> enemy_trt = player->toAttack();
     bool isTargetAdjacent = any_of(enemy_trt.begin(), enemy_trt.end(), [this](Territory *t){return t == this->targetTerritory;});
 
@@ -236,13 +240,13 @@ bool Bomb::validate() {
 void Bomb::execute() {
     if (validate()){
         cout<<"bomb order validated, current army ammount in target territory:"<<targetTerritory->getArmyAmount()<<'\n';
-        player->removeCard(new Card(new Card::CardType(Card::Bomb))); // remove his card
+        player->removeCard(new Card(new Card::CardType(Card::Bomb)));
         int newArmyAmmount = (targetTerritory->getArmyAmount())/2; 
         targetTerritory->setArmyAmount(newArmyAmmount);
         cout<<"new army ammount in target territory:"<<targetTerritory->getArmyAmount()<<'\n';
 
     }else{
-        cout<<"blockade validation failed";
+        cout<<"bomb validation failed"<<endl;
         return;
     }
     
@@ -340,6 +344,7 @@ void Airlift::execute() {
     if(validate()){
     cout<<"airlift order validated, current army ammount in source territory: "<<sourceTerritory->getArmyAmount();
     cout<<"\ncurrent army ammount in target territory: "<<destinationTerritory->getArmyAmount()<<endl;
+    cout<<"deploying "<<reinforcementAmount<<" units"<<endl;
     player->removeCard(new Card(new Card::CardType(Card::Airlift))); //looks bad because we are passing by pointer
     int newSourceArmy = (sourceTerritory->getArmyAmount() - *reinforcementAmount);
     sourceTerritory->setArmyAmount(newSourceArmy);
@@ -347,6 +352,8 @@ void Airlift::execute() {
     destinationTerritory->setArmyAmount(newDestinationArmy);
     cout<<" new army ammount in source territory: "<<sourceTerritory->getArmyAmount();
     cout<<"\nnew army ammount in target territory: "<<destinationTerritory->getArmyAmount()<<endl;
+    }else{
+        cout<<"airlift order failed"<<endl;
     }
 }
 
