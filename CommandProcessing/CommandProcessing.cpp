@@ -1,7 +1,5 @@
 #include "CommandProcessing.h"
 #include "../Map/Map.h"
-#include <algorithm>
-#include <sstream>
 
 // Command class implementation
 
@@ -50,18 +48,6 @@ std::ostream& operator<<(std::ostream& os, const Command& command) {
     return os;
 }
 
-void Command::execute(CommandProcessor* processor) {
-    std::cout << "Executing command: " << *commandText << std::endl;
-    saveEffect("Executed"); 
-    if (processor) {
-        processor->notify();
-    }
-}
-
-std::string Command::stringToLog() const {
-    return "Command: " + *commandText + ", Effect: " + *effectText;
-}
-
 // CommandProcessor class implementation
 
 CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
@@ -98,10 +84,6 @@ Command* CommandProcessor::getCommand() {
 
 void CommandProcessor::processInput() {
     readCommand();
-    Command* command = new Command("EmptyCommand");
-    command->execute(this);
-    commands->push_back(command);
-    notify();
 }
 
 std::string* CommandProcessor::readCommand() {
@@ -142,39 +124,33 @@ std::string CommandProcessor::readCommand1() {
 
     return input;  // Return the entire command as a single string
 }
-
 void CommandProcessor::saveCommand(Command* command) {
     commands->push_back(command);
-    command->execute(this);
 }
 
 bool CommandProcessor::validate(Command* command) {
     std::string cmd = command->getCommand();
-    bool isValid = false;
 
-    if (currentState == "start" && cmd.rfind("loadmap", 0) == 0) {
-        currentState = "maploaded";
-        isValid = true;
-        std::cout << "The command: loadmap is valid" << std::endl;
+    if (currentState == "start" && cmd == "loadmap") {
+        command->saveEffect("Command valid.");
+        return true;
     } else if (currentState == "maploaded" && cmd == "validatemap") {
-        currentState = "mapvalidated";
-        isValid = true;
-        std::cout << "The command: validatemap is valid" << std::endl;
-    } else if (currentState == "mapvalidated" && cmd.rfind("addplayer", 0) == 0) {
-        currentState = "playersadded";
-        isValid = true;
-        std::cout << "The command: addplayer is valid" << std::endl;
+        command->saveEffect("Command valid.");
+        return true;
+    } else if (currentState == "mapvalidated" && cmd == "addplayer") {
+        command->saveEffect("Command valid.");
+        return true;
     } else if (currentState == "playersadded" && cmd == "gamestart") {
-        currentState = "assignreinforcement";
-        isValid = true;
-        std::cout << "The command: gamestart is valid" << std::endl;
-    } else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
-        currentState = (cmd == "replay") ? "start" : "exit";
-        isValid = true;
+        command->saveEffect("Command valid.");
+        return true;
+    }else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
+        command->saveEffect("Command valid.");
+        return true;
+      
     }
 
-    command->saveEffect(isValid ? "Command valid." : "Invalid command for the current state.");
-    return isValid;
+    command->saveEffect("Invalid command for the current state.");
+    return false;
 }
 
 void CommandProcessor::copy(const CommandProcessor& other) {
@@ -198,22 +174,6 @@ std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp) {
     return os;
 }
 
-void CommandProcessor::notify() {
-    for (Observer* observer : observers) {
-        observer->update();
-    }
-}
-
-std::string CommandProcessor::stringToLog() const {
-    std::ostringstream oss;
-    oss << "CommandProcessor with " << commands->size() << " commands.";
-    return oss.str();
-}
-
-void CommandProcessor::attach(Observer* observer) {
-    observers.push_back(observer);
-}
-
 // FileCommandProcessorAdapter class implementation
 
 FileCommandProcessorAdapter::FileCommandProcessorAdapter(Map* gameMap, const std::string& filename) : CommandProcessor(gameMap) {
@@ -229,10 +189,17 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
     }
 }
 
+#include <utility>
+
 std::string* FileCommandProcessorAdapter::readCommand() {
-    static std::string result[2];
+    // Dynamically allocate an array to hold the command and argument
+    std::string* result = new std::string[2]{"", ""};
+
+    // Check if the file is open and not at the end of file
     if (commandFile.is_open() && !commandFile.eof()) {
         std::string line;
+
+        // Attempt to read the next line from the file
         if (std::getline(commandFile, line)) {
             size_t spacePos = line.find(' ');
             if (spacePos != std::string::npos) {
@@ -245,13 +212,26 @@ std::string* FileCommandProcessorAdapter::readCommand() {
 
             // Create and validate the Command
             Command* cmd = new Command(line);
-            validate(cmd);
+            bool isValid = validate(cmd);
+            if (isValid) {
+                cmd->saveEffect("Command valid.");
+            } else {
+                cmd->saveEffect("Invalid command for the current state.");
+            }
             saveCommand(cmd);
+
+            // Debug message to confirm the command has been processed
         } else {
-            std::cerr << "Error: Unable to read command from file." << std::endl;
+                        std::cout << "end of file." << std::endl;
+
+            exit(0);
         }
     } else {
-        std::cerr << "Error: File is not open or has been fully read." << std::endl;
+        if (!commandFile.is_open()) {
+            std::cerr << "Error: File is not open." << std::endl; 
+        } else if (commandFile.eof()) {
+            std::cerr << "End of file reached." << std::endl;
+        }
     }
     return result;
 }
