@@ -41,7 +41,7 @@ bool validate1(Command* command);
 
     Command* getCommand();                             // Retrieves the latest command
     virtual void processInput();                       // Processes user input
-        std::string currentState;                          // Tracks the current state of command processing
+        std::string * currentState;                          // Tracks the current state of command processing
 
 
     friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp); // Stream insertion operator for printing
