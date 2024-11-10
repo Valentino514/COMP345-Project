@@ -58,7 +58,6 @@ Deck::~Deck() {
 void Deck::initializeDeck() {
     for (int i = 0; i < 5; ++i) {  // Add 5 cards of each type
         cards->push_back(new Card(new Card::CardType(Card::Bomb)));
-        cards->push_back(new Card(new Card::CardType(Card::Reinforcement)));
         cards->push_back(new Card(new Card::CardType(Card::Blockade)));
         cards->push_back(new Card(new Card::CardType(Card::Airlift)));
         cards->push_back(new Card(new Card::CardType(Card::Diplomacy)));

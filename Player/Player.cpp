@@ -364,13 +364,7 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
 
             cardOrder = new Negociate(this, targetPlayer); // Negotiate with enemy player
             cout << "Negotiate order created with " << *(targetPlayer->getName()) << "." << endl;
-         }// else if (selectedCard->getType() == "Reinforcement") {
-        //     int reinforcementArmies = 5;
-        //     setArmyAmount(getArmyAmount() + reinforcementArmies);
-        //     cout << "Reinforcement card played. " << reinforcementArmies << " armies added to your reinforcement pool." << endl;
-        //     removeCard(selectedCard);
-        //     continue;
-        // }
+         }
 
         if (cardOrder) {
             orders->addOrder(cardOrder);

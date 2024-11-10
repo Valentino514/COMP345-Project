@@ -40,12 +40,13 @@ public:
 
     Command* getCommand();                             // Retrieves the latest command
     virtual void processInput();                       // Processes user input
+        std::string currentState;                          // Tracks the current state of command processing
+
 
     friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp); // Stream insertion operator for printing
 
 protected:
     std::vector<Command*>* commands;                   // Stores commands issued to the processor
-    std::string currentState;                          // Tracks the current state of command processing
 
     virtual std::string* readCommand();                // Reads and splits command input into two parts (command and argument)
     void saveCommand(Command* command);                // Saves a command to the command list

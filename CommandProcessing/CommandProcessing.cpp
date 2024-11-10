@@ -124,38 +124,33 @@ std::string CommandProcessor::readCommand1() {
 
     return input;  // Return the entire command as a single string
 }
-
 void CommandProcessor::saveCommand(Command* command) {
     commands->push_back(command);
 }
 
 bool CommandProcessor::validate(Command* command) {
     std::string cmd = command->getCommand();
-    bool isValid = false;
 
-    if (currentState == "start" && cmd.rfind("loadmap", 0) == 0) {
-        currentState = "maploaded";
-        isValid = true;
-        std::cout << "The command: loadmap is valid" << std::endl;
+    if (currentState == "start" && cmd == "loadmap") {
+        command->saveEffect("Command valid.");
+        return true;
     } else if (currentState == "maploaded" && cmd == "validatemap") {
-        currentState = "mapvalidated";
-        isValid = true;
-        std::cout << "The command: validatemap is valid" << std::endl;
-    } else if (currentState == "mapvalidated" && cmd.rfind("addplayer", 0) == 0) {
-        currentState = "playersadded";
-        isValid = true;
-        std::cout << "The command: addplayer is valid" << std::endl;
+        command->saveEffect("Command valid.");
+        return true;
+    } else if (currentState == "mapvalidated" && cmd == "addplayer") {
+        command->saveEffect("Command valid.");
+        return true;
     } else if (currentState == "playersadded" && cmd == "gamestart") {
-        currentState = "assignreinforcement";
-        isValid = true;
-        std::cout << "The command: gamestart is valid" << std::endl;
-    } else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
-        currentState = (cmd == "replay") ? "start" : "exit";
-        isValid = true;
+        command->saveEffect("Command valid.");
+        return true;
+    }else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
+        command->saveEffect("Command valid.");
+        return true;
+      
     }
 
-    command->saveEffect(isValid ? "Command valid." : "Invalid command for the current state.");
-    return isValid;
+    command->saveEffect("Invalid command for the current state.");
+    return false;
 }
 
 void CommandProcessor::copy(const CommandProcessor& other) {

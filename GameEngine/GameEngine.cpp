@@ -182,8 +182,11 @@ void GameEngine::startupPhase() {
     while (true) {
         std::cout << "Please enter your command:\n";
         std::string command = cp.readCommand1();  // Read the entire command as a single string
-        std::cout <<endl;
-        if (command == "loadmap") {
+        std::cout << std::endl;
+
+        // Check the current state and validate command
+        if (cp.currentState == "start" && command == "loadmap") {
+            // List available map files
             std::cout << "Here is a list of maps, please choose one:\n";
             for (const auto& entry : std::filesystem::directory_iterator(mapsDirectory)) {
                 if (entry.is_regular_file()) {
@@ -193,6 +196,7 @@ void GameEngine::startupPhase() {
                 }
             }
 
+            // Ask the user to select a map
             std::string chosenMap;
             std::cout << "\nPlease enter the name of the map you want to load: ";
             std::cin >> chosenMap;
@@ -201,41 +205,47 @@ void GameEngine::startupPhase() {
                 std::cout << "You have selected: " << chosenMap << "\n\n";
                 std::string fullPath = mapsDirectory + "/" + chosenMap;
                 Cmap = x.loadMap(fullPath);
+                cp.currentState = "maploaded"; // Update state after successful map loading
             } else {
                 std::cout << "Invalid map name. Please choose from the available maps.\n";
             }
-        } else if (command == "validatemap") {
+        } 
+        else if (cp.currentState == "maploaded" && command == "validatemap") {
             if (Cmap != nullptr) {
                 if (Cmap->validate()) {
-                    std::cout << "Map is valid.\n\n";
+                    cp.currentState = "mapvalidated"; // Update state after successful validation
                 } else {
                     std::cout << "Map is invalid.\n";
                 }
             } else {
                 std::cout << "No map loaded. Please load a map first.\n";
             }
-        } else if (command == "addplayer") {
+        } 
+        else if (cp.currentState == "mapvalidated" && command == "addplayer") {
             addplayer();
-            std::cout <<endl;
-
-        } else if (command == "gamestart") {
+            std::cout << std::endl;
+            cp.currentState = "playersadded"; // Update state after adding players
+        } 
+        else if (cp.currentState == "playersadded" && command == "gamestart") {
             if (Cmap != nullptr) {
-                std::cout <<endl;
+                std::cout << std::endl;
                 DistributeTerritories(*Cmap->Territories, *playerList);
                 shufflePlayers();
                 assignArmyAmount(50);
                 DrawTwoCards();
+                cp.currentState = "assignreinforcement"; // Update state to assign reinforcements
                 break;  // Exit the loop once the game starts
             } else {
                 std::cout << "No map loaded. Please load and validate a map before starting the game.\n";
             }
         } else {
-            std::cout << "Unknown command. Please try again.\n";
+            std::cout << "Unknown command or command not allowed in the current state. Please try again.\n";
         }
     }
 
     mainGameLoop();
 }
+
 
 void GameEngine::addplayer() {
     int playerAmount;
