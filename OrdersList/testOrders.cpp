@@ -215,5 +215,34 @@ void testOrders::mainGameLoop() {
             Airlift* airlift2 = new Airlift(ter1[0],ter2[5],15,player1);
             airlift2->execute();
 
+// Test Negotiate Order
+             std::cout << "\n--- Testing Negotiate Order ---\n";
+           Negociate* negotiate1 = new Negociate(player1, player2);
+    negotiate1->execute();  // Executes the negotiate order, creating a truce between player1 and player2
+    delete negotiate1;
+
+    // Attempt an attack after negotiation to ensure it is blocked
+    Advance* advanceAfterNegotiate = new Advance(player1, ter1[0], ter2[0], 10);
+    advanceAfterNegotiate->execute();  // This should fail due to the truce
+    delete advanceAfterNegotiate;
+
+    std::cout << "\n--- Testing Blockade Order ---\n";
+    // Test Blockade Order
+    Blockade* blockade1 = new Blockade(player1, ter1[0]);
+    blockade1->execute();  // Executes the blockade, doubling army count and transferring ownership to neutral
+    delete blockade1;
+
+    // Check results of the Blockade order
+    std::cout << "After blockade: Territory " << ter1[0]->getName()
+              << " now has " << ter1[0]->getArmyAmount() << " armies and is owned by ";
+    if (ter1[0]->getLandOccupier() == player1) {
+        std::cout << *(player1->getName()) << " (expected neutral player ownership)\n";
+    } else {
+        std::cout << "Neutral Player (ownership successfully transferred)\n";
+    }
+
+    std::cout << "\nNegotiate and Blockade order tests completed." << std::endl;
+
+
 
 }
