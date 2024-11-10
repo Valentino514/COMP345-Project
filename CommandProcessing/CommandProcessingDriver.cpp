@@ -1,48 +1,45 @@
-// #include "CommandProcessing.h"
-// #include <iostream>
+#include "CommandProcessing.h"
+#include <iostream>
+#include <fstream>
 
-// void testCommandProcessor(CommandProcessor* processor) {
-//     // Process commands until the user issues a "quit" command
-//     while (true) {
-//         processor->processInput();
-//         Command* cmd = processor->getCommand();
+void testCommandProcessor() {
+    // Test 1: Console-based Command Processor
+    std::cout << "Testing CommandProcessor with console input..." << std::endl;
+    CommandProcessor cp;
+    cp.processInput();  // Reads a command from the console and validates it
+    std::cout << cp << std::endl;  // Outputs the command and effect to check if it was processed correctly
 
-//         if (cmd != nullptr) {
-//             std::cout << *cmd << std::endl;
-//             if (cmd->getCommand() == "quit") {
-//                 break;
-//             }
-//         } else {
-//             break;
-//         }
-//     }
-// }
+    // Test 2: File-based Command Processor Adapter
+    std::cout << "\nTesting FileCommandProcessorAdapter with file input..." << std::endl;
 
-// int main(int argc, char* argv[]) {
-//     if (argc < 2) {
-//         std::cerr << "Usage: " << argv[0] << " -console OR -file <filename>" << std::endl;
-//         return 1;
-//     }
+    // Create a test command file
+    std::ofstream testFile("test_commands.txt");
+    if (!testFile) {
+        std::cerr << "Error: Could not create test_commands.txt." << std::endl;
+        return;
+    }
+    testFile << "loadmap\n";
+    testFile << "validatemap\n";
+    testFile << "addplayer\n";
+    testFile << "gamestart\n";
+    testFile << "replay\n";
+    testFile.close();
 
-//     Map* gameMap = new Map();  // Create an instance of Map
-//     CommandProcessor* processor = nullptr;
+    // Initialize FileCommandProcessorAdapter with the test file
+    FileCommandProcessorAdapter fcp(nullptr, "test_commands.txt");
 
-//     if (std::string(argv[1]) == "-console") {
-//         processor = new CommandProcessor(gameMap);
-//     } 
-//     else if (std::string(argv[1]) == "-file" && argc == 3) {
-//         processor = new FileCommandProcessorAdapter(gameMap, argv[2]);
-//     } 
-//     else {
-//         std::cerr << "Invalid arguments. Usage: " << argv[0] << " -console OR -file <filename>" << std::endl;
-//         delete gameMap;
-//         return 1;
-//     }
+    // Verify file opened correctly within FileCommandProcessorAdapter
+    if (!fcp.commandFile.is_open()) {
+        std::cerr << "Error: Unable to open file test_commands.txt in FileCommandProcessorAdapter." << std::endl;
+        return;
+    }
 
-//     std::cout << "Testing CommandProcessor:" << std::endl;
-//     testCommandProcessor(processor);
+    // Read and process each command from the file until EOF
+    while (true) {
+        std::string* result = fcp.readCommand();  // Read next command from the file
+        std::cout<< *result<<endl;
 
-//     delete processor;
-//     delete gameMap;
-//     return 0;
-// }
+        std::cout << fcp << std::endl;  // Outputs the command and effect to verify processing
+    }
+}
+
