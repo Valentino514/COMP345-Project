@@ -31,6 +31,7 @@ private:
 // CommandProcessor Class
 class CommandProcessor {
 public:
+bool validate1(Command* command);
     CommandProcessor(Map* gameMap);                    // Constructor with map pointer
      CommandProcessor();
     CommandProcessor(const CommandProcessor& other);   // Copy constructor
