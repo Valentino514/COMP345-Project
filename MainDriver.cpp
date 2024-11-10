@@ -6,54 +6,101 @@
 #include "Map/Map.h"
 #include "OrdersList/Orders.h"
 #include "GameEngine/GameEngine.h"
-#include "OrdersList/OrdersDriver.h"
+#include "CommandProcessing/CommandProcessing.h"
+#include "OrdersList/testOrders.h"
 
-// Forward declarations for the test functions
-// void testLoadMaps();
-// void testPlayers();
-// void testOrdersList();
-// void testCards();
-// void testGameEngine();
+void testCommandProcessor(CommandProcessor* processor);
 void testStartupPhase();
-void testMainGameLoop();
+void testOrderExecution();
+void testLoggingObserver();
 
-int main() {
-    // Test map loading and validation
-    // std::cout << "==========================" << std::endl;
-    // std::cout << "     MAP VALIDATION TEST   " << std::endl;
-    // std::cout << "==========================" << std::endl;
-    // testLoadMaps();
-    // std::cout << std::endl << std::endl;
+bool checkForEscape() {
+    std::string userInput;
+    std::cout << "Type 'escape' to skip to the next test or anything else to continue: ";
+    std::getline(std::cin, userInput);
+    return (userInput == "escape");
+}
 
-    // // Test cards system
-    // std::cout << "==========================" << std::endl;
-    // std::cout << "      CARDS TEST           " << std::endl;
-    // std::cout << "==========================" << std::endl;
-    // testCards();
-    // std::cout << std::endl << std::endl;
+int main(int argc, char* argv[]) {
+    bool runTests = false;
+    if (argc > 1 && std::string(argv[1]) == "--test") {
+        runTests = true;
+    }
 
-    // // Test player functionality
-    // std::cout << "==========================" << std::endl;
-    // std::cout << "     PLAYERS TEST          " << std::endl;
-    // std::cout << "==========================" << std::endl;
-    // testPlayers();
-    // std::cout << std::endl << std::endl;
+    if (runTests) {
+        std::cout << "==========================" << std::endl;
+        std::cout << "     COMMAND PROCESSOR TEST   " << std::endl;
+        std::cout << "==========================" << std::endl;
+        CommandProcessor* processor = new CommandProcessor();
+        
+        if (checkForEscape()) {
+            std::cout << "Skipping Command Processor Test..." << std::endl;
+        } else {
+            testCommandProcessor(processor);
+        }
+        delete processor;
+        std::cout << std::endl << std::endl;
 
-    // // Test orders list functionality
-    // std::cout << "==========================" << std::endl;
-    // std::cout << "     ORDERS LIST TEST      " << std::endl;
-    // std::cout << "==========================" << std::endl;
-    // testOrdersList();
-    // std::cout << std::endl << std::endl;
+        std::cout << "==========================" << std::endl;
+        std::cout << "      STARTUP PHASE TEST           " << std::endl;
+        std::cout << "==========================" << std::endl;
+        if (checkForEscape()) {
+            std::cout << "Skipping Startup Phase Test..." << std::endl;
+        } else {
+            testStartupPhase();
+        }
+        std::cout << std::endl << std::endl;
 
-    // Test game engine functionality
-    std::cout << "==========================" << std::endl;
-    std::cout << "    GAME ENGINE TEST       " << std::endl;
-    std::cout << "==========================" << std::endl;
-    testMainGameLoop();
-    testStartupPhase();
-    testOrderExecution();
-    std::cout << std::endl << std::endl;
+        std::cout << "==========================" << std::endl;
+        std::cout << "     MAIN GAME LOOP TEST       " << std::endl;
+        std::cout << "==========================" << std::endl;
+        if (checkForEscape()) {
+            std::cout << "Skipping Main Game Loop Test..." << std::endl;
+        } else {
+            testOrders* orders = new testOrders();
+
+            while (true) {
+                std::cout << "Enter 'escape' to exit the game loop or anything else to continue: ";
+                std::string userInput;
+                std::getline(std::cin, userInput);
+
+                if (userInput == "escape") {
+                    std::cout << "Exiting the game loop..." << std::endl;
+                    break;
+                } else {
+                    orders->mainGameLoop();
+                }
+            }
+            delete orders;
+        }
+        std::cout << std::endl << std::endl;
+
+        std::cout << "==========================" << std::endl;
+        std::cout << "     ORDERS EXECUTION TEST      " << std::endl;
+        std::cout << "==========================" << std::endl;
+        if (checkForEscape()) {
+            std::cout << "Skipping Orders Execution Test..." << std::endl;
+        } else {
+            testOrderExecution();
+        }
+        std::cout << std::endl << std::endl;
+
+        std::cout << "==========================" << std::endl;
+        std::cout << "  LOGGING OBSERVER TEST    " << std::endl;
+        std::cout << "==========================" << std::endl;
+        if (checkForEscape()) {
+            std::cout << "Skipping Logging Observer Test..." << std::endl;
+        } else {
+            testLoggingObserver();
+        }
+        std::cout << std::endl << std::endl;
+
+    } else {
+        std::cout << "Starting the game..." << std::endl;
+        GameEngine gameEngine;
+        gameEngine.startupPhase();
+        gameEngine.mainGameLoop();
+    }
 
     return 0;
 }
