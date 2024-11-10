@@ -115,20 +115,30 @@ Advance::~Advance() {
 
 }
 
-bool Advance::validate() { //check if source and destination location is valid
-    cout<<"validating advance order\n";
+bool Advance::validate() {//check if source and destination location is valid
+    cout << "validating advance order\n";
     const vector<Territory*>* player_trt = player->getTerritories();
-     const vector<Territory*>* adjacentTerrritories = sourceTerritory->getAdjacentTerritories();
+    const vector<Territory*>* adjacentTerritories = sourceTerritory->getAdjacentTerritories();
 
-    bool isSourceOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->sourceTerritory;});
-    cout<<"does player own the source territory:"<<isSourceOwned<<'\n';
-    this->isDestinationOwned =  any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->destinationTerritory;});
-    cout<<"does player own the target territory:"<<this->isDestinationOwned<<'\n';
-    bool isDestinationAdjacent = any_of(adjacentTerrritories->begin(), adjacentTerrritories->end(), [this](Territory *t){return t == this->destinationTerritory;});
-    cout<<"is territory to advance adjacent?: "<<isDestinationAdjacent<<endl;
+    bool isSourceOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory* t) { return t == this->sourceTerritory; });
+    cout << "does player own the source territory: " << isSourceOwned << '\n';
+    this->isDestinationOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory* t) { return t == this->destinationTerritory; });
+    cout << "does player own the target territory: " << this->isDestinationOwned << '\n';
+    bool isDestinationAdjacent = any_of(adjacentTerritories->begin(), adjacentTerritories->end(), [this](Territory* t) { return t == this->destinationTerritory; });
+    cout << "is territory to advance adjacent?: " << isDestinationAdjacent << endl;
+
+    // Check if the destination territory belongs to a player with whom a truce has been negotiated
+    if (!isDestinationOwned) {
+        Player* territoryOwner = destinationTerritory->getLandOccupier();
+        if (player->isNegotiatedWith(territoryOwner)) {
+            cout << "Advance order validation failed: Truce with " << *(territoryOwner->getName()) << " prevents the attack.\n";
+            return false;
+        }
+    }
 
     return (isSourceOwned && isDestinationAdjacent);
 }
+
 
 void Advance::execute() {
     if (validate()){
@@ -230,9 +240,16 @@ Bomb& Bomb::operator=(const Bomb& other) {
 Bomb::~Bomb() {}
 
 bool Bomb::validate() {
-    cout<<"validating bomb order"<<endl;
+    cout << "validating bomb order\n";
     vector<Territory*> enemy_trt = player->toAttack();
-    bool isTargetAdjacent = any_of(enemy_trt.begin(), enemy_trt.end(), [this](Territory *t){return t == this->targetTerritory;});
+    bool isTargetAdjacent = any_of(enemy_trt.begin(), enemy_trt.end(), [this](Territory* t) { return t == this->targetTerritory; });
+
+    // Check if there’s a truce with the player who owns the target territory
+    Player* territoryOwner = targetTerritory->getLandOccupier();
+    if (player->isNegotiatedWith(territoryOwner)) {
+        cout << "Bomb order validation failed: Truce with " << *(territoryOwner->getName()) << " prevents the bombing.\n";
+        return false;
+    }
 
     return (isTargetAdjacent && player->hasCard(Card::Bomb));
 }
