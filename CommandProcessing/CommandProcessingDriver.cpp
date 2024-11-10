@@ -39,7 +39,6 @@ void testCommandProcessor() {
         std::string* result = fcp.readCommand();  // Read next command from the file
         std::cout<< *result<<endl;
 
-        std::cout << fcp << std::endl;  // Outputs the command and effect to verify processing
     }
 }
 
