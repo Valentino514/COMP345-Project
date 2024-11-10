@@ -189,10 +189,17 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
     }
 }
 
+#include <utility>
+
 std::string* FileCommandProcessorAdapter::readCommand() {
-    static std::string result[2];
+    // Dynamically allocate an array to hold the command and argument
+    std::string* result = new std::string[2]{"", ""};
+
+    // Check if the file is open and not at the end of file
     if (commandFile.is_open() && !commandFile.eof()) {
         std::string line;
+
+        // Attempt to read the next line from the file
         if (std::getline(commandFile, line)) {
             size_t spacePos = line.find(' ');
             if (spacePos != std::string::npos) {
@@ -205,13 +212,26 @@ std::string* FileCommandProcessorAdapter::readCommand() {
 
             // Create and validate the Command
             Command* cmd = new Command(line);
-            validate(cmd);
+            bool isValid = validate(cmd);
+            if (isValid) {
+                cmd->saveEffect("Command valid.");
+            } else {
+                cmd->saveEffect("Invalid command for the current state.");
+            }
             saveCommand(cmd);
+
+            // Debug message to confirm the command has been processed
         } else {
-            std::cerr << "Error: Unable to read command from file." << std::endl;
+                        std::cout << "end of file." << std::endl;
+
+            exit(0);
         }
     } else {
-        std::cerr << "Error: File is not open or has been fully read." << std::endl;
+        if (!commandFile.is_open()) {
+            std::cerr << "Error: File is not open." << std::endl; 
+        } else if (commandFile.eof()) {
+            std::cerr << "End of file reached." << std::endl;
+        }
     }
     return result;
 }
