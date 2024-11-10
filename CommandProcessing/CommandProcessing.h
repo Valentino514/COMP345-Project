@@ -56,7 +56,7 @@ protected:
 
 private:
     Map* map;                                          // Pointer to the Map instance
-    std::vector<Player*> players;                      // Container to store created Player objects
+    std::vector<Player*>* players;                     //  a pointer to a vector of players
 
     void createPlayer(const std::string& playerName);  // Helper method to create a Player
     void clearPlayers();                               // Helper method to clear Player instances
