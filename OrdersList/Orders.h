@@ -5,14 +5,20 @@
 #include <vector>
 #include <string>
 
+#include "../Log/LoggingObserver.h"
+#include "../Log/ILoggable.h"
+
 using namespace std;
 
 // Forward declarations to avoid circular dependencies
 class Territory;
 class Player;
+class Observer;
+class OrdersList;
+class Subject;
 
 // Base Order Class
-class Order {
+class Order : public Subject {
 public:
     string* orderName;  
     Order(); // Default constructor
@@ -22,12 +28,16 @@ public:
 
     virtual bool validate() = 0;
     virtual void execute() = 0;
+    virtual void notify();
+    virtual string stringToLog() const = 0;
+    void setOrdersList(OrdersList* list) { ordersList = list; }
 
     friend ostream& operator<<(ostream& os, const Order& order);
 
 protected:
     virtual void print(ostream& os) const = 0; 
     Player* issuingPlayer;// Track issuing player
+    OrdersList* ordersList;
 };
 
 // Deploy Order
@@ -47,6 +57,7 @@ public:
     bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
+    string stringToLog() const override;
 };
 
 // Advance Order
@@ -70,6 +81,7 @@ public:
     bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
+    string stringToLog() const override;
 };
 
 // Bomb Order
@@ -88,6 +100,7 @@ public:
     bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
+    string stringToLog() const override;
 };
 
 // Blockade Order
@@ -108,6 +121,7 @@ public:
     bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
+    string stringToLog() const override;
 };
 
 // Airlift Order
@@ -129,6 +143,7 @@ public:
     bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
+    string stringToLog() const override;
 };
 
 
@@ -148,12 +163,14 @@ public:
     bool validate() override;
     void execute() override;
     void print(ostream& os) const override;
+    string stringToLog() const override;
 };
 
 // OrdersList Class
-class OrdersList {
+class OrdersList : public Subject {
 private:
     vector<Order*> orders;
+    int position = 0;
 
 public:
     OrdersList();
@@ -166,6 +183,10 @@ public:
     Order* getNextDeployOrder();
     Order* getNextOrder();
     bool isEmpty() const;
+    void notify();
+    void addObserver(Observer* observer);
+    Order* getCurrentOrder() const;
+    string stringToLog() const;
 };
 
 #endif

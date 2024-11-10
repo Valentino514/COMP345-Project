@@ -16,7 +16,7 @@
 using namespace std;
 
 
-GameEngine::GameEngine() {
+GameEngine::GameEngine() : currentIndex(0)  {
     playerList = new std::vector<Player*>;
 }
 
@@ -71,6 +71,10 @@ GameEngine& GameEngine::operator=(const GameEngine& other) {
     return *this;
 }
 
+std::string GameEngine::stringToLog() const {
+    return "GameEngine State Change: New state is " + map[*currentIndex];
+}
+
 void GameEngine::navigate() {
     string* command = new string;
     int* currentIndex = new int(0);
@@ -78,6 +82,7 @@ void GameEngine::navigate() {
     while (true) {
         //display current state
         cout << "current state: " << map[*currentIndex] << endl;
+        notify();
 
         //check for win state
         if ((*currentIndex) == 7) {
@@ -92,6 +97,7 @@ void GameEngine::navigate() {
             (*currentIndex) = 0;
             cout<<"starting new game..."<<endl;
             cout<<"current state: "<<map[*currentIndex]<<endl;
+            notify();
         }
         }
 
@@ -109,10 +115,12 @@ void GameEngine::navigate() {
         //next state
         if (*command == commands[*currentIndex]) {
             (*currentIndex)++;
+            notify();
             //looping orders
             if ((*currentIndex) == 1 || (*currentIndex) == 3 || (*currentIndex) == 5 || (*currentIndex) == 6) {
                 while (true) {
                     cout << "current state: " << map[*currentIndex] << endl;
+                    notify();
 
                     //execute order
                     if (*currentIndex == 6) {
@@ -135,10 +143,12 @@ void GameEngine::navigate() {
                         }
                         else if(*command == commands[(*currentIndex)+2]){
                             (*currentIndex)++;
+                            notify();
                             break;
                         }
                         else if(*command == commands[(*currentIndex)+1]){
                             *currentIndex = (*currentIndex)-2;
+                            notify();
                             break;
                         }
                     }
@@ -147,6 +157,7 @@ void GameEngine::navigate() {
                         continue;
                     } else if (*command == commands[*currentIndex]) {
                         (*currentIndex)++;
+                        notify();
                         if(*currentIndex==6){
                             continue;
                         }

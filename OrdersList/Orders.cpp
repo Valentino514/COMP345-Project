@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <cstdlib> // for random
+#include <ctime> // for random
+#include <iostream>
+
 #include "Orders.h"
 #include "../Map/Map.h"
 #include "../Player/Player.h"
-#include <cstdlib> // for random
-#include <ctime> // for random
 
 using namespace std;
 
@@ -28,6 +30,12 @@ Order& Order::operator=(const Order& other) {
 ostream& operator<<(ostream& os, const Order& order) {
     order.print(os);  
     return os;
+}
+
+void Order::notify() {
+    if (ordersList) {
+        ordersList->notify();
+    }
 }
 
 // Deploy Class
@@ -77,6 +85,11 @@ void Deploy::execute() {
 
 void Deploy::print(ostream& os) const {
     os << "deploy: " << *reinforcementAmount << " soldiers to " << targetTerritory->getName() << "\n";
+}
+
+string Deploy::stringToLog() const {
+    std::string reinforcementStr = std::to_string(*reinforcementAmount);
+    return "Deploy : " + reinforcementStr + " soldiers to " + targetTerritory->getName();
 }
 
 // Implementation of Advance member functions
@@ -222,6 +235,11 @@ void Advance::print(ostream& os) const {
     os << "advance: move " << reinforcementAmount << " armies from " << sourceTerritory->getName() << " to " << destinationTerritory->getName() << "\n";
 }
 
+string Advance::stringToLog() const {
+    std::string reinforcementStr = std::to_string(reinforcementAmount);
+    return "Advance Order: " + reinforcementStr + " armies from " + sourceTerritory->getName() + " to " + destinationTerritory->getName();
+}
+
 // Bomb Class
 Bomb::Bomb() : Order(), targetTerritory(nullptr), player(nullptr) {}
 
@@ -271,6 +289,10 @@ void Bomb::execute() {
 
 void Bomb::print(ostream& os) const {
     os << "bomb: drop bombs on " << targetTerritory->getName() << "\n";
+}
+
+string Bomb::stringToLog() const {
+    return "Bomb Order: drop bombs on " + targetTerritory->getName();
 }
 
 // Blockade Class
@@ -338,6 +360,9 @@ void Blockade::print(ostream& os) const {
     os << "blockade: on " << targetTerritory->getName() << "\n";
 }
 
+string Blockade::stringToLog() const {
+    return "Blockade Order: blockade on " + targetTerritory->getName();
+}
 
 // Airlift Class
 Airlift::Airlift() : Order(), sourceTerritory(nullptr), destinationTerritory(nullptr), reinforcementAmount(nullptr),player(nullptr){}
@@ -376,6 +401,11 @@ void Airlift::execute() {
 
 void Airlift::print(ostream& os) const {
     os << "airlift: move " << *reinforcementAmount << " armies from " << sourceTerritory->getName() << " to " << destinationTerritory->getName() << "\n";
+}
+
+string Airlift::stringToLog() const {
+    std::string reinforcementStr = std::to_string(*reinforcementAmount);
+    return "Airlift Order: move " + reinforcementStr + " armies from " + sourceTerritory->getName() + " to " + destinationTerritory->getName();
 }
 
 Airlift::Airlift(const Airlift& other)
@@ -435,6 +465,9 @@ void Negociate::print(ostream& os) const {
     os << "negotiate: between " << *(player1->getName()) << " and " << *(player2->getName()) << "\n";
 }
 
+string Negociate::stringToLog() const {
+    return "Negociate Order: negotiate between " + *(player1->getName()) + " and " + *(player2->getName());
+}
 
 OrdersList::OrdersList() {}
 
@@ -472,32 +505,60 @@ OrdersList& OrdersList::operator=(const OrdersList& other) {
 }
 void OrdersList::addOrder(Order* orderName) {
     orders.push_back(orderName);
+    orderName->setOrdersList(this);
+}
+
+void OrdersList::notify() {
+    for (auto& observer : observers) {
+        observer->update();
+    }
+}
+
+void OrdersList::addObserver(Observer* observer) {
+    observers.push_back(observer);
+    observer->setSubject(this);  // Set the subject (OrdersList) for the observer
 }
 
 void OrdersList::move() {
     int position = 0;
     int next;
 
-    if (orders.empty()) {
-        cout << "Orders are empty" << endl;
+    std::ofstream logFile("gamelog.txt", std::ios::app);
+    if (!logFile) {
+        std::cerr << "Error opening log file!" << std::endl;
         return;
     }
 
-    cout << "Current order selected: " << *orders[position] << endl;
-    cout << "Press any number to see next order or 0 to exit: ";
-    cin >> next;
+    if (orders.empty()) {
+        std::cout << "Orders are empty" << std::endl;
+        return;
+    }
 
+    // Display the initial order
+    std::cout << "Current order selected: " << *orders[position] << std::endl;
+    std::cout << "Press any number to see next order or 0 to exit: ";
+    std::cin >> next;
+
+    // Process orders as long as the user wants to continue
     while (next != 0) {
-        position++;
+        // Execute the current order, notify observers, and log the action
+        orders[position]->execute();
+        notify();  // Notify after executing the order
+        logFile << "Executing order: " << *orders[position] << std::endl;
 
+        // Move to the next order
+        position++;
         if (position >= orders.size()) {
-            position = 0;
+            position = 0;  // Loop back to the start if we reach the end
         }
 
-        cout << "Order selected: " << *orders[position] << endl;
-        cout << "Press 1 to see next order or 0 to exit: ";
-        cin >> next;
+        // Display the next order and ask for user input again
+        std::cout << "Order selected: " << *orders[position] << std::endl;
+        std::cout << "Press 1 to see next order or 0 to exit: ";
+        std::cin >> next;
     }
+
+    logFile.close();
 }
 
 void OrdersList::remove(Order* order) {
@@ -515,6 +576,17 @@ void OrdersList::remove(Order* order) {
         }
     }
     cout << "Order not found." << endl;
+}
+
+Order* OrdersList::getCurrentOrder() const {
+    if (position >= 0 && position < orders.size()) {
+        return orders[position];
+    }
+    return nullptr;
+}
+
+std::string OrdersList::stringToLog() const {
+    return "Logging OrdersList...";
 }
 
 bool OrdersList::hasDeployOrder() const {

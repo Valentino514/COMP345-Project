@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../Log/LoggingObserver.h"
+
 using namespace std;
 
 class Map;
@@ -12,9 +14,10 @@ class Player;
 class Territory;
 
 
-class GameEngine
+class GameEngine : public Subject
 {
 private:
+    int* currentIndex;
     string* map = new string[8]{"start","map loaded","map validated",
                      "players added", "assign reinforcement",
                      "issue orders", "execute orders", "win"};
@@ -35,17 +38,16 @@ public:
     GameEngine(GameEngine&);
 
     void navigate();
+    std::string stringToLog() const override;
 
     void startupPhase();
     void testMainGame();
     
     void DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p)  ;
 
-     void shufflePlayers();
-
-     void assignArmyAmount(int amount);
-     
-     void DrawTwoCards();
+    void shufflePlayers();
+    void assignArmyAmount(int amount);
+    void DrawTwoCards();
 
 
     // Assignment Operator
@@ -55,14 +57,10 @@ public:
     friend ostream& operator<<(ostream& os, const GameEngine& gameEngine);
 
     void addplayer();
-
     void mainGameLoop();
 
-
     void reinforcementPhase();
-
     void issueOrdersPhase();
-
     void executeOrdersPhase();
 
 
