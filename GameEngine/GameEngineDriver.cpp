@@ -32,6 +32,6 @@ void testMainGameLoop() {
 
     // Step 1: Load Map
     
-    gameEngine.startupPhase();  // Load map via the GameEngine's startup phase method
+    gameEngine.testMainGame();  // Load map via the GameEngine's startup phase method
     
 }

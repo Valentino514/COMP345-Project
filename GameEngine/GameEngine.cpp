@@ -246,6 +246,29 @@ void GameEngine::startupPhase() {
     mainGameLoop();
 }
 
+  void GameEngine::testMainGame() {
+    MapLoader x;
+
+    while (true) {
+      
+    Cmap = x.loadMap("./Map/maps/map1.txt");
+        
+
+            addplayer();
+            std::cout << std::endl;
+
+   
+                DistributeTerritories(*Cmap->Territories, *playerList);
+                shufflePlayers();
+                assignArmyAmount(50);
+                DrawTwoCards();
+               
+       
+
+    mainGameLoop();
+  }
+  }
+
 
 void GameEngine::addplayer() {
     int playerAmount;

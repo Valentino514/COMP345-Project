@@ -14,6 +14,7 @@
 // void testCards();
 // void testGameEngine();
 void testStartupPhase();
+void testMainGameLoop();
 
 int main() {
     // Test map loading and validation
@@ -48,6 +49,7 @@ int main() {
     std::cout << "==========================" << std::endl;
     std::cout << "    GAME ENGINE TEST       " << std::endl;
     std::cout << "==========================" << std::endl;
+    testMainGameLoop();
     testStartupPhase();
     std::cout << std::endl << std::endl;
 

@@ -37,6 +37,7 @@ public:
     void navigate();
 
     void startupPhase();
+    void testMainGame();
     
     void DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p)  ;
 
