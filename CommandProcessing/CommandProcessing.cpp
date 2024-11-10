@@ -52,11 +52,11 @@ std::ostream& operator<<(std::ostream& os, const Command& command) {
 
 CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
     commands = new std::vector<Command*>();
-    currentState = "start";
+    *currentState = "start";
 }
 CommandProcessor::CommandProcessor()  {
     commands = new std::vector<Command*>();
-    currentState = "start";
+   * currentState = "start";
 }
 
 
@@ -131,20 +131,20 @@ void CommandProcessor::saveCommand(Command* command) {
 bool CommandProcessor::validate(Command* command) {
     std::string cmd = command->getCommand();
 
-    if (currentState == "start" && cmd == "loadmap") {
+    if (*currentState == "start" && cmd == "loadmap") {
         
         command->saveEffect("Command valid.");
         return true;
-    } else if (currentState == "maploaded" && cmd == "validatemap") {
+    } else if (*currentState == "maploaded" && cmd == "validatemap") {
         command->saveEffect("Command valid.");
         return true;
-    } else if (currentState == "mapvalidated" && cmd == "addplayer") {
+    } else if (*currentState == "mapvalidated" && cmd == "addplayer") {
         command->saveEffect("Command valid.");
         return true;
-    } else if (currentState == "playersadded" && cmd == "gamestart") {
+    } else if (*currentState == "playersadded" && cmd == "gamestart") {
         command->saveEffect("Command valid.");
         return true;
-    }else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
+    }else if (*currentState == "win" && (cmd == "replay" || cmd == "quit")) {
         command->saveEffect("Command valid.");
         return true;
       
@@ -157,27 +157,27 @@ bool CommandProcessor::validate(Command* command) {
 bool CommandProcessor::validate1(Command* command) {
     std::string cmd = command->getCommand();
 
-    if (currentState == "start" && cmd == "loadmap") {
+    if (*currentState == "start" && cmd == "loadmap") {
         
         command->saveEffect("Command valid.");
-        currentState = "maploaded" ;
+        *currentState = "maploaded" ;
         return true;
-    } else if (currentState == "maploaded" && cmd == "validatemap") {
+    } else if (*currentState == "maploaded" && cmd == "validatemap") {
         command->saveEffect("Command valid.");
-                currentState = "mapvalidated" ;
+                *currentState = "mapvalidated" ;
 
         return true;
-    } else if ((currentState == "mapvalidated" || currentState == "playersadded" )  && cmd == "addplayer") {
+    } else if ((*currentState == "mapvalidated" ||* currentState == "playersadded" )  && cmd == "addplayer") {
         command->saveEffect("Command valid.");
-                currentState = "playersadded" ;
+              *  currentState = "playersadded" ;
 
         return true;
-    } else if (currentState == "playersadded" && cmd == "gamestart") {
+    } else if (*currentState == "playersadded" && cmd == "gamestart") {
         command->saveEffect("Command valid.");
-                currentState = "maploaded" ;
+               *currentState = "maploaded" ;
 
         return true;
-    }else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
+    }else if (*currentState == "win" && (cmd == "replay" || cmd == "quit")) {
         command->saveEffect("Command valid.");
 
         return true;
