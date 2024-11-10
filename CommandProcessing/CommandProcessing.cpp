@@ -1,237 +1,78 @@
-#include "CommandProcessing.h"
+#ifndef COMMANDPROCESSING_H
+#define COMMANDPROCESSING_H
+
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
 #include "../Map/Map.h"
+#include "../Player/Player.h"
 
-// Command class implementation
+// Command Class
+class Command {
+public:
+    Command(const std::string& commandText = "");      // Constructor with default parameter
+    Command(const Command& other);                     // Copy constructor
+    Command& operator=(const Command& other);          // Assignment operator
+    ~Command();                                        // Destructor
 
-Command::Command(const std::string& commandText) {
-    this->commandText = new std::string(commandText);
-    this->effectText = new std::string("");
-}
+    std::string getCommand() const;                    // Returns the command text
+    void saveEffect(const std::string& effect);        // Saves the effect of the command
+    std::string getEffect() const;                     // Returns the effect text
 
-Command::Command(const Command& other) {
-    copy(other);
-}
+    friend std::ostream& operator<<(std::ostream& os, const Command& command); // Stream insertion operator for printing
 
-Command& Command::operator=(const Command& other) {
-    if (this != &other) {
-        delete commandText;
-        delete effectText;
-        copy(other);
-    }
-    return *this;
-}
+private:
+    std::string* commandText;                          // Command text
+    std::string* effectText;                           // Command effect
+    void copy(const Command& other);                   // Helper method to copy command data
+};
 
-Command::~Command() {
-    delete commandText;
-    delete effectText;
-}
+// CommandProcessor Class
+class CommandProcessor {
+public:
+    CommandProcessor(Map* gameMap);                    // Constructor with map pointer
+     CommandProcessor();
+    CommandProcessor(const CommandProcessor& other);   // Copy constructor
+    CommandProcessor& operator=(const CommandProcessor& other); // Assignment operator
+    virtual ~CommandProcessor();                       // Destructor
+        std::string readCommand1();
 
-std::string Command::getCommand() const {
-    return *commandText;
-}
-
-void Command::saveEffect(const std::string& effect) {
-    *effectText = effect;
-}
-
-std::string Command::getEffect() const {
-    return *effectText;
-}
-
-void Command::copy(const Command& other) {
-    commandText = new std::string(*other.commandText);
-    effectText = new std::string(*other.effectText);
-}
-
-std::ostream& operator<<(std::ostream& os, const Command& command) {
-    os << "Command: " << *command.commandText << ", Effect: " << *command.effectText;
-    return os;
-}
-
-// CommandProcessor class implementation
-
-CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
-    commands = new std::vector<Command*>();
-    currentState = "start";
-}
-CommandProcessor::CommandProcessor()  {
-    commands = new std::vector<Command*>();
-    currentState = "start";
-}
+    Command* getCommand();                             // Retrieves the latest command
+    virtual void processInput();                       // Processes user input
+        std::string currentState;                          // Tracks the current state of command processing
 
 
-CommandProcessor::CommandProcessor(const CommandProcessor& other) {
-    commands = new std::vector<Command*>();
-    copy(other);
-}
+    friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp); // Stream insertion operator for printing
 
-CommandProcessor& CommandProcessor::operator=(const CommandProcessor& other) {
-    if (this != &other) {
-        clear();
-        copy(other);
-    }
-    return *this;
-}
+protected:
+    std::vector<Command*>* commands;                   // Stores commands issued to the processor
 
-CommandProcessor::~CommandProcessor() {
-    clear();
-    delete commands;
-}
+    virtual std::string* readCommand();                // Reads and splits command input into two parts (command and argument)
+    void saveCommand(Command* command);                // Saves a command to the command list
+    bool validate(Command* command);                   // Validates command based on current state
+    void copy(const CommandProcessor& other);          // Copies command data
+    void clear();                                      // Clears commands from memory
 
-Command* CommandProcessor::getCommand() {
-    return commands->empty() ? nullptr : commands->back();
-}
+private:
+    Map* map;                                          // Pointer to the Map instance
+    std::vector<Player*> players;                      // Container to store created Player objects
 
-void CommandProcessor::processInput() {
-    readCommand();
-}
+    void createPlayer(const std::string& playerName);  // Helper method to create a Player
+    void clearPlayers();                               // Helper method to clear Player instances
+};
 
-std::string* CommandProcessor::readCommand() {
-    std::string input;
-    std::cout << "Enter a command: ";
-    std::getline(std::cin, input);
+// FileCommandProcessorAdapter Class
+class FileCommandProcessorAdapter : public CommandProcessor {
+public:
+    FileCommandProcessorAdapter(Map* gameMap, const std::string& filename); // Constructor with map and filename
+    ~FileCommandProcessorAdapter();                                         // Destructor to close file
+    std::string* readCommand() override;                                    // Reads command from file and splits it
+    std::ifstream commandFile;                                              // File stream for reading commands
 
-    // Allocate a C-style array of two strings
-    static std::string result[2];
-    
-    size_t spacePos = input.find(' ');
-    if (spacePos != std::string::npos) {
-        result[0] = input.substr(0, spacePos);       // Command name
-        result[1] = input.substr(spacePos + 1);      // Argument
-    } else {
-        result[0] = input;       // Command name only
-        result[1] = "";          // No argument
-    }
+protected:
 
-    
-    // Create and validate the Command
-    Command* cmd = new Command(input);  // You can store the entire input if needed
-    validate(cmd);
-    saveCommand(cmd);
-    return result;
-}
+private:
+};
 
-std::string CommandProcessor::readCommand1() {
-    std::string input;
-
-    // Directly read the input without extra clearing or ignoring
-    std::cin >> input;
-
-    // Create and validate the Command
-    Command* cmd = new Command(input);
-    validate(cmd);
-    saveCommand(cmd);
-
-    return input;  // Return the entire command as a single string
-}
-void CommandProcessor::saveCommand(Command* command) {
-    commands->push_back(command);
-}
-
-bool CommandProcessor::validate(Command* command) {
-    std::string cmd = command->getCommand();
-
-    if (currentState == "start" && cmd == "loadmap") {
-        command->saveEffect("Command valid.");
-        return true;
-    } else if (currentState == "maploaded" && cmd == "validatemap") {
-        command->saveEffect("Command valid.");
-        return true;
-    } else if (currentState == "mapvalidated" && cmd == "addplayer") {
-        command->saveEffect("Command valid.");
-        return true;
-    } else if (currentState == "playersadded" && cmd == "gamestart") {
-        command->saveEffect("Command valid.");
-        return true;
-    }else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
-        command->saveEffect("Command valid.");
-        return true;
-      
-    }
-
-    command->saveEffect("Invalid command for the current state.");
-    return false;
-}
-
-void CommandProcessor::copy(const CommandProcessor& other) {
-    for (Command* cmd : *other.commands) {
-        commands->push_back(new Command(*cmd));
-    }
-    currentState = other.currentState;
-}
-
-void CommandProcessor::clear() {
-    for (Command* cmd : *commands) {
-        delete cmd;
-    }
-    commands->clear();
-}
-
-std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp) {
-    for (const Command* cmd : *cp.commands) {
-        os << *cmd << std::endl;
-    }
-    return os;
-}
-
-// FileCommandProcessorAdapter class implementation
-
-FileCommandProcessorAdapter::FileCommandProcessorAdapter(Map* gameMap, const std::string& filename) : CommandProcessor(gameMap) {
-    commandFile.open(filename);
-    if (!commandFile.is_open()) {
-        std::cerr << "Error: Unable to open file " << filename << std::endl;
-    }
-}
-
-FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
-    if (commandFile.is_open()) {
-        commandFile.close();
-    }
-}
-
-#include <utility>
-
-std::string* FileCommandProcessorAdapter::readCommand() {
-    // Dynamically allocate an array to hold the command and argument
-    std::string* result = new std::string[2]{"", ""};
-
-    // Check if the file is open and not at the end of file
-    if (commandFile.is_open() && !commandFile.eof()) {
-        std::string line;
-
-        // Attempt to read the next line from the file
-        if (std::getline(commandFile, line)) {
-            size_t spacePos = line.find(' ');
-            if (spacePos != std::string::npos) {
-                result[0] = line.substr(0, spacePos);       // Command name
-                result[1] = line.substr(spacePos + 1);      // Argument
-            } else {
-                result[0] = line;       // Command name only
-                result[1] = "";         // No argument
-            }
-
-            // Create and validate the Command
-            Command* cmd = new Command(line);
-            bool isValid = validate(cmd);
-            if (isValid) {
-                cmd->saveEffect("Command valid.");
-            } else {
-                cmd->saveEffect("Invalid command for the current state.");
-            }
-            saveCommand(cmd);
-
-            // Debug message to confirm the command has been processed
-        } else {
-                        std::cout << "end of file." << std::endl;
-
-            exit(0);
-        }
-    } else {
-        if (!commandFile.is_open()) {
-            std::cerr << "Error: File is not open." << std::endl; 
-        } else if (commandFile.eof()) {
-            std::cerr << "End of file reached." << std::endl;
-        }
-    }
-    return result;
-}
+#endif // COMMANDPROCESSING_H
