@@ -132,6 +132,7 @@ bool CommandProcessor::validate(Command* command) {
     std::string cmd = command->getCommand();
 
     if (currentState == "start" && cmd == "loadmap") {
+        
         command->saveEffect("Command valid.");
         return true;
     } else if (currentState == "maploaded" && cmd == "validatemap") {
@@ -145,6 +146,40 @@ bool CommandProcessor::validate(Command* command) {
         return true;
     }else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
         command->saveEffect("Command valid.");
+        return true;
+      
+    }
+
+    command->saveEffect("Invalid command for the current state.");
+    return false;
+}
+
+bool CommandProcessor::validate1(Command* command) {
+    std::string cmd = command->getCommand();
+
+    if (currentState == "start" && cmd == "loadmap") {
+        
+        command->saveEffect("Command valid.");
+        currentState = "maploaded" ;
+        return true;
+    } else if (currentState == "maploaded" && cmd == "validatemap") {
+        command->saveEffect("Command valid.");
+                currentState = "mapvalidated" ;
+
+        return true;
+    } else if ((currentState == "mapvalidated" || currentState == "playersadded" )  && cmd == "addplayer") {
+        command->saveEffect("Command valid.");
+                currentState = "playersadded" ;
+
+        return true;
+    } else if (currentState == "playersadded" && cmd == "gamestart") {
+        command->saveEffect("Command valid.");
+                currentState = "maploaded" ;
+
+        return true;
+    }else if (currentState == "win" && (cmd == "replay" || cmd == "quit")) {
+        command->saveEffect("Command valid.");
+
         return true;
       
     }
@@ -212,11 +247,15 @@ std::string* FileCommandProcessorAdapter::readCommand() {
 
             // Create and validate the Command
             Command* cmd = new Command(line);
-            bool isValid = validate(cmd);
+            bool isValid = validate1(cmd);
             if (isValid) {
                 cmd->saveEffect("Command valid.");
+                                std::cout << "Command valid.";
+
             } else {
                 cmd->saveEffect("Invalid command for the current state.");
+                     std::cout << "Invalid command for the current state.";
+
             }
             saveCommand(cmd);
 
