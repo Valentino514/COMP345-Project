@@ -83,12 +83,12 @@ class FileCommandProcessorAdapter : public CommandProcessor {
 public:
     FileCommandProcessorAdapter(Map* gameMap, const std::string& filename); // Constructor with map and filename
     ~FileCommandProcessorAdapter();                                         // Destructor to close file
-
+    std::ifstream commandFile;                                              // File stream for reading commands
 protected:
     std::string* readCommand() override;                                    // Reads command from file and splits it
 
-private:
-    std::ifstream commandFile;                                              // File stream for reading commands
+
+
 };
 
 #endif // COMMANDPROCESSING_H
