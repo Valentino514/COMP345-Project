@@ -61,7 +61,6 @@ Deploy::~Deploy() {
 }
 
 bool Deploy::validate() {
-    cout<<"validating deploy order\n";
     const vector<Territory*>* player_trt = player->getTerritories();
     //checks if players owns the territory
     bool isTerritoryOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->targetTerritory;});
@@ -71,10 +70,9 @@ bool Deploy::validate() {
 
 void Deploy::execute() {
     if (validate()){
-    cout<<"validation successful, player owns that territory. updating target territory army count\nold count:"<<targetTerritory->getArmyAmount()<<"\n";
+
     int* newArmyAmmount = (targetTerritory->getArmyAmount() + reinforcementAmount);
     targetTerritory->setArmyAmount(*newArmyAmmount);
-    cout<<"new count:"<<targetTerritory->getArmyAmount()<<"\n";
 
     }
     else
@@ -155,7 +153,6 @@ bool Advance::validate() {//check if source and destination location is valid
 
 void Advance::execute() {
     if (validate()){
-        cout<<"advance order validated, will the user be moving troops to a destination he owns?: "<<isDestinationOwned<<"\n";
             if(isDestinationOwned){
                 int* newDestinationArmy = new int((sourceTerritory->getArmyAmount() - reinforcementAmount));
                 sourceTerritory->setArmyAmount(*newDestinationArmy);
@@ -208,7 +205,7 @@ void Advance::execute() {
                     player->addCard(newCard); // Add the new card to the player's hand
                     player->cardReceived(); // Mark that the player has received a card this turn
                 }else{
-                    cout<<"player will already received a card for this turn"<<endl;
+                    cout<<"player "<<*(player->getName()) <<" already received a card for this turn"<<endl;
                 }
                     
             } else {
@@ -280,7 +277,6 @@ bool Bomb::validate() {
 
 void Bomb::execute() {
     if (validate()){
-        cout<<"bomb order validated, current army ammount in target territory:"<<targetTerritory->getArmyAmount()<<'\n';
         player->removeCard(new Card(new Card::CardType(Card::Bomb)));
         int newArmyAmmount = (targetTerritory->getArmyAmount())/2; 
         targetTerritory->setArmyAmount(newArmyAmmount);
