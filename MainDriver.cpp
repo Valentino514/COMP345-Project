@@ -23,10 +23,10 @@ bool checkForEscape() {
 }
 
 int main(int argc, char* argv[]) {
-    testCommandProcessor();
     testOrderExecution();
     testStartupPhase();
     testMainGameLoop();
+    testCommandProcessor();
     testLoggingObserver();
     return 0;
   
