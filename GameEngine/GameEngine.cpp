@@ -189,6 +189,7 @@ void GameEngine::startupPhase() {
     std::string mapsDirectory = "./Map/maps";  // Directory where the map files are stored
     CommandProcessor cp;
 
+
     while (true) {
         std::cout << "Please enter your command:\n";
         std::string command = cp.readCommand1();  // Read the entire command as a single string
@@ -253,7 +254,7 @@ void GameEngine::startupPhase() {
         }
     }
 
-    mainGameLoop();
+    
 }
 
   void GameEngine::testMainGame() {

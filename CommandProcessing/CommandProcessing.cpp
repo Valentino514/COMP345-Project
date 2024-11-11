@@ -56,8 +56,7 @@ CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
 }
 CommandProcessor::CommandProcessor()  {
     commands = new std::vector<Command*>();
-   * currentState = "start";
-}
+    currentState = new std::string("start");}
 
 
 CommandProcessor::CommandProcessor(const CommandProcessor& other) {
