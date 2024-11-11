@@ -1,0 +1,18 @@
+[Map]
+author=Jane Doe
+image=SimpleMap.bmp
+wrap=no
+scroll=none
+warn=yes
+
+[Continents]
+ContinentA=3
+ContinentB=5
+
+[Territories]
+Territory1,100,200,ContinentA,Territory2,Territory4
+Territory2,150,250,ContinentA,Territory1,Territory3
+Territory3,200,300,ContinentA,Territory2,Territory4
+Territory4,250,200,ContinentB,Territory1,Territory3,Territory5
+Territory5,300,250,ContinentB,Territory4,Territory6
+Territory6,350,300,ContinentB,Territory5
