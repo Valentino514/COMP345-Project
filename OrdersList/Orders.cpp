@@ -221,6 +221,10 @@ void Advance::execute() {
 
             // Update the source territory's army count
             int remainingSourceArmy = sourceTerritory->getArmyAmount() - reinforcementAmount;
+            if (remainingSourceArmy<0){
+                remainingSourceArmy = 0;
+
+            }
             sourceTerritory->setArmyAmount(remainingSourceArmy);
             cout<<"player has "<<remainingSourceArmy<<" remaining in the territory he attacked from \n";
 
@@ -268,6 +272,8 @@ bool Bomb::validate() {
         cout << "Bomb order validation failed: Truce with " << *(territoryOwner->getName()) << " prevents the bombing.\n";
         return false;
     }
+    cout << "is target adjacent "<<isTargetAdjacent << "nsdsfsffdsfewf"<< player->hasCard(Card::Bomb);
+    
 
     return (isTargetAdjacent && player->hasCard(Card::Bomb));
 }

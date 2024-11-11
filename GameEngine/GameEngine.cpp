@@ -25,7 +25,6 @@ GameEngine::GameEngine(GameEngine& other){ }
 GameEngine::~GameEngine() {
     if (playerList) {
         for (Player* player : *playerList) {
-                std::cout<<"Player "<<(*player->getName())<< " has been eliminated \n";
 
 
             delete player; // Deletes each Player object
@@ -402,23 +401,14 @@ void GameEngine::DrawTwoCards() {
 void GameEngine::mainGameLoop() {
     bool gameRunning = true;
 
-    do {
-        std::cout << "------------------- Starting Reinforcement Phase -------------------\n" << std::endl;
-        
-        // Execute the game phases
-        reinforcementPhase();
-        issueOrdersPhase();
-        executeOrdersPhase();
-
+    while (gameRunning) {
         // Check if any player owns all territories in the loaded map
         for (Player* player : *playerList) {
             bool ownsAllTerritories = true;
 
-            
-        for (const auto& territoryPair : *Cmap->Territories) {
+            for (const auto& territoryPair : *Cmap->Territories) {
                 Territory* territory = territoryPair.second;
 
-                
                 if (std::find(player->getTerritories()->begin(), player->getTerritories()->end(), territory) == player->getTerritories()->end()) {
                     ownsAllTerritories = false;
                     break;
@@ -432,7 +422,17 @@ void GameEngine::mainGameLoop() {
                 break;
             }
         }
-    } while (gameRunning);
+
+        // Exit loop if a player has won
+        if (!gameRunning) break;
+
+        std::cout << "------------------- Starting Reinforcement Phase -------------------\n" << std::endl;
+
+        // Execute the game phases
+        reinforcementPhase();
+        issueOrdersPhase();
+        executeOrdersPhase();
+    }
 }
 
 
@@ -486,6 +486,8 @@ void GameEngine::issueOrdersPhase() {
                 player->issueOrder(*playerList);   // Call the player's issueOrder method to add an order to their list
             }
         }
+                allPlayersDone = true; // Assume all players are done initially
+
     }
 }
 
@@ -533,7 +535,7 @@ void GameEngine::executeOrdersPhase() {
         // Eliminate players who no longer control any territories
         for (auto it = playerList->begin(); it != playerList->end();) {
             if ((*it)->getTerritoryCount() == 0) { 
-                cout << (*it)->getName() << " has been eliminated.\n";
+                cout << *(*it)->getName() << " has been eliminated.\n";
                 delete *it;              // Free memory for eliminated player
                 it = playerList->erase(it); // Remove player from the list
             } else {
