@@ -177,14 +177,14 @@ void Advance::execute() {
             while (attackerTroops > 0 && enemyTroops > 0) {
                 // Each attacking unit has a 60% chance of killing a defending unit
                 for (int i = 0; i < attackerTroops && enemyTroops > 0; ++i) {
-                    if (rand() % 100 < 60) { // 60% chance
+                    if (rand() % 100 < 60) {
                         enemyTroops--;
                     }
                 }
 
                 // Each defending unit has a 70% chance of killing an attacking unit
                 for (int i = 0; i < enemyTroops && attackerTroops > 0; ++i) {
-                    if (rand() % 100 < 70) { // 70% chance
+                    if (rand() % 100 < 70) {
                         attackerTroops--;
                     }
                 }
@@ -269,7 +269,7 @@ bool Bomb::validate() {
         return false;
     }
 
-    return (isTargetAdjacent && player->hasCard(Card::Bomb));
+    return (isTargetAdjacent);
 }
 
 void Bomb::execute() {

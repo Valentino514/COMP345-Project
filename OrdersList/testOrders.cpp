@@ -38,7 +38,7 @@ testOrders::~testOrders() {
 
 
 void testOrders::testTheOrders() {
-    cout << "Welcome to the Game Startup Phase.\n";
+    cout << "testing orders...\n";
     MapLoader x;
     vector<string> mapFiles;
     string mapsDirectory = "./Map/maps";  // Directory where the map files are stored
