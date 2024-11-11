@@ -40,7 +40,7 @@ public:
     LogObserver();
     void update() const override;
     void printLog() const;
-    void setSubject(Subject* newSubject);
+    void setSubject(Subject* newSubject) override;
 
 private:
     mutable std::vector<std::string> logData;

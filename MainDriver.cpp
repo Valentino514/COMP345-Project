@@ -9,7 +9,7 @@
 #include "CommandProcessing/CommandProcessing.h"
 #include "OrdersList/testOrders.h"
 
-void testCommandProcessor(CommandProcessor* processor);
+void testCommandProcessor();
 void testStartupPhase();
 void testOrderExecution();
 void testLoggingObserver();
@@ -31,14 +31,12 @@ int main(int argc, char* argv[]) {
         std::cout << "==========================" << std::endl;
         std::cout << "     COMMAND PROCESSOR TEST   " << std::endl;
         std::cout << "==========================" << std::endl;
-        CommandProcessor* processor = new CommandProcessor();
         
         if (checkForEscape()) {
             std::cout << "Skipping Command Processor Test..." << std::endl;
         } else {
-            testCommandProcessor(processor);
+            testCommandProcessor();
         }
-        delete processor;
         std::cout << std::endl << std::endl;
 
         std::cout << "==========================" << std::endl;

@@ -91,7 +91,11 @@ Player& Player::operator=(const Player& other) {
 Player::~Player() {
    
     delete name;
+    name = nullptr;
+
     delete armyamount;
+    armyamount = nullptr;
+
 
 
     // Delete territories only if they are owned by the Player class
@@ -100,6 +104,8 @@ Player::~Player() {
             delete t;
         }
         delete territories;
+        territories = nullptr;
+
     }
 
     // Delete cards only if they are owned by the Player class
@@ -108,9 +114,13 @@ Player::~Player() {
             delete c;
         }
         delete cards;
+        cards = nullptr;
+
     }
 
     delete orders;
+    orders = nullptr;
+
 }
 
 // Adds a player to the negotiated list if not already present
