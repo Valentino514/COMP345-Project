@@ -155,13 +155,14 @@ void testOrders::mainGameLoop() {
             cout<<endl;
             vector<Territory*> ter1 = *player1->getTerritories();
             vector<Territory*> ter2 = *player2->getTerritories();
-            cout<<endl;
+            cout<<"deploying troops for player 1"<<endl;
             Deploy* deploy1= new Deploy(ter1[0],250,player1);
             deploy1->execute();
             cout<<endl;
+            cout<<"deploying troops for player 2"<<endl;
             Deploy* deploy2 = new Deploy(ter2[0],250,player2);
             deploy2->execute();
-            cout<<endl;
+            cout<<"deploying troops to a not owned territory"<<endl;
             Deploy* deploy3= new Deploy(ter2[0],5,player1);
             deploy3->execute();
             cout<<endl;

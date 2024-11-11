@@ -269,7 +269,6 @@ bool Bomb::validate() {
         cout << "Bomb order validation failed: Truce with " << *(territoryOwner->getName()) << " prevents the bombing.\n";
         return false;
     }
-    cout << "is target adjacent "<<isTargetAdjacent << "nsdsfsffdsfewf"<< player->hasCard(Card::Bomb);
     
 
     return (isTargetAdjacent);
@@ -277,6 +276,7 @@ bool Bomb::validate() {
 
 void Bomb::execute() {
     if (validate()){
+        cout<<"bomb order validated"<<endl;
         player->removeCard(new Card(new Card::CardType(Card::Bomb)));
         int newArmyAmmount = (targetTerritory->getArmyAmount())/2; 
         targetTerritory->setArmyAmount(newArmyAmmount);
@@ -388,7 +388,7 @@ void Airlift::execute() {
     if(validate()){
     cout<<"airlift order validated, current army ammount in source territory: "<<sourceTerritory->getArmyAmount();
     cout<<"\ncurrent army ammount in target territory: "<<destinationTerritory->getArmyAmount()<<endl;
-    cout<<"deploying "<<reinforcementAmount<<" units"<<endl;
+    cout<<"deploying "<<*reinforcementAmount<<" units"<<endl;
     player->removeCard(new Card(new Card::CardType(Card::Airlift))); //looks bad because we are passing by pointer
     int newSourceArmy = (sourceTerritory->getArmyAmount() - *reinforcementAmount);
     sourceTerritory->setArmyAmount(newSourceArmy);
