@@ -43,27 +43,56 @@ LogObserver::LogObserver() : ordersList(nullptr) {
     }
 }
 
-void LogObserver::update() const {
-    std::cout << "LogObserver notified.\n";  // Debugging line
+/* void LogObserver::update() const {
+        std::cout << "LogObserver notified.\n";  // Debugging line
+
     const OrdersList* ordersList = dynamic_cast<const OrdersList*>(subject);
     if (ordersList) {
         std::cout << "Found OrdersList.\n";  // Debugging line
+
+        Order* currentOrder = ordersList->getCurrentOrder();
+        if (currentOrder) {
+            // Log only if not already in logData to prevent duplication
+            std::string logEntry = "Executed order: " + currentOrder->stringToLog();
+            if (std::find(logData.begin(), logData.end(), logEntry) == logData.end()) {
+                std::ofstream logFile("gamelog.txt", std::ios::app);
+                if (logFile.is_open()) {
+                    logFile << logEntry << std::endl;
+                    logFile.flush();
+                    logFile.close();
+                }
+                logData.push_back(logEntry);  // Track logged orders to avoid re-logging
+            }
+        }
+    }
+} */
+
+
+void LogObserver::update() const {
+    const OrdersList* ordersList = dynamic_cast<const OrdersList*>(subject);
+    if (ordersList) {
         Order* currentOrder = ordersList->getCurrentOrder();
         if (currentOrder) {
             std::ofstream logFile("gamelog.txt", std::ios::app);
             if (logFile.is_open()) {
                 logFile << "Executing order: " << *currentOrder << std::endl;
-                logFile.flush();
                 logFile.close();
             } else {
                 std::cerr << "Error: Unable to open log file." << std::endl;
             }
-            logData.push_back("Executed order: " + currentOrder->stringToLog());
+
+            // Ensure each log entry is unique in `logData`
+            std::string logEntry = "Executed order: " + currentOrder->stringToLog();
+            if (logData.empty() || logData.back() != logEntry) {
+                logData.push_back(logEntry);
+            }
         }
     } else {
         std::cerr << "Error: Subject is not of type OrdersList.\n";
     }
 }
+
+
 
 
 void LogObserver::printLog() const {

@@ -523,16 +523,8 @@ void OrdersList::addObserver(Observer* observer) {
     observers.push_back(observer);
     observer->setSubject(this);  // Set the subject (OrdersList) for the observer
 }
-
 void OrdersList::move() {
-    int position = 0;
     int next = 0;
-
-    std::ofstream logFile("gamelog.txt", std::ios::app);
-    if (!logFile) {
-        std::cerr << "Error opening log file!" << std::endl;
-        return;
-    }
 
     if (orders.empty()) {
         std::cout << "Orders are empty." << std::endl;
@@ -540,30 +532,38 @@ void OrdersList::move() {
     }
 
     do {
-        if (orders[position] != nullptr) {
-            std::cout << "Current order selected: " << *orders[position] << std::endl;
+        Order* currentOrder = getCurrentOrder();
+        if (currentOrder != nullptr) {
+            std::cout << "Current order selected: " << *currentOrder << std::endl;
             std::cout << "Press 1 to see next order or 0 to exit: ";
             std::cin >> next;
 
             if (std::cin.fail() || (next != 0 && next != 1)) {
-                std::cin.clear(); 
+                std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::cout << "Invalid input, please enter 1 or 0." << std::endl;
                 continue;
             }
 
-            orders[position]->execute();
-            notify();
-            logFile << "Executing order: " << *orders[position] << std::endl;
+            // Exit before executing and notifying if next is 0
+            if (next == 0) {
+                break;
+            }
 
-            position = (position + 1) % orders.size();
+            currentOrder->execute();
+            notify();  // Notify observers after executing each order
+
+            position = (position + 1) % orders.size();  // Advance position after notify
         } else {
-            std::cout << "Invalid order at position " << position << std::endl;
+            std::cout << "Invalid order at current position." << std::endl;
             break;
         }
-    } 
-    while (next != 0);  
+    } while (next != 0);
 }
+
+
+
+
 
 void OrdersList::remove(Order* order) {
     if (order == nullptr) {

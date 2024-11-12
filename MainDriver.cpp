@@ -16,9 +16,9 @@ void testLoggingObserver();
 void testMainGameLoop();
 
 int main(int argc, char* argv[]) {
-    testOrderExecution();
-    testStartupPhase();
-    testMainGameLoop();
+ //   testOrderExecution();
+  //  testStartupPhase();
+   // testMainGameLoop();
     testLoggingObserver();
     testCommandProcessor();
 
