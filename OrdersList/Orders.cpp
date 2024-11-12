@@ -523,8 +523,16 @@ void OrdersList::addObserver(Observer* observer) {
     observers.push_back(observer);
     observer->setSubject(this);  // Set the subject (OrdersList) for the observer
 }
+
 void OrdersList::move() {
     int next = 0;
+
+    // Open gamelog.txt in write mode to clear its contents at the start
+    std::ofstream logFile("gamelog.txt", std::ios::out);  
+    if (!logFile) {
+        std::cerr << "Error opening log file!" << std::endl;
+        return;
+    }
 
     if (orders.empty()) {
         std::cout << "Orders are empty." << std::endl;
@@ -545,13 +553,13 @@ void OrdersList::move() {
                 continue;
             }
 
-            // Exit before executing and notifying if next is 0
             if (next == 0) {
                 break;
             }
 
             currentOrder->execute();
             notify();  // Notify observers after executing each order
+            logFile << "Executing order: " << *currentOrder << std::endl;  // Log the current order
 
             position = (position + 1) % orders.size();  // Advance position after notify
         } else {
@@ -559,7 +567,10 @@ void OrdersList::move() {
             break;
         }
     } while (next != 0);
+
+    logFile.close();
 }
+
 
 
 
