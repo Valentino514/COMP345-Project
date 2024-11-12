@@ -2,6 +2,9 @@
 #include <cstdlib> // for random
 #include <ctime> // for random
 #include <iostream>
+#include <fstream>
+#include <limits>  // for numeric_limits
+#include <algorithm>  // for std::max
 
 #include "Orders.h"
 #include "../Map/Map.h"
@@ -523,7 +526,7 @@ void OrdersList::addObserver(Observer* observer) {
 
 void OrdersList::move() {
     int position = 0;
-    int next;
+    int next = 0;
 
     std::ofstream logFile("gamelog.txt", std::ios::app);
     if (!logFile) {
@@ -532,35 +535,34 @@ void OrdersList::move() {
     }
 
     if (orders.empty()) {
-        std::cout << "Orders are empty" << std::endl;
+        std::cout << "Orders are empty." << std::endl;
         return;
     }
 
-    // Display the initial order
-    std::cout << "Current order selected: " << *orders[position] << std::endl;
-    std::cout << "Press any number to see next order or 0 to exit: ";
-    std::cin >> next;
+    do {
+        if (orders[position] != nullptr) {
+            std::cout << "Current order selected: " << *orders[position] << std::endl;
+            std::cout << "Press 1 to see next order or 0 to exit: ";
+            std::cin >> next;
 
-    // Process orders as long as the user wants to continue
-    while (next != 0) {
-        // Execute the current order, notify observers, and log the action
-        orders[position]->execute();
-        notify();  // Notify after executing the order
-        logFile << "Executing order: " << *orders[position] << std::endl;
+            if (std::cin.fail() || (next != 0 && next != 1)) {
+                std::cin.clear(); 
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input, please enter 1 or 0." << std::endl;
+                continue;
+            }
 
-        // Move to the next order
-        position++;
-        if (position >= orders.size()) {
-            position = 0;  // Loop back to the start if we reach the end
+            orders[position]->execute();
+            notify();
+            logFile << "Executing order: " << *orders[position] << std::endl;
+
+            position = (position + 1) % orders.size();
+        } else {
+            std::cout << "Invalid order at position " << position << std::endl;
+            break;
         }
-
-        // Display the next order and ask for user input again
-        std::cout << "Order selected: " << *orders[position] << std::endl;
-        std::cout << "Press 1 to see next order or 0 to exit: ";
-        std::cin >> next;
-    }
-
-    logFile.close();
+    } 
+    while (next != 0);  
 }
 
 void OrdersList::remove(Order* order) {

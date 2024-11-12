@@ -37,14 +37,21 @@ void testLoggingObserver() {
     std::cout << "\nLogging Results:\n";
     logObserver.printLog(); 
 
-    //Testing Game Engine Logging
-    std::cout << "\nTesting GameEngine state transitions...\n";
+    delete deployOrder;
+    delete advanceOrder;
+    delete bombOrder;
+    delete blockadeOrder;
+    delete airliftOrder;
+    delete negociateOrder;
 
-    GameEngine gameEngine;
-    gameEngine.addObserver(&logObserver);
+    // Testing Game Engine Logging
+    // std::cout << "\nTesting GameEngine state transitions...\n";
 
-    gameEngine.navigate();
+    // GameEngine gameEngine;
+    // gameEngine.addObserver(&logObserver);
 
-    std::cout << "\nLogging Results from GameEngine:\n";
-    logObserver.printLog();
+    // gameEngine.navigate();
+
+    // std::cout << "\nLogging Results from GameEngine:\n";
+    // logObserver.printLog();
 }

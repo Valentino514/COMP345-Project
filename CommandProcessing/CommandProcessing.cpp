@@ -1,5 +1,7 @@
 #include "CommandProcessing.h"
 #include "../Map/Map.h"
+#include <algorithm>
+#include <sstream>
 
 // Command class implementation
 
@@ -48,6 +50,30 @@ std::ostream& operator<<(std::ostream& os, const Command& command) {
     return os;
 }
 
+void Command::execute(CommandProcessor* processor) {
+    if (commandText) {
+        std::cout << "Executing command: " << *commandText << std::endl;
+    } else {
+        std::cerr << "Error: commandText is uninitialized!" << std::endl;
+        return;
+    }
+
+    std::cout << "Saving effect..." << std::endl;
+    saveEffect("Executed");
+
+    if (processor) {
+        std::cout << "Notifying processor observers..." << std::endl;
+        processor->notify();
+    } else {
+        std::cerr << "Warning: processor is null." << std::endl;
+    }
+}
+
+std::string Command::stringToLog() const {
+    return "Command: " + *commandText + ", Effect: " + *effectText;
+}
+
+
 // CommandProcessor class implementation
 
 CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
@@ -83,6 +109,10 @@ Command* CommandProcessor::getCommand() {
 
 void CommandProcessor::processInput() {
     readCommand();
+    Command* command = new Command("EmptyCommand");
+    command->execute(this);
+    commands->push_back(command);
+    notify();
 }
 
 std::string* CommandProcessor::readCommand() {
@@ -125,6 +155,7 @@ std::string CommandProcessor::readCommand1() {
 }
 void CommandProcessor::saveCommand(Command* command) {
     commands->push_back(command);
+    command->execute(this);
 }
 
 bool CommandProcessor::validate(Command* command) {
@@ -206,6 +237,23 @@ std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp) {
         os << *cmd << std::endl;
     }
     return os;
+}
+
+void CommandProcessor::notify() {
+    for (Observer* observer : observers) {
+        observer->update();
+    }
+}
+
+std::string CommandProcessor::stringToLog() const {
+    std::ostringstream oss;
+    oss << "CommandProcessor with " << commands->size() << " commands.";
+    // You can add more details here as needed
+    return oss.str();
+}
+
+void CommandProcessor::attach(Observer* observer) {
+    observers.push_back(observer);
 }
 
 // FileCommandProcessorAdapter class implementation

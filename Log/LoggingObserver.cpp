@@ -44,8 +44,10 @@ LogObserver::LogObserver() : ordersList(nullptr) {
 }
 
 void LogObserver::update() const {
+    std::cout << "LogObserver notified.\n";  // Debugging line
     const OrdersList* ordersList = dynamic_cast<const OrdersList*>(subject);
     if (ordersList) {
+        std::cout << "Found OrdersList.\n";  // Debugging line
         Order* currentOrder = ordersList->getCurrentOrder();
         if (currentOrder) {
             std::ofstream logFile("gamelog.txt", std::ios::app);
@@ -56,11 +58,13 @@ void LogObserver::update() const {
             } else {
                 std::cerr << "Error: Unable to open log file." << std::endl;
             }
-            //mutable
-             logData.push_back("Executed order: " + currentOrder->stringToLog());
+            logData.push_back("Executed order: " + currentOrder->stringToLog());
         }
+    } else {
+        std::cerr << "Error: Subject is not of type OrdersList.\n";
     }
 }
+
 
 void LogObserver::printLog() const {
     for (const auto& logEntry : logData) {
