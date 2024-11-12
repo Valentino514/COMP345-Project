@@ -310,15 +310,16 @@ std::string* FileCommandProcessorAdapter::readCommand() {
             saveCommand(cmd);
 
         } else {
-            std::cout << "End of file reachedd." << std::endl;
+            std::cout << "End of file reacheddd." << std::endl;
             delete[] result;  // Clean up result before returning nullptr
-            exit(0);
+            return nullptr;
         }
     } else {
         if (!commandFile.is_open()) {
             std::cerr << "Error: File is not open." << std::endl;
         } else if (commandFile.eof()) {
-            std::cerr << "End of file reached." << std::endl;
+            std::cerr << "End of file reacheed." << std::endl;
+            return nullptr;
         }
         delete[] result;  // Clean up result in case of errors or EOF
         return nullptr;
