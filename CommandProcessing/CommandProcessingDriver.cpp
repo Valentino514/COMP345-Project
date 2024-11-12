@@ -41,7 +41,9 @@ void testCommandProcessor() {
         
         std::string* result = fcp.readCommand();  // Read next command from the file
         // std::cout<< *result<<endl;
-
+if(result==nullptr){
+    break;
+}
 
     }
 }
