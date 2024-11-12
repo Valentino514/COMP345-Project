@@ -17,7 +17,8 @@ class Territory;
 class GameEngine : public Subject
 {
 private:
-    int* currentIndex;
+    int* currentIndex = new int(0);
+
     string* map = new string[8]{"start","map loaded","map validated",
                      "players added", "assign reinforcement",
                      "issue orders", "execute orders", "win"};
@@ -38,7 +39,11 @@ public:
     GameEngine(GameEngine&);
 
     void navigate();
+    void addObserver(Observer* observer);
+    void notify();
+    std::string getState() const;
     std::string stringToLog() const override;
+    std::vector<Observer*> observers;
 
     void startupPhase();
     void testMainGame();

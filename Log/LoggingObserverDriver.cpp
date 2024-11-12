@@ -10,15 +10,7 @@
 void testLoggingObserver() {
     //Testing Order Logging
     OrdersList ordersList;
-/* 
-    Order* deployOrder = new Deploy();
-    Order* advanceOrder = new Advance();
-    Order* bombOrder = new Bomb();
-    Order* blockadeOrder = new Blockade();
-    Order* airliftOrder = new Airlift();
-    Order* negociateOrder = new Negociate();
 
- */
 // Create sample Territory and Player objects
  std::string territoryName = "Sample Territory";
     std::string playerName = "Sample Player";
@@ -57,22 +49,16 @@ void testLoggingObserver() {
 
     std::cout << "\nLogging Results:\n";
     logObserver.printLog(); 
-/* 
-    delete deployOrder;
-    delete advanceOrder;
-    delete bombOrder;
-    delete blockadeOrder;
-    delete airliftOrder;
-    delete negociateOrder; */
+
 
     // Testing Game Engine Logging
-    // std::cout << "\nTesting GameEngine state transitions...\n";
+    std::cout << "\nTesting GameEngine state transitions...\n";
 
-    // GameEngine gameEngine;
-    // gameEngine.addObserver(&logObserver);
+    GameEngine gameEngine;
+    gameEngine.addObserver(&logObserver);
 
-    // gameEngine.navigate();
+    gameEngine.navigate();
 
-    // std::cout << "\nLogging Results from GameEngine:\n";
-    // logObserver.printLog();
+    std::cout << "\nUpdated Logging Results:\n";
+    logObserver.printLog();
 }

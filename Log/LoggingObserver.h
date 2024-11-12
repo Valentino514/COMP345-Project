@@ -8,7 +8,6 @@
 
 #include "ILoggable.h"
 
-class OrdersList;
 class Subject;
 class CommandProcessor;
 
@@ -45,7 +44,6 @@ public:
 private:
     mutable std::vector<std::string> logData;
     Subject* subject;
-    OrdersList* ordersList;
     std::ofstream logFile;
 };
 

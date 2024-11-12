@@ -76,112 +76,121 @@ std::string GameEngine::stringToLog() const {
 }
 
 void GameEngine::navigate() {
-    string* command = new string;
+    std::string* command = new std::string;
     int* currentIndex = new int(0);
 
     while (true) {
-        //display current state
-        cout << "current state: " << map[*currentIndex] << endl;
+        // Display current state only once when changed
+        std::cout << "Current state: " << map[*currentIndex] << std::endl;
         notify();
 
-        //check for win state
-        if ((*currentIndex) == 7) {
-            cout << "type 'play' to begin a new game, or end to finish the game: ";
-        cin >> ws;  
-        getline(cin, *command); 
+        // Check for win state
+        if (*currentIndex == 7) {
+            std::cout << "Type 'play' to begin a new game, or 'end' to finish the game: ";
+            std::cin >> std::ws;  
+            getline(std::cin, *command); 
 
-        if(*command == "end"){
-            cout<<"exiting..";
-            return;
-        }else if(*command == commands[9]){
-            (*currentIndex) = 0;
-            cout<<"starting new game..."<<endl;
-            cout<<"current state: "<<map[*currentIndex]<<endl;
-            notify();
+            if (*command == "end") {
+                std::cout << "Exiting..." << std::endl;
+                break;
+            } else if (*command == commands[9]) {
+                *currentIndex = 0;
+                std::cout << "Starting new game..." << std::endl;
+                std::cout << "Current state: " << map[*currentIndex] << std::endl;
+                notify();
+            }
+            continue;
         }
-        }
 
-        //next move
-        cout << "Type '" << commands[*currentIndex] << "' to move to the next state, or type 'exit' to end: ";
-        cin >> ws;  // Clear leading whitespaces
-        getline(cin, *command);  // Get full command including spaces
+        // Prompt for next move
+        std::cout << "Type '" << commands[*currentIndex] << "' to move to the next state, or 'exit' to end: ";
+        std::cin >> std::ws;
+        getline(std::cin, *command);
 
-        //exit
+        // Exit option
         if (*command == "exit") {
-            cout << "Exiting..." << endl;
-            return;
+            std::cout << "Exiting..." << std::endl;
+            break;
         }
 
-        //next state
+        // Proceed to the next state if the command matches
         if (*command == commands[*currentIndex]) {
             (*currentIndex)++;
             notify();
-            //looping orders
-            if ((*currentIndex) == 1 || (*currentIndex) == 3 || (*currentIndex) == 5 || (*currentIndex) == 6) {
+
+            // Looping states
+            if (*currentIndex == 1 || *currentIndex == 3 || *currentIndex == 5 || *currentIndex == 6) {
                 while (true) {
-                    cout << "current state: " << map[*currentIndex] << endl;
-                    notify();
+                    std::cout << "Current state: " << map[*currentIndex] << std::endl;
 
-                    //execute order
+                    // Execute order and prompt
                     if (*currentIndex == 6) {
-                        cout <<"Type '"<<commands[*currentIndex]<< "' to loop,\n type exit to terminate,\n type '" //loop
-                             << commands[(*currentIndex)+2] << "' to move to "<<map[*currentIndex+1]<< " state\n or type '" // win
-                             <<commands[(*currentIndex)+1]<< "' to go back to "<<map[(*currentIndex)-2]<<": "; //assign rein.
-
+                        std::cout << "Type '" << commands[*currentIndex] << "' to loop,\n type 'exit' to terminate,\n type '"
+                                  << commands[(*currentIndex) + 2] << "' to move to " << map[*currentIndex + 1]
+                                  << " state\n or type '" << commands[(*currentIndex) + 1] << "' to go back to "
+                                  << map[(*currentIndex) - 2] << ": ";
                     } else {
-                        cout << "Type the state again to loop, type exit to terminate, or '"
-                             << commands[*currentIndex] << "' to move to the next state: ";
+                        std::cout << "Type the state again to loop, 'exit' to terminate, or '"
+                                  << commands[*currentIndex] << "' to move to the next state: ";
                     }
                     
-                    cin >> ws;  
-                    getline(cin, *command); 
+                    std::cin >> std::ws;
+                    getline(std::cin, *command);
 
-                    //execute order logic
-                    if(*currentIndex == 6){
-                        if(*command == commands[*currentIndex]){
-                            continue;
-                        }
-                        else if(*command == commands[(*currentIndex)+2]){
+                    // Handle commands in the looped state
+                    if (*currentIndex == 6) {
+                        if (*command == commands[*currentIndex]) {
+                            continue;  // Loop
+                        } else if (*command == commands[(*currentIndex) + 2]) {
                             (*currentIndex)++;
                             notify();
                             break;
-                        }
-                        else if(*command == commands[(*currentIndex)+1]){
-                            *currentIndex = (*currentIndex)-2;
+                        } else if (*command == commands[(*currentIndex) + 1]) {
+                            *currentIndex -= 2;
                             notify();
                             break;
                         }
-                    }
-                    if (*command == commands[*currentIndex-1]) {
-                       //loop
-                        continue;
+                    } else if (*command == commands[*currentIndex - 1]) {
+                        continue;  // Loop
                     } else if (*command == commands[*currentIndex]) {
                         (*currentIndex)++;
                         notify();
-                        if(*currentIndex==6){
+                        if (*currentIndex == 6) {
                             continue;
                         }
                         break;
-
-                    }else if (*command == "exit") {
-                        cout << "Exiting..." << endl;
+                    } else if (*command == "exit") {
+                        std::cout << "Exiting..." << std::endl;
                         return;
                     } else {
-                        cout << "Invalid input, try again." << endl;
+                        std::cout << "Invalid input, try again." << std::endl;
                     }
                 }
             }
         } else {
-            cout << "Invalid input, try again." << endl;
+            std::cout << "Invalid input, try again." << std::endl;
         }
     }
-
     delete command;
     delete currentIndex;
     command = nullptr;
     currentIndex = nullptr;
 }
 
+void GameEngine::addObserver(Observer* observer) {
+    observers.push_back(observer);
+    observer->setSubject(this);
+}
+
+void GameEngine::notify() {
+    for (Observer* observer : observers) {
+        observer->update(); 
+    }
+}
+
+std::string GameEngine::getState() const {
+    return map[*currentIndex];
+}
 
 void GameEngine::startupPhase() {
     std::cout << "Welcome to the Game Startup Phase.\n";
