@@ -77,18 +77,17 @@ std::string GameEngine::stringToLog() const {
 
 void GameEngine::navigate() {
     std::string* command = new std::string;
-    int* currentIndex = new int(0);
 
     while (true) {
-        // Display current state only once when changed
+        
         std::cout << "Current state: " << map[*currentIndex] << std::endl;
         notify();
 
         // Check for win state
         if (*currentIndex == 7) {
             std::cout << "Type 'play' to begin a new game, or 'end' to finish the game: ";
-            std::cin >> std::ws;  
-            getline(std::cin, *command); 
+            std::cin >> std::ws;
+            getline(std::cin, *command);
 
             if (*command == "end") {
                 std::cout << "Exiting..." << std::endl;
@@ -133,7 +132,7 @@ void GameEngine::navigate() {
                         std::cout << "Type the state again to loop, 'exit' to terminate, or '"
                                   << commands[*currentIndex] << "' to move to the next state: ";
                     }
-                    
+
                     std::cin >> std::ws;
                     getline(std::cin, *command);
 
@@ -143,18 +142,15 @@ void GameEngine::navigate() {
                             continue;  // Loop
                         } else if (*command == commands[(*currentIndex) + 2]) {
                             (*currentIndex)++;
-                            notify();
                             break;
                         } else if (*command == commands[(*currentIndex) + 1]) {
                             *currentIndex -= 2;
-                            notify();
                             break;
                         }
                     } else if (*command == commands[*currentIndex - 1]) {
                         continue;  // Loop
                     } else if (*command == commands[*currentIndex]) {
                         (*currentIndex)++;
-                        notify();
                         if (*currentIndex == 6) {
                             continue;
                         }
