@@ -103,5 +103,9 @@ void LogObserver::printLog() const {
 
 void LogObserver::setSubject(Subject* newSubject) {
     subject = newSubject;
-    std::cout << "Subject set to: " << subject << std::endl;  //debug
+    if (subject) {
+        std::cout << "Subject set to: " << subject->stringToLog() << std::endl;
+    } else {
+        std::cout << "Subject is null" << std::endl;
+    }
 }
