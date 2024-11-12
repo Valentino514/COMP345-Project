@@ -78,11 +78,13 @@ std::string Command::stringToLog() const {
 
 CommandProcessor::CommandProcessor(Map* gameMap) : map(gameMap) {
     commands = new std::vector<Command*>();
-    *currentState = "start";
+    currentState = new std::string("start"); // Initialize currentState to avoid segmentation faults
 }
-CommandProcessor::CommandProcessor()  {
+
+CommandProcessor::CommandProcessor() {
     commands = new std::vector<Command*>();
-    currentState = new std::string("start");}
+    currentState = new std::string("start");
+}
 
 
 CommandProcessor::CommandProcessor(const CommandProcessor& other) {
@@ -204,7 +206,7 @@ bool CommandProcessor::validate1(Command* command) {
         return true;
     } else if (*currentState == "playersadded" && cmd == "gamestart") {
         command->saveEffect("Command valid.");
-               *currentState = "maploaded" ;
+               *currentState = "gamestart" ;
 
         return true;
     }else if (*currentState == "win" && (cmd == "replay" || cmd == "quit")) {
@@ -258,7 +260,8 @@ void CommandProcessor::attach(Observer* observer) {
 
 // FileCommandProcessorAdapter class implementation
 
-FileCommandProcessorAdapter::FileCommandProcessorAdapter(Map* gameMap, const std::string& filename) : CommandProcessor(gameMap) {
+FileCommandProcessorAdapter::FileCommandProcessorAdapter(Map* gameMap, const std::string& filename) 
+    : CommandProcessor(gameMap) {
     commandFile.open(filename);
     if (!commandFile.is_open()) {
         std::cerr << "Error: Unable to open file " << filename << std::endl;
@@ -273,6 +276,7 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
 
 #include <utility>
 
+// Updated readCommand method in FileCommandProcessorAdapter
 std::string* FileCommandProcessorAdapter::readCommand() {
     // Dynamically allocate an array to hold the command and argument
     std::string* result = new std::string[2]{"", ""};
@@ -297,27 +301,27 @@ std::string* FileCommandProcessorAdapter::readCommand() {
             bool isValid = validate1(cmd);
             if (isValid) {
                 cmd->saveEffect("Command valid.");
-                                std::cout << "Command valid.";
 
+                std::cout << "\n Command valid." << std::endl;
             } else {
                 cmd->saveEffect("Invalid command for the current state.");
-                     std::cout << "Invalid command for the current state.";
-
+                std::cout << "\nInvalid command for the current state." << std::endl;
             }
             saveCommand(cmd);
 
-            // Debug message to confirm the command has been processed
         } else {
-                        std::cout << "end of file." << std::endl;
-
+            std::cout << "End of file reachedd." << std::endl;
+            delete[] result;  // Clean up result before returning nullptr
             exit(0);
         }
     } else {
         if (!commandFile.is_open()) {
-            std::cerr << "Error: File is not open." << std::endl; 
+            std::cerr << "Error: File is not open." << std::endl;
         } else if (commandFile.eof()) {
             std::cerr << "End of file reached." << std::endl;
         }
+        delete[] result;  // Clean up result in case of errors or EOF
+        return nullptr;
     }
     return result;
 }

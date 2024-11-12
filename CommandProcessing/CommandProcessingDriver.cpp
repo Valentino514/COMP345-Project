@@ -7,9 +7,11 @@ void testCommandProcessor() {
     std::cout << "Testing CommandProcessor with console input..." << std::endl;
     CommandProcessor cp;
     cp.processInput();  // Reads a command from the console and validates it
-    std::cout << cp << std::endl;  // Outputs the command and effect to check if it was processed correctly
+    // std::cout << cp << std::endl;  // Outputs the command and effect to check if it was processed correctly
+
 
     // Test 2: File-based Command Processor Adapter
+
     std::cout << "\nTesting FileCommandProcessorAdapter with file input..." << std::endl;
 
     // Create a test command file
@@ -22,7 +24,7 @@ void testCommandProcessor() {
     testFile << "validatemap\n";
     testFile << "addplayer\n";
     testFile << "gamestart\n";
-    testFile << "replay\n";
+    testFile << "quit\n";
     testFile.close();
 
     // Initialize FileCommandProcessorAdapter with the test file
@@ -36,8 +38,9 @@ void testCommandProcessor() {
 
     // Read and process each command from the file until EOF
     while (true) {
+        
         std::string* result = fcp.readCommand();  // Read next command from the file
-        std::cout<< *result<<endl;
+        // std::cout<< *result<<endl;
 
 
     }

@@ -1,0 +1,5 @@
+loadmap
+validatemap
+addplayer
+gamestart
+quit

@@ -16,10 +16,10 @@ void testLoggingObserver();
 void testMainGameLoop();
 
 int main(int argc, char* argv[]) {
- //   testOrderExecution();
-  //  testStartupPhase();
-   // testMainGameLoop();
-    testLoggingObserver();
+//    testOrderExecution();
+//    testStartupPhase();
+//    testMainGameLoop();
+    // testLoggingObserver();
     testCommandProcessor();
 
     return 0;
