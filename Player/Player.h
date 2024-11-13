@@ -20,7 +20,6 @@ private:
     vector<Card*>* cards;
     OrdersList *orders;
     string* name;
-    bool cardReceivedinTurn;
     int* armyamount;
     
 
@@ -58,12 +57,6 @@ public:
     void addCard(Card* card);
 
     void removeCard(Card* card) ;
-
-    void cardReceived(){cardReceivedinTurn = true;}
-
-    void resetCardReceived() { cardReceivedinTurn = false; } //reset for the next turn
-
-    bool canReceiveCard() const { return !cardReceivedinTurn; } //check if player can receive a card
 
     bool hasCard(Card::CardType type) const;
 

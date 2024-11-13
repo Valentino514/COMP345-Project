@@ -197,15 +197,10 @@ void Advance::execute() {
                 player->addTerritory(destinationTerritory); 
                 enemy->removeTerritory(destinationTerritory);
 
-                // Award a card if the player hasn't received one this turn
-                if (player->canReceiveCard()) {
-                    Card* newCard = new Card(new Card::CardType(Card::getRandomCard().getType()));  // Create a new random card
-                    cout << "Player received a new card " << newCard->getCardTypeName() << endl;
-                    player->addCard(newCard); // Add the new card to the player's hand
-                    player->cardReceived();   // Mark that the player has received a card this turn
-                } else {
-                    cout << "Player " << *(player->getName()) << " already received a card for this turn" << endl;
-                }
+                Card* newCard = new Card(new Card::CardType(Card::getRandomCard().getType()));  // Create a new random card
+                cout << "Player received a new card " << newCard->getCardTypeName() << endl;
+                player->addCard(newCard); // Add the new card to the player's hand
+
             } else {
                 // Defender wins, update remaining enemy troops in the territory
                 cout << "Player failed to eliminate the enemy units\n";
