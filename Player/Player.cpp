@@ -260,8 +260,15 @@ while (issuingAdvanceOrders) {
     // Display player's own territories (for defensive moves)
     cout << "Your territories (to reinforce):" << endl;
     for (Territory* t : toDefend) {
-        cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
+        for(Territory* s: *source->getAdjacentTerritories()){
+            if (t->getName()==s->getName())
+            {
+               cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
+            }
+            
+        }
     }
+    
 
     // Display enemy territories (for attack)
     cout << "\nEnemy territories (to attack):" << endl;
