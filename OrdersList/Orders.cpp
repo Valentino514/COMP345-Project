@@ -135,11 +135,8 @@ bool Advance::validate() {//check if source and destination location is valid
     const vector<Territory*>* adjacentTerritories = sourceTerritory->getAdjacentTerritories();
 
     bool isSourceOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory* t) { return t == this->sourceTerritory; });
-    cout << "does player own the source territory: " << isSourceOwned << '\n';
     this->isDestinationOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory* t) { return t == this->destinationTerritory; });
-    cout << "does player own the target territory: " << this->isDestinationOwned << '\n';
     bool isDestinationAdjacent = any_of(adjacentTerritories->begin(), adjacentTerritories->end(), [this](Territory* t) { return t == this->destinationTerritory; });
-    cout << "is territory to advance adjacent?: " << isDestinationAdjacent << endl;
 
     // Check if the destination territory belongs to a player with whom a truce has been negotiated
     if (!isDestinationOwned) {
@@ -148,6 +145,11 @@ bool Advance::validate() {//check if source and destination location is valid
             cout << "Advance order validation failed: Truce with " << *(territoryOwner->getName()) << " prevents the attack.\n";
             return false;
         }
+    }
+    if(!isSourceOwned){
+        cout<<"Source territory not owned\n";
+    }else if( !isDestinationAdjacent){
+        cout<<"Target territory not adjacent\n";
     }
 
     return (isSourceOwned && isDestinationAdjacent);
@@ -162,6 +164,8 @@ void Advance::execute() {
 
             int newTargetArmy = destinationTerritory->getArmyAmount() + reinforcementAmount;
             destinationTerritory->setArmyAmount(newTargetArmy);
+
+            cout<<"moving troops to different owned territory\n";
 
         } else {
             // If player is attacking another player
@@ -188,7 +192,7 @@ void Advance::execute() {
             }
 
             // Check outcome
-            if (enemyTroops == 0) {
+            if (enemyTroops == 0 && !isDestinationOwned) {
                 // Attacker wins and captures the territory
                 cout << "Player " << *(player->getName()) << " managed to eliminate the enemy units\n";
                 destinationTerritory->setLandOccupier(player); 
@@ -200,7 +204,7 @@ void Advance::execute() {
                 cout << "Player received a new card " << newCard->getCardTypeName() << endl;
                 player->addCard(newCard); // Add the new card to the player's hand
 
-            } else {
+            } else if (attackerTroops==0 && !isDestinationOwned){
                 // Defender wins, update remaining enemy troops in the territory
                 cout << "Player failed to eliminate the enemy units\n";
                 destinationTerritory->setArmyAmount(enemyTroops);  // Set remaining defending troops
@@ -211,7 +215,7 @@ void Advance::execute() {
             int remainingSourceArmy = sourceTerritory->getArmyAmount() - reinforcementAmount;
             if (remainingSourceArmy < 0) remainingSourceArmy = 0;  // Ensure army count doesn't go negative
             sourceTerritory->setArmyAmount(remainingSourceArmy);
-            cout << "Player has " << remainingSourceArmy << " remaining in the territory he attacked from\n";
+            cout << "Player has " << remainingSourceArmy << " remaining in the territory he moved/attacked from\n";
         }
     } else {
         cout << "Validation for advance order failed\n";
