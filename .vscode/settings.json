@@ -95,5 +95,6 @@
     },
     "files.readonlyInclude": {
         "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true
-    }
+    },
+    "C_Cpp.default.compilerPath": "/usr/bin/g++"
 }

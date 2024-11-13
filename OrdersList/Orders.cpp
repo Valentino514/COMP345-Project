@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>  // for numeric_limits
-#include <algorithm>  // for std::max
+#include <algorithm>  // for max
 
 #include "Orders.h"
 #include "../Map/Map.h"
@@ -74,8 +74,8 @@ bool Deploy::validate() {
 void Deploy::execute() {
     if (validate()){
 
-    int* newArmyAmmount = (targetTerritory->getArmyAmount() + reinforcementAmount);
-    targetTerritory->setArmyAmount(*newArmyAmmount);
+    int newArmyAmmount = (targetTerritory->getArmyAmount() + (*reinforcementAmount));
+    targetTerritory->setArmyAmount(newArmyAmmount);
 
     }
     else
@@ -89,7 +89,7 @@ void Deploy::print(ostream& os) const {
 }
 
 string Deploy::stringToLog() const {
-    std::string reinforcementStr = std::to_string(*reinforcementAmount);
+    string reinforcementStr = to_string(*reinforcementAmount);
     return "Deploy : " + reinforcementStr + " soldiers to " + targetTerritory->getName();
 }
 
@@ -155,18 +155,16 @@ bool Advance::validate() {//check if source and destination location is valid
 
 
 void Advance::execute() {
-    if (validate()){
-            if(isDestinationOwned){
-                int* newDestinationArmy = new int((sourceTerritory->getArmyAmount() - reinforcementAmount));
-                sourceTerritory->setArmyAmount(*newDestinationArmy);
-                delete newDestinationArmy;
-                newDestinationArmy = nullptr;
-                int* newTargetArmy = new int((destinationTerritory->getArmyAmount() + reinforcementAmount));
-                destinationTerritory->setArmyAmount(*newTargetArmy);
-                delete newTargetArmy;
-                newTargetArmy = nullptr;
-        }
-             else {
+       if (validate()) {
+        if (isDestinationOwned) {
+            // Adjust source and target territory army counts directly
+            int newSourceArmy = sourceTerritory->getArmyAmount() - reinforcementAmount;
+            sourceTerritory->setArmyAmount(newSourceArmy);
+
+            int newTargetArmy = destinationTerritory->getArmyAmount() + reinforcementAmount;
+            destinationTerritory->setArmyAmount(newTargetArmy);
+
+        } else {
             // If player is attacking another player
             Player* enemy = destinationTerritory->getLandOccupier();
             int enemyTroops = destinationTerritory->getArmyAmount();
@@ -175,62 +173,54 @@ void Advance::execute() {
             srand(static_cast<unsigned>(time(0))); // Seed for random number generator
 
             while (attackerTroops > 0 && enemyTroops > 0) {
-                // Each attacking unit has a 60% chance of killing a defending unit
+                // Attacking units have a 60% chance of killing a defending unit
                 for (int i = 0; i < attackerTroops && enemyTroops > 0; ++i) {
-                    if (rand() % 100 < 60) {
+                    if (rand() % 100 < 60) {  // 60% chance
                         enemyTroops--;
                     }
                 }
 
-                // Each defending unit has a 70% chance of killing an attacking unit
+                // Defending units have a 70% chance of killing an attacking unit
                 for (int i = 0; i < enemyTroops && attackerTroops > 0; ++i) {
-                    if (rand() % 100 < 70) {
+                    if (rand() % 100 < 70) {  // 70% chance
                         attackerTroops--;
                     }
                 }
             }
 
-
-            // If all defending units are eliminated, the attacker captures the territory
+            // Check outcome of the battle
             if (enemyTroops == 0) {
-                cout<<"player "<<*(player->getName())<<" managed to elimate the enemy units\n";
+                // Attacker wins and captures the territory
+                cout << "Player " << *(player->getName()) << " managed to eliminate the enemy units\n";
                 destinationTerritory->setLandOccupier(player); 
-                destinationTerritory->setArmyAmount(attackerTroops); 
+                destinationTerritory->setArmyAmount(attackerTroops);  // Surviving attacking troops occupy territory
                 player->addTerritory(destinationTerritory); 
-                //cout<<"updated player territories:\n";
-                //player->printOwnedTerritories();
                 enemy->removeTerritory(destinationTerritory);
-               // cout<<"updated enemy territories:\n";
-                //enemy->printOwnedTerritories();
-                if(player->canReceiveCard()){
-                    Card* newCard = new Card(new Card::CardType(Card::getRandomCard().getType())); // Create a new random card
-                    cout<<"player received a new card "<<newCard->getCardTypeName()<<endl;
+
+                // Award a card if the player hasn't received one this turn
+                if (player->canReceiveCard()) {
+                    Card* newCard = new Card(new Card::CardType(Card::getRandomCard().getType()));  // Create a new random card
+                    cout << "Player received a new card " << newCard->getCardTypeName() << endl;
                     player->addCard(newCard); // Add the new card to the player's hand
-                    player->cardReceived(); // Mark that the player has received a card this turn
-                }else{
-                    cout<<"player "<<*(player->getName()) <<" already received a card for this turn"<<endl;
+                    player->cardReceived();   // Mark that the player has received a card this turn
+                } else {
+                    cout << "Player " << *(player->getName()) << " already received a card for this turn" << endl;
                 }
-                    
             } else {
-                cout<<"player failed to elimate the enemy units\n";
-                // Update defending troops if the defender held the territory
-                destinationTerritory->setArmyAmount(enemyTroops);
-                cout<<"enemy has "<<destinationTerritory->getArmyAmount()<<" remaining \n";
-
+                // Defender wins, update remaining enemy troops in the territory
+                cout << "Player failed to eliminate the enemy units\n";
+                destinationTerritory->setArmyAmount(enemyTroops);  // Set remaining defending troops
+                cout << "Enemy has " << destinationTerritory->getArmyAmount() << " remaining troops\n";
             }
 
-            // Update the source territory's army count
+            // Update the source territory's army count after the battle
             int remainingSourceArmy = sourceTerritory->getArmyAmount() - reinforcementAmount;
-            if (remainingSourceArmy<0){
-                remainingSourceArmy = 0;
-
-            }
+            if (remainingSourceArmy < 0) remainingSourceArmy = 0;  // Ensure army count doesn't go negative
             sourceTerritory->setArmyAmount(remainingSourceArmy);
-            cout<<"player has "<<remainingSourceArmy<<" remaining in the territory he attacked from \n";
-
+            cout << "Player has " << remainingSourceArmy << " remaining in the territory he attacked from\n";
         }
-    }else{
-        cout<<"validation for advance order failed"<<endl;
+    } else {
+        cout << "Validation for advance order failed\n";
     }
 }
 
@@ -240,7 +230,7 @@ void Advance::print(ostream& os) const {
 }
 
 string Advance::stringToLog() const {
-    std::string reinforcementStr = std::to_string(reinforcementAmount);
+    string reinforcementStr = to_string(reinforcementAmount);
     return "Advance Order: " + reinforcementStr + " armies from " + sourceTerritory->getName() + " to " + destinationTerritory->getName();
 }
 
@@ -384,7 +374,7 @@ bool Airlift::validate() {
     const vector<Territory*>* player_trt = player->getTerritories();
     bool isTargetOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->destinationTerritory;});    
     bool isSourceOwned = any_of(player_trt->begin(), player_trt->end(), [this](Territory *t){return t == this->sourceTerritory;});
-    return (isSourceOwned && isTargetOwned && player->hasCard(Card::Airlift));
+    return (isSourceOwned && isTargetOwned);
 }
 
 void Airlift::execute() {
@@ -409,7 +399,7 @@ void Airlift::print(ostream& os) const {
 }
 
 string Airlift::stringToLog() const {
-    std::string reinforcementStr = std::to_string(*reinforcementAmount);
+    string reinforcementStr = to_string(*reinforcementAmount);
     return "Airlift Order: move " + reinforcementStr + " armies from " + sourceTerritory->getName() + " to " + destinationTerritory->getName();
 }
 
@@ -528,28 +518,28 @@ void OrdersList::move() {
     int next = 0;
 
     // Open gamelog.txt in write mode to clear its contents at the start
-    std::ofstream logFile("gamelog.txt", std::ios::out);  
+    ofstream logFile("gamelog.txt", ios::out);  
     if (!logFile) {
-        std::cerr << "Error opening log file!" << std::endl;
+        cerr << "Error opening log file!" << endl;
         return;
     }
 
     if (orders.empty()) {
-        std::cout << "Orders are empty." << std::endl;
+        cout << "Orders are empty." << endl;
         return;
     }
 
     do {
         Order* currentOrder = getCurrentOrder();
         if (currentOrder != nullptr) {
-            std::cout << "Current order selected: " << *currentOrder << std::endl;
-            std::cout << "Press 1 to see next order or 0 to exit: ";
-            std::cin >> next;
+            cout << "Current order selected: " << *currentOrder << endl;
+            cout << "Press 1 to see next order or 0 to exit: ";
+            cin >> next;
 
-            if (std::cin.fail() || (next != 0 && next != 1)) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Invalid input, please enter 1 or 0." << std::endl;
+            if (cin.fail() || (next != 0 && next != 1)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid input, please enter 1 or 0." << endl;
                 continue;
             }
 
@@ -559,11 +549,11 @@ void OrdersList::move() {
 
             currentOrder->execute();
             notify();  // Notify observers after executing each order
-            logFile << "Executing order: " << *currentOrder << std::endl;  // Log the current order
+            logFile << "Executing order: " << *currentOrder << endl;  // Log the current order
 
             position = (position + 1) % orders.size();  // Advance position after notify
         } else {
-            std::cout << "Invalid order at current position." << std::endl;
+            cout << "Invalid order at current position." << endl;
             break;
         }
     } while (next != 0);
@@ -600,7 +590,7 @@ Order* OrdersList::getCurrentOrder() const {
     return nullptr;
 }
 
-std::string OrdersList::stringToLog() const {
+string OrdersList::stringToLog() const {
     return "Logging OrdersList...";
 }
 

@@ -30,7 +30,7 @@ bool checkForEscape() {
     std::string userInput;
     std::cout << "Type 'escape' to skip to the next test or anything else to continue: ";
     std::getline(std::cin, userInput);
-    return (userInput == "escape");
+    return (userInput == "e");
 }
 
 int main(int argc, char* argv[]) {
