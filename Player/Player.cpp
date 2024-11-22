@@ -96,7 +96,8 @@ Player::~Player() {
     delete armyamount;
     armyamount = nullptr;
 
-
+    delete strat;
+    strat = nullptr;
 
     // Delete territories only if they are owned by the Player class
     if (territories) {

@@ -7,6 +7,7 @@
 #include "../OrdersList/Orders.h"
 #include "../Map/Map.h"
 #include "../CardsDeckHand/Cards.h"
+#include "../PlayerStrategies/PlayerStrategies.h"
 
 class Territory;
 class GameEngine;
@@ -21,7 +22,7 @@ private:
     OrdersList *orders;
     string* name;
     int* armyamount;
-    
+    PlayerStrategy* strat;
 
 public:
 
