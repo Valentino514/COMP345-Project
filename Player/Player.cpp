@@ -96,8 +96,9 @@ Player::~Player() {
     delete armyamount;
     armyamount = nullptr;
 
-    delete strat;
-    strat = nullptr;
+    delete strategy;
+    strategy=nullptr;
+
 
     // Delete territories only if they are owned by the Player class
     if (territories) {
@@ -121,7 +122,6 @@ Player::~Player() {
 
     delete orders;
     orders = nullptr;
-
 }
 
 // Adds a player to the negotiated list if not already present
@@ -174,6 +174,14 @@ std::vector<Territory*> Player::toAttack() const {
 
 
 void Player::issueOrder(const std::vector<Player*>& playerList) {
+
+    if (strategy) {
+        // Check if the strategy is NOT a HumanPlayerStrategy
+        if (!dynamic_cast<HumanPlayerStrategy*>(strategy)) {
+            std::cout << "Non-HumanPlayerStrategy logic being executed for " << *name << "\n";
+            strategy->issueOrder(this); // Call the non-human strategy logic
+        }
+        }else {
     // Retrieve territories to defend and attack
      vector<Territory*> toDefend = this->toDefend();
     vector<Territory*> toAttack = this->toAttack();
@@ -390,7 +398,7 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
         removeCard(selectedCard);
     }
 
-    cout << "Orders Issuing phase completed for player " << *name << ".\n------------------------------------------------" << endl;
+    cout << "Orders Issuing phase completed for player " << *name << ".\n------------------------------------------------" << endl;}
 }
 
 

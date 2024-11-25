@@ -1,20 +1,32 @@
 #ifndef PLAYERSTRATEGIES_H
 #define PLAYERSTRATEGIES_H
+#include <vector>
+#include "../OrdersList/Orders.h"
+#include "../Map/Map.h"
 
-class PlayerStrategy{
+class Player; // Forward declaration of Player class
 
-    virtual void issueOrder() = 0;
-    virtual void toAttack() = 0;
-    virtual void toDefend() = 0;
+class PlayerStrategy {
+public:
+    virtual ~PlayerStrategy() = default;
 
+    virtual void issueOrder(Player* player) = 0;
+    virtual std::vector<Territory*> toDefend(const Player* player) const = 0;
+    virtual std::vector<Territory*> toAttack( const Player* player) const = 0;
 };
 
-class HumanPlayerStrategy: public PlayerStrategy{
-
+class HumanPlayerStrategy : public PlayerStrategy {
+public:
+    void issueOrder(Player* player) ;
+    std::vector<Territory*> toDefend(const Player* player) const ;
+    std::vector<Territory*> toAttack(const Player* player) const ;
 };
 
 class AggresivePlayerStrategy: public PlayerStrategy{
-
+public:
+    void issueOrder(Player* player) ;
+    std::vector<Territory*> toDefend(const Player* player) const ;
+    std::vector<Territory*> toAttack(const Player* player) const ;
 };
 
 
@@ -22,13 +34,20 @@ class BenevolentPlayerStrategy: public PlayerStrategy{
 
 };
 
-class NeutralPlayerStrategy: public PlayerStrategy{
-
-
+// NeutralPlayerStrategy class
+class NeutralPlayerStrategy : public PlayerStrategy {
+public:
+    void issueOrder(Player* player) override;
+    std::vector<Territory*> toDefend(const Player* player) const override ;
+    std::vector<Territory*> toAttack( const Player* player) const override ;
 };
 
-class CheaterPlayerStrategy: public PlayerStrategy{
-
+// CheaterPlayerStrategy class
+class CheaterPlayerStrategy : public PlayerStrategy {
+public:
+    void issueOrder(Player* player) override;
+    std::vector<Territory*> toDefend(const Player* player) const ;
+    std::vector<Territory*> toAttack(const Player* player) const ;
 };
 
 

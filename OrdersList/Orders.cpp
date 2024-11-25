@@ -9,7 +9,7 @@
 #include "Orders.h"
 #include "../Map/Map.h"
 #include "../Player/Player.h"
-
+#include"../PlayerStrategies/PlayerStrategies.h"
 using namespace std;
 
 // Base Order Class
@@ -157,19 +157,20 @@ bool Advance::validate() {//check if source and destination location is valid
 
 
 void Advance::execute() {
-       if (validate()) {
+    if (validate()) {
         if (isDestinationOwned) {
+            // Moving troops within owned territories
             int newSourceArmy = sourceTerritory->getArmyAmount() - reinforcementAmount;
             sourceTerritory->setArmyAmount(newSourceArmy);
 
             int newTargetArmy = destinationTerritory->getArmyAmount() + reinforcementAmount;
             destinationTerritory->setArmyAmount(newTargetArmy);
 
-            cout<<"moving troops to different owned territory\n";
+            cout << "Moving troops to owned territory.\n";
 
         } else {
-            // If player is attacking another player
-            Player* enemy = destinationTerritory->getLandOccupier();
+            // Attacking another player's territory
+            Player* defender = destinationTerritory->getLandOccupier();
             int enemyTroops = destinationTerritory->getArmyAmount();
             int attackerTroops = reinforcementAmount;
 
@@ -194,31 +195,35 @@ void Advance::execute() {
             // Check outcome
             if (enemyTroops == 0 && !isDestinationOwned) {
                 // Attacker wins and captures the territory
-                cout << "Player " << *(player->getName()) << " managed to eliminate the enemy units\n";
-                destinationTerritory->setLandOccupier(player); 
-                destinationTerritory->setArmyAmount(attackerTroops);  // Surviving attacking troops occupy territory
-                player->addTerritory(destinationTerritory); 
-                enemy->removeTerritory(destinationTerritory);
+                cout << "Player " << *(player->getName()) << " eliminated all enemy units.\n";
+                destinationTerritory->setLandOccupier(player);
+                destinationTerritory->setArmyAmount(attackerTroops);  // Remaining troops occupy territory
+                player->addTerritory(destinationTerritory);
+                defender->removeTerritory(destinationTerritory);
+
+                // Trigger strategy change if defender is neutral
+                if (dynamic_cast<NeutralPlayerStrategy*>(defender->getStrategy())) {
+                    cout << "Neutral player's territory attacked. Switching to AggressivePlayerStrategy.\n";
+                    defender->setStrategy(new HumanPlayerStrategy());// placeholder for aggresiveplayerstartgey 
+                }
 
                 Card* newCard = new Card(new Card::CardType(Card::getRandomCard().getType()));  // Create a new random card
                 cout << "Player received a new card " << newCard->getCardTypeName() << endl;
                 player->addCard(newCard); // Add the new card to the player's hand
 
-            } else if (attackerTroops==0 && !isDestinationOwned){
-                // Defender wins, update remaining enemy troops in the territory
-                cout << "Player failed to eliminate the enemy units\n";
-                destinationTerritory->setArmyAmount(enemyTroops);  // Set remaining defending troops
-                cout << "Enemy has " << destinationTerritory->getArmyAmount() << " remaining troops\n";
+            } else if (attackerTroops == 0 && !isDestinationOwned) {
+                // Defender wins
+                cout << "Player failed to capture the territory.\n";
+                destinationTerritory->setArmyAmount(enemyTroops);  // Remaining defending troops
+                cout << "Defender has " << destinationTerritory->getArmyAmount() << " troops left.\n";
             }
 
-            // Update the source territory's army count after the battle
+            // Update the source territory's army count
             int remainingSourceArmy = sourceTerritory->getArmyAmount() - reinforcementAmount;
-            if (remainingSourceArmy < 0) remainingSourceArmy = 0;  // Ensure army count doesn't go negative
-            sourceTerritory->setArmyAmount(remainingSourceArmy);
-            cout << "Player has " << remainingSourceArmy << " remaining in the territory he moved/attacked from\n";
+            sourceTerritory->setArmyAmount(max(0, remainingSourceArmy));
         }
     } else {
-        cout << "Validation for advance order failed\n";
+        cout << "Validation failed for Advance order.\n";
     }
 }
 
