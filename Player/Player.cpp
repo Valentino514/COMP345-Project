@@ -166,7 +166,7 @@ void Player::clearNegotiations() {
 
 void Player::issueOrder(const std::vector<Player*>& playerList) {
         if (strategy) {
-            strategy->issueOrder(this);
+            strategy->issueOrder(this,playerList);
         } else {
             std::cerr << "No strategy assigned to player " << *name << ". Cannot issue orders.\n";
         }
@@ -204,24 +204,24 @@ std::vector<Territory*> Player::toAttack() const {
 
 
 // toAttack returns a list of adjacent territories not owned by the player
-std::vector<Territory*> Player::toAttack() const {
-    std::vector<Territory*> attackList;
-    std::unordered_set<Territory*> addedTerritories;
+// std::vector<Territory*> Player::toAttack() const {
+//     std::vector<Territory*> attackList;
+//     std::unordered_set<Territory*> addedTerritories;
 
-    // Loop through each territory owned by the player to find adjacent ones not owned by the player
-    for (Territory* territory : *territories) {
-        const std::vector<Territory*>* adjacent = territory->getAdjacentTerritories();
+//     // Loop through each territory owned by the player to find adjacent ones not owned by the player
+//     for (Territory* territory : *territories) {
+//         const std::vector<Territory*>* adjacent = territory->getAdjacentTerritories();
 
-        for (Territory* adj : *adjacent) {
-            // Only add if the territory is not owned by the player and hasn't been added before
-            if (adj->getLandOccupier() != this && addedTerritories.find(adj) == addedTerritories.end()) {
-                attackList.push_back(adj);
-                addedTerritories.insert(adj);  // Mark this territory as added
-            }
-        }
-    }
-    return attackList;
-}
+//         for (Territory* adj : *adjacent) {
+//             // Only add if the territory is not owned by the player and hasn't been added before
+//             if (adj->getLandOccupier() != this && addedTerritories.find(adj) == addedTerritories.end()) {
+//                 attackList.push_back(adj);
+//                 addedTerritories.insert(adj);  // Mark this territory as added
+//             }
+//         }
+//     }
+//     return attackList;
+// }
 
 
 // void Player::issueOrder(const std::vector<Player*>& playerList) {

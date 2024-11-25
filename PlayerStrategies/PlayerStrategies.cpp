@@ -3,30 +3,35 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+using namespace std;
+#include "../OrdersList/Orders.h"
 
 // HumanPlayerStrategy Implementation
-void HumanPlayerStrategy::issueOrder(Player* player) {
-   
+void HumanPlayerStrategy::issueOrder(Player* player,const std::vector<Player*>& playerList) {
+
+       const std::vector<Card*>* cards = &(player->getCards());
+    OrdersList* orders = player->getOrdersList();
+
     
     // Retrieve territories to defend and attack
-     vector<Territory*> toDefend = this->toDefend();
-    vector<Territory*> toAttack = this->toAttack();
+     vector<Territory*> toDefend = player->toDefend();
+    vector<Territory*> toAttack = player->toAttack();
 
     // Reinforcement phase
-    cout<< "Player " << *name << " - Select territories to reinforce.\n" << endl;
+    cout<< "Player " << player->getName() << " - Select territories to reinforce.\n" << endl;
     for (size_t i = 0; i < toDefend.size(); ++i) {
         cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies." << endl;
     }
 
-    while (getArmyAmount() > 0) { // Dosent allow the player to go to the next step without finishing reinforcements
+    while (player->getArmyAmount() > 0) { // Dosent allow the player to go to the next step without finishing reinforcements
         string territoryName;
         int reinforcementAmount = 0;
         
-        cout << "\nYou have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
+        cout << "\nYou have " << player->getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
         cin >> territoryName;
         std::cout <<"\n";
 
-        if (territoryName == "exit" && getArmyAmount()==0) break;
+        if (territoryName == "exit" && player->getArmyAmount()==0) break;
 
         // Locate the territory to deploy reinforcements
         Territory* selectedTerritory = nullptr;
@@ -44,16 +49,16 @@ void HumanPlayerStrategy::issueOrder(Player* player) {
 
         // Validates and adds Reinforcement amount for the territory chosen 
         cout << "Enter the number of armies to reinforce " << selectedTerritory->getName() << ": ";
-        while (!(cin >> reinforcementAmount) || reinforcementAmount < 0 || reinforcementAmount > getArmyAmount()) {
-            cout << "Invalid amount. Enter a number between 0 and " << getArmyAmount() << ": ";
+        while (!(cin >> reinforcementAmount) || reinforcementAmount < 0 || reinforcementAmount > player->getArmyAmount()) {
+            cout << "Invalid amount. Enter a number between 0 and " << player->getArmyAmount() << ": ";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
 
         // Create a Deploy order and add to orders list
-         Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,this);
+         Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,player);
          orders->addOrder(deployOrder);  
-        setArmyAmount(getArmyAmount() - reinforcementAmount);
+        player->setArmyAmount(player->getArmyAmount() - reinforcementAmount);
         cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << ".\n" << endl;
     }
 
@@ -61,8 +66,8 @@ void HumanPlayerStrategy::issueOrder(Player* player) {
 
   bool issuingAdvanceOrders = true;
 while (issuingAdvanceOrders) {
-    toDefend=this->toDefend();
-    toAttack = this->toAttack();
+    toDefend=this->toDefend(player);
+    toAttack = this->toAttack(player);
 
     cout << "Territories available to move/attack from:" << endl;
     cout << "------------------------------------------------\n" << endl;
@@ -154,7 +159,7 @@ while (issuingAdvanceOrders) {
     }
 
     
-    Order* order = new Advance(this, source, destination, numArmies);  
+    Order* order = new Advance(player, source, destination, numArmies);  
     orders->addOrder(order); // Add the order to the player's order list
 
     cout << "Advance order issued to move " << numArmies << " armies from " << source->getName()
@@ -171,7 +176,7 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
 
 
  while (!cards->empty()) {
-        cout << *name << " - Cards in hand:" << endl;
+        cout << player->getName() << " - Cards in hand:" << endl;
         for (size_t i = 0; i < cards->size(); ++i) {
             cout << i + 1 << ". " << cards->at(i)->getCardTypeName() << endl;
         }
@@ -193,38 +198,38 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
 
         Order* cardOrder = nullptr;
         if (selectedCard->getCardTypeName() == "Bomb") {
-            Territory* target = selectTargetFromAttackList();
-            cardOrder = new Bomb(target,this); // Bomb order targets enemy territory
+            Territory* target = player->selectTargetFromAttackList();
+            cardOrder = new Bomb(target,player); // Bomb order targets enemy territory
 
             cout << "Bomb order created targeting " << target->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Airlift") {
-            Territory* source = selectSourceTerritory();
-            Territory* destination = selectDestinationTerritory();
-            int armyAmount = selectArmyAmount(source);
-            cardOrder = new Airlift(source, destination, armyAmount,this); // Airlift within own territories
+            Territory* source = player->selectSourceTerritory();
+            Territory* destination = player->selectDestinationTerritory();
+            int armyAmount =player-> selectArmyAmount(source);
+            cardOrder = new Airlift(source, destination, armyAmount,player); // Airlift within own territories
 
             cout << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
                  << " to " << destination->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Blockade") {
-            Territory* target = selectTargetFromDefendList();
-            cardOrder = new Blockade(this, target); // Blockade on own territory
+            Territory* target = player->selectTargetFromDefendList();
+            cardOrder = new Blockade(player, target); // Blockade on own territory
 
             cout << "Blockade order created on " << target->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Diplomacy") {
             //Player* targetPlayer = selectPlayerToNegotiate(*playerList);
-            Player* targetPlayer = selectPlayerToNegotiate(playerList);
+            Player* targetPlayer = player->selectPlayerToNegotiate(playerList);
 
-            cardOrder = new Negociate(this, targetPlayer); // Negotiate with enemy player
+            cardOrder = new Negociate(player, targetPlayer); // Negotiate with enemy player
             cout << "Negotiate order created with " << *(targetPlayer->getName()) << "." << endl;
          }
 
         if (cardOrder) {
             orders->addOrder(cardOrder);
         }
-        removeCard(selectedCard);
+        player->removeCard(selectedCard);
     }
 
-    cout << "Orders Issuing phase completed for player " << *name << ".\n------------------------------------------------" << endl;}
+    cout << "Orders Issuing phase completed for player " << player->getName() << ".\n------------------------------------------------" << endl;}
 
 
 
@@ -259,7 +264,7 @@ std::vector<Territory*> HumanPlayerStrategy::toAttack(const Player* player) cons
 
 
 // NeutralPlayerStrategy Implementation
-void NeutralPlayerStrategy::issueOrder(Player* player) {
+void NeutralPlayerStrategy::issueOrder(Player* player,const std::vector<Player*>& playerList) {
     std::cout << "NeutralPlayer: Doing nothing.\n";
     // Does not issue any orders
 }
@@ -273,7 +278,7 @@ std::vector<Territory*> NeutralPlayerStrategy::toAttack(const Player* player) co
 }
 
 // CheaterPlayerStrategy Implementation
-void CheaterPlayerStrategy::issueOrder(Player* player) {
+void CheaterPlayerStrategy::issueOrder(Player* player,const std::vector<Player*>& playerList) {
     std::cout << "CheaterPlayerStrategy: Automatically conquering all adjacent enemy territories!\n";
     std::vector<Territory*> attackList = player->toAttack(); // Get territories that can be attacked
 
