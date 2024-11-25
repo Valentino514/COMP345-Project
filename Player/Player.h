@@ -11,21 +11,27 @@
 
 class Territory;
 class GameEngine;
+class PlayerStrategy;
 
 class Player
+
 {
 private:
-    
+
+    PlayerStrategy* strategy; // Pointer to the strategy object
+
     std::vector<Player*> negotiatedPlayers; // Players with whom this player has a truce
     vector<Territory*>* territories;
     vector<Card*>* cards;
     OrdersList *orders;
     string* name;
     int* armyamount;
-    PlayerStrategy* strat;
+    
 
 public:
-
+    PlayerStrategy* getStrategy() const {
+    return strategy;
+    }
 
     void clearNegotiations(); // Clears the list of negotiated players
     Player(string* name, int* armyamount);
@@ -43,11 +49,15 @@ public:
 
     friend ostream& operator<<(ostream& os, const Player& player);
 
-    void issueOrder(const std::vector<Player*>& playerList);
+// Delegate to strategy for orders and decisions
+    void issueOrder(const std::vector<Player*>& playerList) ;
+    std::vector<Territory*> toDefend() const ;
+    // return strategy->toDefend(this);
 
-    std::vector<Territory*> toDefend() const;
 
-    vector<Territory*> toAttack() const;
+std::vector<Territory*> toAttack() const ;
+    // return strategy->toAttack(this);
+
 
     void addTerritory(Territory* territory);
 
@@ -65,6 +75,11 @@ public:
 
      const std::vector<Territory*>* getTerritories() const {
         return territories;
+    }
+
+    void setStrategy(PlayerStrategy* newStrategy) {
+        delete strategy; // Clean up the old strategy
+        strategy = newStrategy;
     }
 
     void removeTerritory(Territory* territory);
