@@ -18,7 +18,7 @@ class Player
 {
 private:
 
-    PlayerStrategy* strategy; // Pointer to the strategy object
+    PlayerStrategy* strategy; // Strategy pointer
 
     std::vector<Player*> negotiatedPlayers; // Players with whom this player has a truce
     vector<Territory*>* territories;
@@ -36,7 +36,7 @@ public:
     void clearNegotiations(); // Clears the list of negotiated players
     Player(string* name, int* armyamount);
     Player(string& name);
-
+    Player(string* name, int* armyamount, PlayerStrategy* customStrategy);
     ~Player(); //destructor
 
     // Copy Constructor
@@ -51,6 +51,7 @@ public:
 
 // Delegate to strategy for orders and decisions
     void issueOrder(const std::vector<Player*>& playerList) ;
+
     std::vector<Territory*> toDefend() const ;
     // return strategy->toDefend(this);
 

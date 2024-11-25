@@ -13,24 +13,28 @@ using namespace std;
 
 Player::Player(string* name, int* armyamount) {
     cout << "Generating player..." << *name << " with " << *armyamount << " armies\n";
-    this->name = new string(*name);  
-    this->armyamount = new int(*armyamount);  
+    this->name = new string(*name);
+    this->armyamount = new int(*armyamount);
     orders = new OrdersList();
     cards = new vector<Card*>;
     territories = new vector<Territory*>;
+    strategy = new HumanPlayerStrategy(); // Default strategy
 }
+
 Player::Player(string& name) {
     cout << "Generating player... " << name << " with 0 armies (default)\n";
-    this->name = new string(name);  
-    this->armyamount = new int(0);  
+    this->name = new string(name);
+    this->armyamount = new int(0);
     orders = new OrdersList();
     cards = new vector<Card*>;
     territories = new vector<Territory*>;
+    strategy = new HumanPlayerStrategy(); // Default strategy
 }
+
 
 Player::Player(const Player& other) {
     name = new string(*other.name);
-    armyamount = new int(*other.armyamount);  
+    armyamount = new int(*other.armyamount);
 
     // Deep copy territories
     territories = new vector<Territory*>;
@@ -38,15 +42,34 @@ Player::Player(const Player& other) {
         territories->push_back(new Territory(*t));
     }
 
-    // Deep copy Card
+    // Deep copy cards
     cards = new vector<Card*>;
     for (Card* c : *(other.cards)) {
         cards->push_back(new Card(*c));
     }
 
-    
     orders = new OrdersList(*(other.orders));
+
+    // Copy strategy using setStrategy
+    strategy = nullptr; // Initialize strategy
+    if (other.strategy) {
+        setStrategy(other.strategy); // Use setStrategy to assign the strategy
+    } else {
+        strategy = new HumanPlayerStrategy(); // Default to HumanPlayerStrategy
+    }
 }
+
+
+Player::Player(string* name, int* armyamount, PlayerStrategy* customStrategy) {
+    cout << "Generating player..." << *name << " with " << *armyamount << " armies\n";
+    this->name = new string(*name);
+    this->armyamount = new int(*armyamount);
+    orders = new OrdersList();
+    cards = new vector<Card*>;
+    territories = new vector<Territory*>;
+    strategy = customStrategy ? customStrategy : new HumanPlayerStrategy(); // Use custom or default
+}
+
 
 void Player::setArmyAmount(int amount) { 
     if (armyamount) {
@@ -140,16 +163,44 @@ void Player::clearNegotiations() {
     negotiatedPlayers.clear();
 }
 
-// Return a List of Territories to Defend
-std::vector<Territory*> Player::toDefend() const {
 
-    std::vector<Territory*> defendList;
-    for (Territory* territory : *territories) {
-        defendList.push_back(territory);
+void Player::issueOrder(const std::vector<Player*>& playerList) {
+        if (strategy) {
+            strategy->issueOrder(this);
+        } else {
+            std::cerr << "No strategy assigned to player " << *name << ". Cannot issue orders.\n";
+        }
     }
-    return defendList;
 
-}
+std::vector<Territory*> Player::toDefend() const {
+        if (strategy) {
+            return strategy->toDefend(this);
+        } else {
+            std::cerr << "No strategy assigned to player " << *name << ". Returning empty defense list.\n";
+            return {};
+        }
+    }
+
+std::vector<Territory*> Player::toAttack() const {
+        if (strategy) {
+            return strategy->toAttack(this);
+        } else {
+            std::cerr << "No strategy assigned to player " << *name << ". Returning empty attack list.\n";
+            return {};
+        }
+    }
+
+
+// // Return a List of Territories to Defend
+// std::vector<Territory*> Player::toDefend() const {
+
+//     std::vector<Territory*> defendList;
+//     for (Territory* territory : *territories) {
+//         defendList.push_back(territory);
+//     }
+//     return defendList;
+
+// }
 
 
 // toAttack returns a list of adjacent territories not owned by the player
@@ -173,233 +224,233 @@ std::vector<Territory*> Player::toAttack() const {
 }
 
 
-void Player::issueOrder(const std::vector<Player*>& playerList) {
+// void Player::issueOrder(const std::vector<Player*>& playerList) {
 
-    if (strategy) {
-        // Check if the strategy is NOT a HumanPlayerStrategy
-        if (!dynamic_cast<HumanPlayerStrategy*>(strategy)) {
-            std::cout << "Non-HumanPlayerStrategy logic being executed for " << *name << "\n";
-            strategy->issueOrder(this); // Call the non-human strategy logic
-        }
-        }else {
-    // Retrieve territories to defend and attack
-     vector<Territory*> toDefend = this->toDefend();
-    vector<Territory*> toAttack = this->toAttack();
+//     if (strategy) {
+//         // Check if the strategy is NOT a HumanPlayerStrategy
+//         if (!dynamic_cast<HumanPlayerStrategy*>(strategy)) {
+//             std::cout << "Non-HumanPlayerStrategy logic being executed for " << *name << "\n";
+//             strategy->issueOrder(this); // Call the non-human strategy logic
+//         }
+//         }else {
+//     // Retrieve territories to defend and attack
+//      vector<Territory*> toDefend = this->toDefend();
+//     vector<Territory*> toAttack = this->toAttack();
 
-    // Reinforcement phase
-    cout<< "Player " << *name << " - Select territories to reinforce.\n" << endl;
-    for (size_t i = 0; i < toDefend.size(); ++i) {
-        cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies." << endl;
-    }
+//     // Reinforcement phase
+//     cout<< "Player " << *name << " - Select territories to reinforce.\n" << endl;
+//     for (size_t i = 0; i < toDefend.size(); ++i) {
+//         cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies." << endl;
+//     }
 
-    while (getArmyAmount() > 0) { // Dosent allow the player to go to the next step without finishing reinforcements
-        string territoryName;
-        int reinforcementAmount = 0;
+//     while (getArmyAmount() > 0) { // Dosent allow the player to go to the next step without finishing reinforcements
+//         string territoryName;
+//         int reinforcementAmount = 0;
         
-        cout << "\nYou have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
-        cin >> territoryName;
-        std::cout <<"\n";
+//         cout << "\nYou have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
+//         cin >> territoryName;
+//         std::cout <<"\n";
 
-        if (territoryName == "exit" && getArmyAmount()==0) break;
+//         if (territoryName == "exit" && getArmyAmount()==0) break;
 
-        // Locate the territory to deploy reinforcements
-        Territory* selectedTerritory = nullptr;
-        for (Territory* t : toDefend) {
-            if (t->getName() == territoryName) {
-                selectedTerritory = t;
-                break;
-            }
-        }
+//         // Locate the territory to deploy reinforcements
+//         Territory* selectedTerritory = nullptr;
+//         for (Territory* t : toDefend) {
+//             if (t->getName() == territoryName) {
+//                 selectedTerritory = t;
+//                 break;
+//             }
+//         }
 
-        if (!selectedTerritory) {
-            cout << "Territory not found. Try again.\n" << endl;
-            continue;
-        }
+//         if (!selectedTerritory) {
+//             cout << "Territory not found. Try again.\n" << endl;
+//             continue;
+//         }
 
-        // Validates and adds Reinforcement amount for the territory chosen 
-        cout << "Enter the number of armies to reinforce " << selectedTerritory->getName() << ": ";
-        while (!(cin >> reinforcementAmount) || reinforcementAmount < 0 || reinforcementAmount > getArmyAmount()) {
-            cout << "Invalid amount. Enter a number between 0 and " << getArmyAmount() << ": ";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        }
+//         // Validates and adds Reinforcement amount for the territory chosen 
+//         cout << "Enter the number of armies to reinforce " << selectedTerritory->getName() << ": ";
+//         while (!(cin >> reinforcementAmount) || reinforcementAmount < 0 || reinforcementAmount > getArmyAmount()) {
+//             cout << "Invalid amount. Enter a number between 0 and " << getArmyAmount() << ": ";
+//             cin.clear();
+//             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//         }
 
-        // Create a Deploy order and add to orders list
-         Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,this);
-         orders->addOrder(deployOrder);  
-        setArmyAmount(getArmyAmount() - reinforcementAmount);
-        cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << ".\n" << endl;
-    }
+//         // Create a Deploy order and add to orders list
+//          Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,this);
+//          orders->addOrder(deployOrder);  
+//         setArmyAmount(getArmyAmount() - reinforcementAmount);
+//         cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << ".\n" << endl;
+//     }
 
-    cout << "\n------------------------------------------------\n         Reinforcement phase completed\n------------------------------------------------\n\n" << endl;
+//     cout << "\n------------------------------------------------\n         Reinforcement phase completed\n------------------------------------------------\n\n" << endl;
 
-  bool issuingAdvanceOrders = true;
-while (issuingAdvanceOrders) {
-    toDefend=this->toDefend();
-    toAttack = this->toAttack();
+//   bool issuingAdvanceOrders = true;
+// while (issuingAdvanceOrders) {
+//     toDefend=this->toDefend();
+//     toAttack = this->toAttack();
 
-    cout << "Territories available to move/attack from:" << endl;
-    cout << "------------------------------------------------\n" << endl;
-    for (size_t i = 0; i < toDefend.size(); ++i) {
-        cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies available." << endl;
-    }
+//     cout << "Territories available to move/attack from:" << endl;
+//     cout << "------------------------------------------------\n" << endl;
+//     for (size_t i = 0; i < toDefend.size(); ++i) {
+//         cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies available." << endl;
+//     }
 
-    // Gather source territory
-    Territory* source = nullptr;
-    while (true) {
-        string sourceName;
-        cout << "\nEnter the name of the territory to move troops from: ";
-        cin >> sourceName;
+//     // Gather source territory
+//     Territory* source = nullptr;
+//     while (true) {
+//         string sourceName;
+//         cout << "\nEnter the name of the territory to move troops from: ";
+//         cin >> sourceName;
 
-        //Validate maybe will comment out
-        for (Territory* t : toDefend) {
-            if (t->getName() == sourceName) {
-                source = t;
-                break;
-            }
-        }
-        if (source) break; // Exit Loop if player owns territory
-        cout << "Source territory not found. Try again." << endl;
-    }
+//         //Validate maybe will comment out
+//         for (Territory* t : toDefend) {
+//             if (t->getName() == sourceName) {
+//                 source = t;
+//                 break;
+//             }
+//         }
+//         if (source) break; // Exit Loop if player owns territory
+//         cout << "Source territory not found. Try again." << endl;
+//     }
 
     
-    cout << "\nChoose a destination territory:" << endl;
-    cout << "-----------------------------------------------" << endl;
+//     cout << "\nChoose a destination territory:" << endl;
+//     cout << "-----------------------------------------------" << endl;
 
-    // Display player's own territories (for defensive moves)
-    cout << "Your territories (to reinforce):" << endl;
-    for (Territory* t : toDefend) {
-        for(Territory* s: *source->getAdjacentTerritories()){
-            if (t->getName()==s->getName())
-            {
-               cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
-            }
+//     // Display player's own territories (for defensive moves)
+//     cout << "Your territories (to reinforce):" << endl;
+//     for (Territory* t : toDefend) {
+//         for(Territory* s: *source->getAdjacentTerritories()){
+//             if (t->getName()==s->getName())
+//             {
+//                cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
+//             }
             
-        }
-    }
+//         }
+//     }
     
 
-    // Display enemy territories (for attack)
-    cout << "\nEnemy territories (to attack):" << endl;
-    for (Territory* t : toAttack) {
-        for(Territory* s: *source->getAdjacentTerritories()){
-            if (t->getName()==s->getName())
-            {
-               cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
-            }
+//     // Display enemy territories (for attack)
+//     cout << "\nEnemy territories (to attack):" << endl;
+//     for (Territory* t : toAttack) {
+//         for(Territory* s: *source->getAdjacentTerritories()){
+//             if (t->getName()==s->getName())
+//             {
+//                cout << "- " << t->getName() << ": " << t->getArmyAmount() << " armies." << endl;
+//             }
             
-        }
-    }
+//         }
+//     }
 
-    // Get destination territory
-    Territory* destination = nullptr;
-    while (true) {
-        string destinationName;
-        cout << "\nEnter the name of the destination territory: ";
-        cin >> destinationName;
+//     // Get destination territory
+//     Territory* destination = nullptr;
+//     while (true) {
+//         string destinationName;
+//         cout << "\nEnter the name of the destination territory: ";
+//         cin >> destinationName;
 
-        // Locate the destination in either toDefend or toAttack            (maybe comment out later )
-        for (Territory* t : toDefend) {
-            if (t->getName() == destinationName) {
-                destination = t;
-                break;
-            }
-        }
-        if (!destination) { // If not found in toDefend, check in toAttack
-            for (Territory* t : toAttack) {
-                if (t->getName() == destinationName) {
-                    destination = t;
-                    break;
-                }
-            }
-        }
-        if (destination) break; // Exit loop if a valid destination is found
-        cout << "Invalid destination. Try again." << endl;
-    }
+//         // Locate the destination in either toDefend or toAttack            (maybe comment out later )
+//         for (Territory* t : toDefend) {
+//             if (t->getName() == destinationName) {
+//                 destination = t;
+//                 break;
+//             }
+//         }
+//         if (!destination) { // If not found in toDefend, check in toAttack
+//             for (Territory* t : toAttack) {
+//                 if (t->getName() == destinationName) {
+//                     destination = t;
+//                     break;
+//                 }
+//             }
+//         }
+//         if (destination) break; // Exit loop if a valid destination is found
+//         cout << "Invalid destination. Try again." << endl;
+//     }
 
-    // Choose army amount to move or attack
-    int numArmies = 0;
-    while (true) {
-        cout << "Enter number of armies to move: ";
-        if (cin >> numArmies && numArmies > 0) break;
-        cout << "Invalid number. Enter a positive integer: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
+//     // Choose army amount to move or attack
+//     int numArmies = 0;
+//     while (true) {
+//         cout << "Enter number of armies to move: ";
+//         if (cin >> numArmies && numArmies > 0) break;
+//         cout << "Invalid number. Enter a positive integer: ";
+//         cin.clear();
+//         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//     }
 
     
-    Order* order = new Advance(this, source, destination, numArmies);  
-    orders->addOrder(order); // Add the order to the player's order list
+//     Order* order = new Advance(this, source, destination, numArmies);  
+//     orders->addOrder(order); // Add the order to the player's order list
 
-    cout << "Advance order issued to move " << numArmies << " armies from " << source->getName()
-         << " to " << destination->getName() << "." << endl;
+//     cout << "Advance order issued to move " << numArmies << " armies from " << source->getName()
+//          << " to " << destination->getName() << "." << endl;
 
-    // Ask if the player wants to issue another Advance order
-     string decision;
-    cout << "Would you like to issue another Advance order? (Y/N): ";
-    cin >> decision;
-    issuingAdvanceOrders = (decision == "Y" || decision == "y");
-}
+//     // Ask if the player wants to issue another Advance order
+//      string decision;
+//     cout << "Would you like to issue another Advance order? (Y/N): ";
+//     cin >> decision;
+//     issuingAdvanceOrders = (decision == "Y" || decision == "y");
+// }
 
-cout << "Orders Issuing phase for Advance orders completed.\n------------------------------------------------" << endl;
+// cout << "Orders Issuing phase for Advance orders completed.\n------------------------------------------------" << endl;
 
 
- while (!cards->empty()) {
-        cout << *name << " - Cards in hand:" << endl;
-        for (size_t i = 0; i < cards->size(); ++i) {
-            cout << i + 1 << ". " << cards->at(i)->getCardTypeName() << endl;
-        }
-        cout << "Would you like to play a card? (Y/N): ";
-        char playCardDecision;
-        cin >> playCardDecision;
-        if (playCardDecision != 'Y' && playCardDecision != 'y') {
-            break;
-        }
+//  while (!cards->empty()) {
+//         cout << *name << " - Cards in hand:" << endl;
+//         for (size_t i = 0; i < cards->size(); ++i) {
+//             cout << i + 1 << ". " << cards->at(i)->getCardTypeName() << endl;
+//         }
+//         cout << "Would you like to play a card? (Y/N): ";
+//         char playCardDecision;
+//         cin >> playCardDecision;
+//         if (playCardDecision != 'Y' && playCardDecision != 'y') {
+//             break;
+//         }
 
-        int cardChoice = 0;
-        cout << "Select a card to play (enter the number): ";
-        while (!(cin >> cardChoice) || cardChoice < 1 || cardChoice > cards->size()) {
-            cout << "Invalid choice. Please select a valid card number: ";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        }
-       Card* selectedCard = cards->at(cardChoice - 1);
+//         int cardChoice = 0;
+//         cout << "Select a card to play (enter the number): ";
+//         while (!(cin >> cardChoice) || cardChoice < 1 || cardChoice > cards->size()) {
+//             cout << "Invalid choice. Please select a valid card number: ";
+//             cin.clear();
+//             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//         }
+//        Card* selectedCard = cards->at(cardChoice - 1);
 
-        Order* cardOrder = nullptr;
-        if (selectedCard->getCardTypeName() == "Bomb") {
-            Territory* target = selectTargetFromAttackList();
-            cardOrder = new Bomb(target,this); // Bomb order targets enemy territory
+//         Order* cardOrder = nullptr;
+//         if (selectedCard->getCardTypeName() == "Bomb") {
+//             Territory* target = selectTargetFromAttackList();
+//             cardOrder = new Bomb(target,this); // Bomb order targets enemy territory
 
-            cout << "Bomb order created targeting " << target->getName() << "." << endl;
-        } else if (selectedCard->getCardTypeName() == "Airlift") {
-            Territory* source = selectSourceTerritory();
-            Territory* destination = selectDestinationTerritory();
-            int armyAmount = selectArmyAmount(source);
-            cardOrder = new Airlift(source, destination, armyAmount,this); // Airlift within own territories
+//             cout << "Bomb order created targeting " << target->getName() << "." << endl;
+//         } else if (selectedCard->getCardTypeName() == "Airlift") {
+//             Territory* source = selectSourceTerritory();
+//             Territory* destination = selectDestinationTerritory();
+//             int armyAmount = selectArmyAmount(source);
+//             cardOrder = new Airlift(source, destination, armyAmount,this); // Airlift within own territories
 
-            cout << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
-                 << " to " << destination->getName() << "." << endl;
-        } else if (selectedCard->getCardTypeName() == "Blockade") {
-            Territory* target = selectTargetFromDefendList();
-            cardOrder = new Blockade(this, target); // Blockade on own territory
+//             cout << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
+//                  << " to " << destination->getName() << "." << endl;
+//         } else if (selectedCard->getCardTypeName() == "Blockade") {
+//             Territory* target = selectTargetFromDefendList();
+//             cardOrder = new Blockade(this, target); // Blockade on own territory
 
-            cout << "Blockade order created on " << target->getName() << "." << endl;
-        } else if (selectedCard->getCardTypeName() == "Diplomacy") {
-            //Player* targetPlayer = selectPlayerToNegotiate(*playerList);
-            Player* targetPlayer = selectPlayerToNegotiate(playerList);
+//             cout << "Blockade order created on " << target->getName() << "." << endl;
+//         } else if (selectedCard->getCardTypeName() == "Diplomacy") {
+//             //Player* targetPlayer = selectPlayerToNegotiate(*playerList);
+//             Player* targetPlayer = selectPlayerToNegotiate(playerList);
 
-            cardOrder = new Negociate(this, targetPlayer); // Negotiate with enemy player
-            cout << "Negotiate order created with " << *(targetPlayer->getName()) << "." << endl;
-         }
+//             cardOrder = new Negociate(this, targetPlayer); // Negotiate with enemy player
+//             cout << "Negotiate order created with " << *(targetPlayer->getName()) << "." << endl;
+//          }
 
-        if (cardOrder) {
-            orders->addOrder(cardOrder);
-        }
-        removeCard(selectedCard);
-    }
+//         if (cardOrder) {
+//             orders->addOrder(cardOrder);
+//         }
+//         removeCard(selectedCard);
+//     }
 
-    cout << "Orders Issuing phase completed for player " << *name << ".\n------------------------------------------------" << endl;}
-}
+//     cout << "Orders Issuing phase completed for player " << *name << ".\n------------------------------------------------" << endl;}
+// }
 
 
 
