@@ -3,8 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
-using namespace std;
-#include "../OrdersList/Orders.h"
+#include <limits>
 
 // HumanPlayerStrategy Implementation
 void HumanPlayerStrategy::issueOrder(Player* player,const std::vector<Player*>& playerList) {
@@ -302,4 +301,74 @@ std::vector<Territory*> CheaterPlayerStrategy::toAttack(const Player* player) co
     }
     return attackList;
 }
+
+std::vector<Territory*> AggresivePlayerStrategy::toAttack(const Player *player) const {
+    std::vector<Territory*> attackList;
+    std::unordered_set<Territory*> addedTerritories;
+
+    // Loop through each territory owned by the player to find adjacent ones not owned by the player
+    for (Territory* territory : *player->getTerritories()) {
+        const std::vector<Territory*>* adjacent = territory->getAdjacentTerritories();
+
+        for (Territory* adj : *adjacent) {
+            // Only add if the territory is not owned by the player and hasn't been added before
+            if (adj->getLandOccupier() != player && addedTerritories.find(adj) == addedTerritories.end()) {
+                attackList.push_back(adj);
+                addedTerritories.insert(adj);  // Mark this territory as added
+            }
+        }
+    }
+    return attackList;
+}
+
+
+
+    //void AggresivePlayerStrategy::issueOrder(Player* player){
+
+//     // Reinforcement phase
+//     cout<< "Player " << *name << " - Select territories to reinforce.\n" << endl;
+//     for (size_t i = 0; i < toDefend.size(); ++i) {
+//         cout << i + 1 << ". " << toDefend[i]->getName() << ": " << toDefend[i]->getArmyAmount() << " armies." << endl;
+//     }
+
+//     while (getArmyAmount() > 0) { // Dosent allow the player to go to the next step without finishing reinforcements
+//         string territoryName;
+//         int reinforcementAmount = 0;
+        
+//         cout << "\nYou have " << getArmyAmount() << " armies remaining. Enter territory name for reinforcement: ";
+//         cin >> territoryName;
+//         std::cout <<"\n";
+
+//         if (territoryName == "exit" && getArmyAmount()==0) break;
+
+//         // Locate the territory to deploy reinforcements
+//         Territory* selectedTerritory = nullptr;
+//         for (Territory* t : toDefend) {
+//             if (t->getName() == territoryName) {
+//                 selectedTerritory = t;
+//                 break;
+//             }
+//         }
+
+//         if (!selectedTerritory) {
+//             cout << "Territory not found. Try again.\n" << endl;
+//             continue;
+//         }
+
+//         // Validates and adds Reinforcement amount for the territory chosen 
+//         cout << "Enter the number of armies to reinforce " << selectedTerritory->getName() << ": ";
+//         while (!(cin >> reinforcementAmount) || reinforcementAmount < 0 || reinforcementAmount > getArmyAmount()) {
+//             cout << "Invalid amount. Enter a number between 0 and " << getArmyAmount() << ": ";
+//             cin.clear();
+//             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//         }
+
+//         // Create a Deploy order and add to orders list
+//          Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,this);
+//          orders->addOrder(deployOrder);  
+//         setArmyAmount(getArmyAmount() - reinforcementAmount);
+//         cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << ".\n" << endl;
+//     }
+
+
 
