@@ -294,7 +294,12 @@ std::vector<Territory*> CheaterPlayerStrategy::toDefend(const Player* player) co
 }
 
 std::vector<Territory*> CheaterPlayerStrategy::toAttack(const Player* player) const {
-    auto attackList = player->toAttack();
+    if (player == nullptr) {
+        std::cout << "Error: Player pointer is null!" << std::endl;
+        return {}; // Return an empty vector
+    }
+
+    auto attackList = player->toAttack1();
     std::cout << "CheaterPlayer considers these territories to attack:\n";
     for (Territory* t : attackList) {
         std::cout << "- " << t->getName() << "\n";

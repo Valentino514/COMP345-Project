@@ -29,6 +29,7 @@ private:
     
 
 public:
+    std::vector<Territory*> toAttack1() const;
     PlayerStrategy* getStrategy() const {
     return strategy;
     }
