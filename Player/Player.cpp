@@ -112,7 +112,6 @@ Player& Player::operator=(const Player& other) {
 
 
 Player::~Player() {
-   
     delete name;
     name = nullptr;
 
@@ -120,32 +119,30 @@ Player::~Player() {
     armyamount = nullptr;
 
     delete strategy;
-    strategy=nullptr;
+    strategy = nullptr;
 
+    negotiatedPlayers.clear();
 
-    // Delete territories only if they are owned by the Player class
+    // Do not delete territories here
     if (territories) {
-        for (Territory* t : *territories) {
-            delete t;
-        }
+        territories->clear();  // Just clear the vector
         delete territories;
         territories = nullptr;
-
     }
 
-    // Delete cards only if they are owned by the Player class
+    // Assuming cards are owned by the player and can be deleted
     if (cards) {
         for (Card* c : *cards) {
             delete c;
         }
         delete cards;
         cards = nullptr;
-
     }
 
     delete orders;
     orders = nullptr;
 }
+
 
 // Adds a player to the negotiated list if not already present
 void Player::addNegotiatedPlayer(Player* player) {
@@ -592,11 +589,13 @@ int Player::selectArmyAmount(Territory* sourceTerritory) {
     return amount;
 }
 
-void Player::removeCard(Card* card) {
-    auto it = find(cards->begin(), cards->end(), card); // Find the card in the hand
-    if (it != cards->end()) { // If found
-        delete *it; // Delete the card to free memory
-        cards->erase(it); // Remove the card from the hand
+void Player::removeCard(Card::CardType type) {
+    for (auto it = cards->begin(); it != cards->end(); ++it) {
+        if ((*it)->getType() == type) {
+            delete *it; // Free memory
+            cards->erase(it);
+            return; // Exit after removing the first matching card
+        }
     }
 }
 

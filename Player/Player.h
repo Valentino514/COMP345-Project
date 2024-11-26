@@ -69,7 +69,7 @@ std::vector<Territory*> toAttack() const ;
 
     void addCard(Card* card);
 
-    void removeCard(Card* card);
+    void removeCard(Card::CardType);
 
     bool hasCard(Card::CardType type) const;
 
@@ -80,7 +80,6 @@ std::vector<Territory*> toAttack() const ;
     }
 
     void setStrategy(PlayerStrategy* newStrategy) {
-        delete strategy; // Clean up the old strategy
         strategy = newStrategy;
     }
 

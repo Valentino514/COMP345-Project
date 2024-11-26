@@ -273,7 +273,7 @@ bool Bomb::validate() {
 void Bomb::execute() {
     if (validate()){
         cout<<"bomb order validated"<<endl;
-        player->removeCard(new Card(new Card::CardType(Card::Bomb)));
+        player->removeCard(Card::Bomb);
         int newArmyAmmount = (targetTerritory->getArmyAmount())/2; 
         targetTerritory->setArmyAmount(newArmyAmmount);
         cout<<"new army ammount in target territory:"<<targetTerritory->getArmyAmount()<<'\n';
@@ -385,7 +385,7 @@ void Airlift::execute() {
     cout<<"airlift order validated, current army ammount in source territory: "<<sourceTerritory->getArmyAmount();
     cout<<"\ncurrent army ammount in target territory: "<<destinationTerritory->getArmyAmount()<<endl;
     cout<<"deploying "<<*reinforcementAmount<<" units"<<endl;
-    player->removeCard(new Card(new Card::CardType(Card::Airlift))); //looks bad because we are passing by pointer
+    player->removeCard(Card::Airlift); 
     int newSourceArmy = (sourceTerritory->getArmyAmount() - *reinforcementAmount);
     sourceTerritory->setArmyAmount(newSourceArmy);
     int newDestinationArmy =  (destinationTerritory->getArmyAmount() + *reinforcementAmount);
@@ -447,16 +447,16 @@ bool Negociate::validate() {
 
 void Negociate::execute() {
     if(validate()){
-    if (player1 != player2) {
-        // Adds the negotiation effect (truce) for the current turn
-        player1->addNegotiatedPlayer(player2);  // Assuming this will add player2 to a truce list for player1
-        player2->addNegotiatedPlayer(player1);  // Assuming this will add player1 to a truce list for player2
-        cout << "Executing negotiation: " << *(player1->getName()) << " and " << *(player2->getName())
-                  << " cannot attack each other this turn.\n";
+        if (player1 != player2) {
+            // Adds the negotiation effect (truce) for the current turn
+            player1->addNegotiatedPlayer(player2);  // Adds player2 to player1's negotiated list
+            player2->addNegotiatedPlayer(player1);  // Adds player1 to player2's negotiated list
+            cout << "Executing negotiation: " << *(player1->getName()) << " and " << *(player2->getName())
+                      << " cannot attack each other this turn.\n";
+        }
+    } else{
+        cout<<"Error validating negotiate order." << endl;
     }
-} else{
-    cout<<"error validating order";
-}
 }
 
 void Negociate::print(ostream& os) const {

@@ -65,6 +65,7 @@ class Map {
 
     class Territory {
 private:
+
     std::string* TerritoryName;
     std::string* continent; 
     std::vector<Territory*>* AdjTerritories; 

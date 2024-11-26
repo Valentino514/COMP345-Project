@@ -264,10 +264,11 @@ void Territory::setName(const std::string &name) {
 
 // Default Constructor
 Territory::Territory()
-    : TerritoryName(new std::string("default territory")), 
+    : TerritoryName(new std::string("default territory ")), 
       continent(new std::string("default continent")),
       AdjTerritories(new std::vector<Territory*>()),  // Allocating a new vector
-      territoryOwner(nullptr), armyAmount(new int(0)) {}
+      territoryOwner(nullptr), armyAmount(new int(0)) {
+      }
 
 // Parameterized Constructor
 Territory::Territory(std::string* name, std::string* continent, std::vector<Territory*>* territories, Player* player, int* army)

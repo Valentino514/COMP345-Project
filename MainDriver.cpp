@@ -8,12 +8,14 @@
 #include "GameEngine/GameEngine.h"
 #include "CommandProcessing/CommandProcessing.h"
 #include "OrdersList/testOrders.h"
+#include "PlayerStrategies/PlayerStrategies.h"
 
 void testCommandProcessor();
 void testStartupPhase();
 void testOrderExecution();
 void testLoggingObserver();
 void testMainGameLoop();
+void testPlayerStrategies();
 
 // int main(int argc, char* argv[]) {
 //     testOrderExecution();
@@ -34,12 +36,23 @@ bool checkForEscape() {
 }
 
 int main(int argc, char* argv[]) {
+    
     bool runTests = false;
     if (argc > 1 && std::string(argv[1]) == "--test") {
         runTests = true;
     }
 
     if (runTests) {
+         std::cout << "==========================" << std::endl;
+        std::cout << "     Strategies test   " << std::endl;
+        std::cout << "==========================" << std::endl;
+        
+        if (checkForEscape()) {
+            std::cout << "Skipping strategies Test..." << std::endl;
+        } else {
+            testPlayerStrategies();
+        }
+        std::cout << std::endl << std::endl;
         std::cout << "==========================" << std::endl;
         std::cout << "     COMMAND PROCESSOR TEST   " << std::endl;
         std::cout << "==========================" << std::endl;
