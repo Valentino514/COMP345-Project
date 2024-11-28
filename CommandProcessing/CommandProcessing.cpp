@@ -2,6 +2,7 @@
 #include "../Map/Map.h"
 #include <algorithm>
 #include <sstream>
+#include <utility>
 
 // Command class implementation
 
@@ -274,7 +275,7 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter() {
     }
 }
 
-#include <utility>
+
 
 // Updated readCommand method in FileCommandProcessorAdapter
 std::string* FileCommandProcessorAdapter::readCommand() {
@@ -325,4 +326,45 @@ std::string* FileCommandProcessorAdapter::readCommand() {
         return nullptr;
     }
     return result;
+}
+
+TournamentParams CommandProcessor::parseTournamentCommand(const std::string& command) {
+    TournamentParams params;
+    std::istringstream iss(command);
+    std::string token;
+
+    iss >> token; // Skip "tournament"
+    while (iss >> token) {
+        if (token == "-M") {
+            std::string mapList;
+            iss >> mapList;
+            std::istringstream mapStream(mapList);
+            std::string map;
+            while (std::getline(mapStream, map, ',')) {
+                params.maps.push_back(map);
+            }
+        } else if (token == "-P") {
+            std::string strategyList;
+            iss >> strategyList;
+            std::istringstream strategyStream(strategyList);
+            std::string strategy;
+            while (std::getline(strategyStream, strategy, ',')) {
+                params.strategies.push_back(strategy);
+            }
+        } else if (token == "-G") {
+            iss >> params.games;
+        } else if (token == "-D") {
+            iss >> params.maxTurns;
+        }
+    }
+
+    // Validate the command parameters
+    if (params.maps.size() < 1 || params.maps.size() > 5 ||
+        params.strategies.size() < 2 || params.strategies.size() > 4 ||
+        params.games < 1 || params.games > 5 ||
+        params.maxTurns < 10 || params.maxTurns > 50) {
+        params.maps.clear(); // Mark invalid parameters by clearing maps
+    }
+
+    return params;
 }

@@ -12,6 +12,7 @@ using namespace std;
 class Map;
 class Player;
 class Territory;
+struct TournamentParams;
 
 
 class GameEngine : public Subject
@@ -47,8 +48,11 @@ public:
 
     void startupPhase();
     void testMainGame();
+    void addPlayersToGameEngine(const std::vector<std::string>& strategies);
+    void executeTournament(const TournamentParams& params);
     
     void DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p)  ;
+   Player* checkWinner(const std::unordered_map<std::string, Territory*>& allTerritories) const ;
 
     void shufflePlayers();
     void assignArmyAmount(int amount);

@@ -255,13 +255,110 @@ void GameEngine::startupPhase() {
             } else {
                 std::cout << "No map loaded. Please load and validate a map before starting the game.\n";
             }
-        } else {
+        }
+        if (command.substr(0, 10) == "tournament") {
+        TournamentParams params = cp.parseTournamentCommand(command);
+             if (params.maps.empty()) {
+                 std::cout << "Invalid tournament command. Exiting.\n";
+                 return;
+    }
+
+             // Add players to the GameEngine's playerList based on strategies
+             addPlayersToGameEngine(params.strategies);
+
+             // Execute the tournament
+             executeTournament(params);
+        }else {
             std::cout << "Unknown command or command not allowed in the current state. Please try again.\n";
         }
     }
 
     
 }
+
+void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategies) {
+    char playerName = 'A'; // Start with 'A'
+    for (const std::string& strategy : strategies) {
+        // Create a player with a name like "Player A", "Player B", etc.
+        std::string name = "Player ";
+        name += playerName++;
+
+        Player* player = new Player(name); // Pass the name to the Player constructor
+
+        // Assign the strategy based on the input
+        if (strategy == "Aggressive") {
+            player->setStrategy(new AggresivePlayerStrategy());
+        } else if (strategy == "Benevolent") {
+            player->setStrategy(new BenevolentPlayerStrategy());
+        } else if (strategy == "Neutral") {
+            player->setStrategy(new NeutralPlayerStrategy());
+        } else if (strategy == "Cheater") {
+            player->setStrategy(new CheaterPlayerStrategy());
+        } else {
+            std::cout << "Invalid strategy type: " << strategy << "\n";
+            delete player; // Clean up if the strategy type is invalid
+            continue;
+        }
+
+        // Add the player to the game engine's player list
+        playerList->push_back(player);
+    }
+}
+
+
+void GameEngine::executeTournament(const TournamentParams& params) {
+    MapLoader x ;
+    for (const std::string& map : params.maps) {
+        for (int game = 1; game <= params.games; ++game) {
+            std::cout << "Playing game " << game << " on map " << map << "...\n";
+            std::string mapsDirectory = "./Map/maps"; 
+            string fullPath = mapsDirectory + "/" + map;
+            Cmap = x.loadMap(fullPath);
+
+            if (Cmap->validate()) {
+                std::cout << "Invalid map: " << map << ". Skipping game.\n";
+                continue;
+            }
+
+            // Assign players and initial setup
+            DistributeTerritories(*Cmap->Territories, *playerList);
+            shufflePlayers();
+            assignArmyAmount(50);
+            DrawTwoCards();
+
+            // Play game
+            bool gameWon = false;
+            for (int turn = 1; turn <= params.maxTurns; ++turn) {
+                std::cout << "Turn " << turn << "...\n";
+
+                //reinforcements phase to give players troops before round start
+                reinforcementPhase();
+
+                // Issue orders for each player
+                issueOrdersPhase();
+
+                // Execute orders
+                executeOrdersPhase();
+
+                // Check for a winner
+                Player* winner = checkWinner(*Cmap->Territories);
+                if (winner) {
+                    std::cout << "Player " << *winner->getName() << " won the game on map " << map << "!\n";
+                    gameWon = true;
+                    break;
+                }
+            }
+
+            // If no winner after maxTurns, declare a draw
+            if (!gameWon) {
+                std::cout << "Game " << game << " on map " << map << " declared a draw.\n";
+            }
+        }
+    }
+
+    std::cout << "Tournament completed.\n";
+}
+
 
   void GameEngine::testMainGame() {
     MapLoader x;
@@ -285,6 +382,25 @@ void GameEngine::startupPhase() {
     mainGameLoop();
   }
   }
+
+
+ Player* GameEngine::checkWinner(const std::unordered_map<std::string, Territory*>& allTerritories) const {
+    for (Player* player : *playerList) {
+        bool ownsAll = true;
+        for (const auto& pair : allTerritories) {
+            if (pair.second->getLandOccupier() != player) {
+                ownsAll = false;
+                break;
+            }
+        }
+        if (ownsAll) {
+            return player;
+        }
+    }
+    return nullptr; // No player owns all territories
+}
+
+
 
 
 void GameEngine::addplayer() {
@@ -450,7 +566,7 @@ void GameEngine::reinforcementPhase() {
 
         // Check for continent name and add bonus if player owns a continent
         for (const auto& continentPair : *Cmap->Continents) {
-            const std::string& continentName = continentPair.first;
+            const std::string& continentName = continentPair.first; 
             int continentBonus = continentPair.second;
             bool ownsAllInContinent = true;
 

@@ -17,6 +17,15 @@ class Map;
 class Player;
 
 // Command Class
+
+struct TournamentParams {
+    std::vector<std::string> maps;       // List of map file names
+    std::vector<std::string> strategies; // List of player strategies
+    int games;                           // Number of games per map
+    int maxTurns;                        // Maximum number of turns per game
+};
+
+
 class Command : public Subject{
 public:
     Command(const std::string& commandText = "");      // Constructor with default parameter
@@ -57,6 +66,7 @@ bool validate1(Command* command);
     void notify();
     void attach(Observer* observer);
     std::string stringToLog() const override; 
+    TournamentParams parseTournamentCommand(const std::string& command);
 
     friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp); // Stream insertion operator for printing
 
