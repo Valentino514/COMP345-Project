@@ -1,8 +1,9 @@
+#include "PlayerStrategies.h"
 #include "../Player/Player.h"
-#include "../PlayerStrategies/PlayerStrategies.h"
+#include "../Map/Map.h"
+
 #include <iostream>
 #include <vector>
-#include "../Map/Map.h"
 
 using namespace std;
 

@@ -17,16 +17,6 @@ void testLoggingObserver();
 void testMainGameLoop();
 void testPlayerStrategies();
 
-// int main(int argc, char* argv[]) {
-//     testOrderExecution();
-//     testStartupPhase();
-//     testMainGameLoop();
-//     testLoggingObserver();
-//     testCommandProcessor();
-
-//     return 0;
-  
-// }
 
 bool checkForEscape() {
     std::string userInput;
