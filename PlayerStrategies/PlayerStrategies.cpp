@@ -281,7 +281,7 @@ vector<Territory*> NeutralPlayerStrategy::toAttack(const Player* player) const {
 
 // CheaterPlayerStrategy Implementation
 void CheaterPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList) {
-    cout << "CheaterPlayerStrategy: Automatically conquering all adjacent enemy territories!\n";
+//    cout << "CheaterPlayerStrategy: Automatically conquering all adjacent enemy territories!\n";
     vector<Territory*> attackList = player->toAttack(); // Get territories that can be attacked
 
     for (Territory* territory : attackList) {
@@ -303,9 +303,13 @@ vector<Territory*> CheaterPlayerStrategy::toAttack(const Player* player) const {
     }
 
     auto attackList = player->toAttack1();
-    cout << "CheaterPlayer considers these territories to attack:\n";
+//    cout << "CheaterPlayer considers these territories to attack:\n";
     for (Territory* t : attackList) {
-        cout << "- " << t->getName() << "\n";
+        if (t != nullptr) {
+            // Change the land occupier of the territory to the cheater player
+            t->setLandOccupier(const_cast<Player*>(player));
+//            std::cout << "- " << t->getName() << " is now owned by the cheater player!\n";
+        }
     }
     return attackList;
 }

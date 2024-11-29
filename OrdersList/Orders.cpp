@@ -213,7 +213,7 @@ void Advance::execute() {
             // Trigger strategy change if defender is neutral
                 if (dynamic_cast<NeutralPlayerStrategy*>(enemy->getStrategy())) {
                     cout << "Neutral player's territory attacked. Switching to AggressivePlayerStrategy.\n";
-                    enemy->setStrategy(new HumanPlayerStrategy());// placeholder for aggresiveplayerstartgey 
+                    enemy->setStrategy(new AggresivePlayerStrategy());// placeholder for aggresiveplayerstartgey
                 }
 
             // Update the source territory's army count after the battle
@@ -278,6 +278,12 @@ void Bomb::execute() {
         targetTerritory->setArmyAmount(newArmyAmmount);
         cout<<"new army ammount in target territory:"<<targetTerritory->getArmyAmount()<<'\n';
 
+        // Trigger strategy change if the target belongs to a neutral player
+        Player* owner = targetTerritory->getLandOccupier();
+        if (dynamic_cast<NeutralPlayerStrategy*>(owner->getStrategy())) {
+            cout << "Neutral player's territory bombed. Switching to AggressivePlayerStrategy.\n";
+            owner->setStrategy(new AggresivePlayerStrategy()); // Switch to aggressive behavior
+        }
     }else{
         cout<<"bomb validation failed"<<endl;
         return;
