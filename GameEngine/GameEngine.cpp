@@ -190,91 +190,109 @@ std::string GameEngine::getState() const {
 
 void GameEngine::startupPhase() {
     std::cout << "Welcome to the Game Startup Phase.\n";
+
+    // Ask the user if they want to enter tournament mode
+    std::string choice;
+    std::cout << "Do you want to enter a tournament mode? (Y/N): ";
+    std::cin >> choice;
+    std::cin.ignore(); // Clear the newline left in the buffer
+
+    CommandProcessor cp;
     MapLoader x;
     std::vector<std::string> mapFiles;
-    std::string mapsDirectory = "./Map/maps";  // Directory where the map files are stored
-    CommandProcessor cp;
+    std::string mapsDirectory = "./Map/maps"; // Directory for map files
 
-
-    while (true) {
-        std::cout << "Please enter your command:\n";
-        std::string command = cp.readCommand1();  // Read the entire command as a single string
-        std::cout << std::endl;
-
-        // Check the current state and validate command
-        if (*cp.currentState == "start" && command == "loadmap") {
-            // List available map files
-            std::cout << "Here is a list of maps, please choose one:\n";
-            for (const auto& entry : std::filesystem::directory_iterator(mapsDirectory)) {
-                if (entry.is_regular_file()) {
-                    std::string filename = entry.path().filename().string();
-                    std::cout << "  " << filename << "\n";
-                    mapFiles.push_back(filename);  // Store filenames in a vector
-                }
-            }
-
-            // Ask the user to select a map
-            std::string chosenMap;
-            std::cout << "\nPlease enter the name of the map you want to load: ";
-            std::cin >> chosenMap;
-
-            if (std::find(mapFiles.begin(), mapFiles.end(), chosenMap) != mapFiles.end()) {
-                std::cout << "You have selected: " << chosenMap << "\n\n";
-                std::string fullPath = mapsDirectory + "/" + chosenMap;
-                Cmap = x.loadMap(fullPath);
-                *cp.currentState = "maploaded"; // Update state after successful map loading
-            } else {
-                std::cout << "Invalid map name. Please choose from the available maps.\n";
-            }
-        } 
-        else if (*cp.currentState == "maploaded" && command == "validatemap") {
-            if (Cmap != nullptr) {
-                if (Cmap->validate()) {
-                    *cp.currentState = "mapvalidated"; // Update state after successful validation
-                } else {
-                    std::cout << "Map is invalid.\n";
-                }
-            } else {
-                std::cout << "No map loaded. Please load a map first.\n";
-            }
-        } 
-        else if (*cp.currentState == "mapvalidated" && command == "addplayer") {
-            addplayer();
+    if (choice == "Y" || choice == "y") {
+        // Tournament mode
+        while (true) {
+            std::cout << "Please enter the tournament command:\n";
+            std::string command = cp.readCommand1(); // Use readCommand1 for tournament input
             std::cout << std::endl;
-            *cp.currentState = "playersadded"; // Update state after adding players
-        } 
-        else if (*cp.currentState == "playersadded" && command == "gamestart") {
-            if (Cmap != nullptr) {
-                std::cout << std::endl;
-                DistributeTerritories(*Cmap->Territories, *playerList);
-                shufflePlayers();
-                assignArmyAmount(50);
-                DrawTwoCards();
-                *cp.currentState = "assignreinforcement"; // Update state to assign reinforcements
-                break;  // Exit the loop once the game starts
+
+            if (command.substr(0, 10) == "tournament") {
+                TournamentParams params = cp.parseTournamentCommand(command);
+                if (params.maps.empty()) {
+                    std::cout << "Invalid tournament command. Exiting.\n";
+                    return;
+                }
+
+                // Add players to the GameEngine's playerList based on strategies
+                addPlayersToGameEngine(params.strategies);
+
+                // Execute the tournament
+                executeTournament(params);
+                exit(0);
             } else {
-                std::cout << "No map loaded. Please load and validate a map before starting the game.\n";
+                std::cout << "Invalid tournament command. Please try again.\n";
             }
         }
-        if (command.substr(0, 10) == "tournament") {
-        TournamentParams params = cp.parseTournamentCommand(command);
-             if (params.maps.empty()) {
-                 std::cout << "Invalid tournament command. Exiting.\n";
-                 return;
-    }
+    } else if (choice == "N" || choice == "n") {
+        // Normal game mode
+        while (true) {
+            std::cout << "Please enter your command:\n";
+            std::string command = cp.readCommand2(); // Use readCommand for normal game input
+            std::cout << std::endl;
 
-             // Add players to the GameEngine's playerList based on strategies
-             addPlayersToGameEngine(params.strategies);
+            // Check the current state and validate command
+            if (*cp.currentState == "start" && command == "loadmap") {
+                // List available map files
+                std::cout << "Here is a list of maps, please choose one:\n";
+                for (const auto& entry : std::filesystem::directory_iterator(mapsDirectory)) {
+                    if (entry.is_regular_file()) {
+                        std::string filename = entry.path().filename().string();
+                        std::cout << "  " << filename << "\n";
+                        mapFiles.push_back(filename); // Store filenames in a vector
+                    }
+                }
 
-             // Execute the tournament
-             executeTournament(params);
-        }else {
-            std::cout << "Unknown command or command not allowed in the current state. Please try again.\n";
+                // Ask the user to select a map
+                std::string chosenMap;
+                std::cout << "\nPlease enter the name of the map you want to load: ";
+                std::cin >> chosenMap;
+
+                if (std::find(mapFiles.begin(), mapFiles.end(), chosenMap) != mapFiles.end()) {
+                    std::cout << "You have selected: " << chosenMap << "\n\n";
+                    std::string fullPath = mapsDirectory + "/" + chosenMap;
+                    Cmap = x.loadMap(fullPath);
+                    *cp.currentState = "maploaded"; // Update state after successful map loading
+                } else {
+                    std::cout << "Invalid map name. Please choose from the available maps.\n";
+                }
+            } else if (*cp.currentState == "maploaded" && command == "validatemap") {
+                if (Cmap != nullptr) {
+                    if (Cmap->validate()) {
+                        *cp.currentState = "mapvalidated"; // Update state after successful validation
+                    } else {
+                        std::cout << "Map is invalid.\n";
+                    }
+                } else {
+                    std::cout << "No map loaded. Please load a map first.\n";
+                }
+            } else if (*cp.currentState == "mapvalidated" && command == "addplayer") {
+                addplayer();
+                std::cout << std::endl;
+                *cp.currentState = "playersadded"; // Update state after adding players
+            } else if (*cp.currentState == "playersadded" && command == "gamestart") {
+                if (Cmap != nullptr) {
+                    std::cout << std::endl;
+                    DistributeTerritories(*Cmap->Territories, *playerList);
+                    shufflePlayers();
+                    assignArmyAmount(50);
+                    DrawTwoCards();
+                    *cp.currentState = "assignreinforcement"; // Update state to assign reinforcements
+                    break; // Exit the loop once the game starts
+                } else {
+                    std::cout << "No map loaded. Please load and validate a map before starting the game.\n";
+                }
+            } else {
+                std::cout << "Unknown command or command not allowed in the current state. Please try again.\n";
+            }
         }
+    } else {
+        std::cout << "Invalid choice. Please restart the game and enter Y or N.\n";
     }
-
-    
 }
+
 
 void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategies) {
     char playerName = 'A'; // Start with 'A'
@@ -316,6 +334,10 @@ void GameEngine::executeTournament(const TournamentParams& params) {
             Cmap = x.loadMap(fullPath);
 
             if (Cmap->validate()) {
+                std::cout << "Valid Map: " << map << ". Starting game.\n";
+                
+            }
+            else{
                 std::cout << "Invalid map: " << map << ". Skipping game.\n";
                 continue;
             }

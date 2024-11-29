@@ -9,6 +9,8 @@
 #include "CommandProcessing/CommandProcessing.h"
 #include "OrdersList/testOrders.h"
 #include "PlayerStrategies/PlayerStrategies.h"
+#include "GameEngine/GameEngine.h"
+
 
 void testCommandProcessor();
 void testStartupPhase();
@@ -16,6 +18,7 @@ void testOrderExecution();
 void testLoggingObserver();
 void testMainGameLoop();
 void testPlayerStrategies();
+void testTournament();
 
 // int main(int argc, char* argv[]) {
 //     testOrderExecution();
@@ -108,8 +111,9 @@ int main(int argc, char* argv[]) {
     } else {
         std::cout << "Starting the game..." << std::endl;
         GameEngine gameEngine;
-        gameEngine.startupPhase();
-        gameEngine.mainGameLoop();
+        testTournament();
+        // gameEngine.startupPhase();
+        // gameEngine.mainGameLoop();
     }
 
     return 0;

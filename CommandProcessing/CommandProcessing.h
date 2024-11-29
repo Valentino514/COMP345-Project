@@ -59,6 +59,7 @@ bool validate1(Command* command);
     virtual ~CommandProcessor();                       // Destructor
     
     std::string readCommand1();
+    std::string readCommand2();
     Command* getCommand();                             // Retrieves the latest command
     virtual void processInput();                       // Processes user input
     std::string * currentState;                          // Tracks the current state of command processing

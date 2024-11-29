@@ -147,6 +147,20 @@ std::string CommandProcessor::readCommand1() {
     std::string input;
 
     // Directly read the input without extra clearing or ignoring
+    std::getline(std::cin, input);
+
+    // Create and validate the Command
+    Command* cmd = new Command(input);
+    validate(cmd);
+    saveCommand(cmd);
+
+    return input;  // Return the entire command as a single string
+}
+
+std::string CommandProcessor::readCommand2() {
+    std::string input;
+
+    // Directly read the input without extra clearing or ignoring
     std::cin >> input;
 
     // Create and validate the Command
@@ -334,29 +348,35 @@ TournamentParams CommandProcessor::parseTournamentCommand(const std::string& com
     std::string token;
 
     iss >> token; // Skip "tournament"
-    while (iss >> token) {
-        if (token == "-M") {
-            std::string mapList;
-            iss >> mapList;
-            std::istringstream mapStream(mapList);
-            std::string map;
-            while (std::getline(mapStream, map, ',')) {
-                params.maps.push_back(map);
-            }
-        } else if (token == "-P") {
-            std::string strategyList;
-            iss >> strategyList;
-            std::istringstream strategyStream(strategyList);
-            std::string strategy;
-            while (std::getline(strategyStream, strategy, ',')) {
-                params.strategies.push_back(strategy);
-            }
-        } else if (token == "-G") {
-            iss >> params.games;
-        } else if (token == "-D") {
-            iss >> params.maxTurns;
+  while (iss >> token) {
+    if (token == "-M") {
+        std::string mapList;
+        iss >> mapList;
+        size_t start = 0, end = 0;
+
+        // Loop through the comma-separated list of maps
+        while ((end = mapList.find(',', start)) != std::string::npos) {
+            params.maps.push_back(mapList.substr(start, end - start));
+            start = end + 1; // Skip the comma
         }
+        params.maps.push_back(mapList.substr(start)); // Add the last map
+    } else if (token == "-P") {
+        std::string strategyList;
+        iss >> strategyList;
+        size_t start = 0, end = 0;
+
+        // Loop through the comma-separated list of strategies
+        while ((end = strategyList.find(',', start)) != std::string::npos) {
+            params.strategies.push_back(strategyList.substr(start, end - start));
+            start = end + 1; // Skip the comma
+        }
+        params.strategies.push_back(strategyList.substr(start)); // Add the last strategy
+    } else if (token == "-G") {
+        iss >> params.games;
+    } else if (token == "-D") {
+        iss >> params.maxTurns;
     }
+}
 
     // Validate the command parameters
     if (params.maps.size() < 1 || params.maps.size() > 5 ||
