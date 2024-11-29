@@ -272,11 +272,11 @@ void NeutralPlayerStrategy::issueOrder(Player* player,const vector<Player*>& pla
 }
 
 vector<Territory*> NeutralPlayerStrategy::toDefend(const Player* player) const {
-    return {}; // Does not defend
+    return {}; //neutral does not  not defend
 }
 
 vector<Territory*> NeutralPlayerStrategy::toAttack(const Player* player) const {
-    return {}; // Does not attack
+    return {}; // neutral Does not attack
 }
 
 // CheaterPlayerStrategy Implementation
@@ -329,12 +329,14 @@ vector<Territory*> AggresivePlayerStrategy::toAttack(const Player *player) const
     return attackList;
 }
 
+
+//to defend method for the Aggressive player 
 vector<Territory*> AggresivePlayerStrategy::toDefend(const Player* player) const{
     vector<Territory*> defendList;
     Territory* strongestTerritory = nullptr;
     int maxArmies = -1;
 
-    // First, try to find the strongest territory with adjacent enemy territories
+    //check to find the strongest territory with adjacent enemy territories
     for (Territory* t : *player->getTerritories()) {
         if (t->getArmyAmount() > maxArmies) {
             // Check if territory has at least one adjacent enemy territory
@@ -353,7 +355,7 @@ vector<Territory*> AggresivePlayerStrategy::toDefend(const Player* player) const
         }
     }
 
-    // If no territory with adjacent enemy territories was found, pick the territory with highest army amount
+    // If no territory with adjacent enemy territories was found,we pick the territory with the most armies 
     if (!strongestTerritory) {
         maxArmies = -1;
         for (Territory* t : *player->getTerritories()) {
@@ -371,7 +373,7 @@ vector<Territory*> AggresivePlayerStrategy::toDefend(const Player* player) const
 }
 
 
-
+// issueOrder method for the aggresive player class
 void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList) {
     // Reinforcement phase
     OrdersList* orders = player->getOrdersList();
@@ -380,7 +382,6 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
     if (player->getArmyAmount() > 0) {
         vector<Territory*> defendList = toDefend(player);
         if (defendList.empty()) {
-            cout << "Aggressive player has no territories to defend.\n";
             return;
         }
 
@@ -391,11 +392,9 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
         Order* deployOrder = new Deploy(strongestTerritory, reinforcementAmount, player);
         orders->addOrder(deployOrder);
         player->setArmyAmount(0);
-        cout << "Aggressive player deploys " << reinforcementAmount << " armies to " << strongestTerritory->getName() << ".\n";
     }
-    // End of reinforcement phase
 
-    // Start attack phase
+    // Start attack phase for issuing orders
     Territory* attackTerritory = strongestTerritory;
     bool foundAttackTerritory = false;
 
@@ -423,7 +422,6 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
                 }
             }
             if (!foundAttackTerritory) {
-                cout << "Aggressive player has no territories with adjacent enemies to attack.\n";
                 return;
             }
         }
@@ -449,9 +447,6 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
                 // Create Advance order
                 Order* advanceOrder = new Advance(player, attackTerritory, adjacentEnemies[i], numArmies);
                 orders->addOrder(advanceOrder);
-                cout << "Aggressive player advances " << numArmies << " armies from " << attackTerritory->getName()
-                          << " to attack " << adjacentEnemies[i]->getName() << ".\n";
-                // Note: Actual movement happens during order execution
             }
             break; // Attack orders issued, exit the loop
         } else {
@@ -503,8 +498,6 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
             // Create Airlift order
             Order* airliftOrder = new Airlift(secondStrongestTerritory, strongestTerritory, armyCount, player);
             orders->addOrder(airliftOrder);
-            cout << "Aggressive player uses Airlift card to move " << armyCount << " armies from "
-                      << secondStrongestTerritory->getName() << " to " << strongestTerritory->getName() << ".\n";
             // Remove Airlift card from player's hand
             player->removeCard(Card::Airlift);
         }
@@ -514,8 +507,7 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
 
 // BenevolentPlayerStrategy Implementation
 
-
-
+//issueOrder for the benevolent player who only defends
 void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList) {
     OrdersList* orders = player->getOrdersList();
 
@@ -532,7 +524,6 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
             int reinforcementAmount = baseReinforcement + (i < extra ? 1 : 0);
             Order* deployOrder = new Deploy(weakestTerritories[i], reinforcementAmount, player);
             orders->addOrder(deployOrder);
-            cout << "Benevolent player deploys " << reinforcementAmount << " armies to " << weakestTerritories[i]->getName() << ".\n";
         }
 
         player->setArmyAmount(0); // All armies have been deployed
@@ -575,8 +566,6 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
                 int numArmies = baseArmies + (i < extra ? 1 : 0);
                 Order* advanceOrder = new Advance(player, sourceTerritory, weakerAdjacentTerritories[i], numArmies);
                 orders->addOrder(advanceOrder);
-                cout << "Benevolent player moves " << numArmies << " armies from " << sourceTerritory->getName()
-                          << " to " << weakerAdjacentTerritories[i]->getName() << ".\n";
             }
 
             sourceTerritory->setArmyAmount(0);
@@ -595,13 +584,13 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
         if (targetPlayer) {
             Order* negotiateOrder = new Negociate(player, targetPlayer);
             orders->addOrder(negotiateOrder);
-            cout << "Benevolent player uses Diplomacy card to negotiate with " << *(targetPlayer->getName()) << ".\n";
             // Remove Diplomacy card from player's hand
             player->removeCard(Card::Diplomacy);
         }
     }
 }
 
+//todefend method for the benevolent player
 vector<Territory*> BenevolentPlayerStrategy::toDefend(const Player* player) const {
     vector<Territory*> defendList;
     int minArmies = INT_MAX;
@@ -623,6 +612,7 @@ vector<Territory*> BenevolentPlayerStrategy::toDefend(const Player* player) cons
     return defendList;
 }
 
+//benevolent player does not attack
 vector<Territory*> BenevolentPlayerStrategy::toAttack(const Player* player) const {
     // Benevolent player does not attack
     return vector<Territory*>();
