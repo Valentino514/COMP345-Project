@@ -298,15 +298,20 @@ void GameEngine::startupPhase() {
 
 
 void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategies) {
-    char playerName = 'A'; // Start with 'A'
+    // Maintain a count of players for each strategy type
+    std::map<std::string, int> strategyCount;
+
     for (const std::string& strategy : strategies) {
-        // Create a player with a name like "Player A", "Player B", etc.
-        std::string name = "Player ";
-        name += playerName++;
+        // Increment the count for the current strategy
+        strategyCount[strategy]++;
 
-        Player* player = new Player(name); // Pass the name to the Player constructor
+        // Create a name for the player based on their strategy
+        std::string name = strategy + " Player " + std::to_string(strategyCount[strategy]);
 
-        // Assign the strategy based on the input
+        // Create a new Player object with the generated name
+        Player* player = new Player(name);
+
+        // Assign the appropriate strategy
         if (strategy == "Aggressive") {
             player->setStrategy(new AggresivePlayerStrategy());
         } else if (strategy == "Benevolent") {
@@ -316,15 +321,20 @@ void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategi
         } else if (strategy == "Cheater") {
             player->setStrategy(new CheaterPlayerStrategy());
         } else {
+            // Handle invalid strategy input
             std::cout << "Invalid strategy type: " << strategy << "\n";
-            delete player; // Clean up if the strategy type is invalid
-            continue;
+            delete player; // Avoid memory leak
+            continue; // Skip to the next strategy
         }
 
-        // Add the player to the game engine's player list
+        // Add the configured player to the GameEngine's player list
         playerList->push_back(player);
+
+        // confirmation output
+        std::cout << name << " has been added to the game.\n";
     }
 }
+
 
 // executes the tournament phase of the game
 void GameEngine::executeTournament(const TournamentParams& params) {
