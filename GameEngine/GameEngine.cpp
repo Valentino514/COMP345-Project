@@ -23,6 +23,7 @@ GameEngine::GameEngine():currentIndex(new int(0)){
 
 GameEngine::GameEngine(GameEngine& other){ }
 
+//destructor
 GameEngine::~GameEngine() {
     if (playerList) {
         for (Player* player : *playerList) {
@@ -38,7 +39,7 @@ GameEngine::~GameEngine() {
     delete[] commands;
 }
 
-
+// stream insertion operator
 ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
     os << "Map States:\n";
     for (int i = 0; i < 8; i++) {
@@ -173,21 +174,23 @@ void GameEngine::navigate() {
     currentIndex = nullptr;
 }
 
+// Adds an observer to the GameEngine and sets its subject.
 void GameEngine::addObserver(Observer* observer) {
     observers.push_back(observer);
     observer->setSubject(this);
 }
 
+// Notifies all observers of a change in the GameEngine's state.
 void GameEngine::notify() {
     for (Observer* observer : observers) {
         observer->update(); 
     }
 }
-
+// Return game state
 std::string GameEngine::getState() const {
     return map[*currentIndex];
 }
-
+// Implementing startupPhase
 void GameEngine::startupPhase() {
     std::cout << "Welcome to the Game Startup Phase.\n";
 
@@ -323,16 +326,21 @@ void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategi
     }
 }
 
-
+// executes the tournament phase of the game
 void GameEngine::executeTournament(const TournamentParams& params) {
     MapLoader x ;
+
+    // Iterate through each map specified in the tournament parameters
     for (const std::string& map : params.maps) {
         for (int game = 1; game <= params.games; ++game) {
+
+            // Display the current game and map being played
             std::cout << "Playing game " << game << " on map " << map << "...\n";
             std::string mapsDirectory = "./Map/maps"; 
             string fullPath = mapsDirectory + "/" + map;
             Cmap = x.loadMap(fullPath);
 
+            // Validate the map before starting the game
             if (Cmap->validate()) {
                 std::cout << "Valid Map: " << map << ". Starting game.\n";
                 
@@ -381,7 +389,7 @@ void GameEngine::executeTournament(const TournamentParams& params) {
     std::cout << "Tournament completed.\n";
 }
 
-
+    // Fn to test the Main game loop
   void GameEngine::testMainGame() {
     MapLoader x;
 
@@ -405,16 +413,19 @@ void GameEngine::executeTournament(const TournamentParams& params) {
   }
   }
 
-
+// Fn that checks if any player has won the game by owning all territories
  Player* GameEngine::checkWinner(const std::unordered_map<std::string, Territory*>& allTerritories) const {
     for (Player* player : *playerList) {
         bool ownsAll = true;
+
+        // Check each territory to see if the player is the occupier
         for (const auto& pair : allTerritories) {
             if (pair.second->getLandOccupier() != player) {
                 ownsAll = false;
                 break;
             }
         }
+        // If the player owns all territories, return them as the winner
         if (ownsAll) {
             return player;
         }

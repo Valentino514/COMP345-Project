@@ -160,32 +160,34 @@ void Player::clearNegotiations() {
     negotiatedPlayers.clear();
 }
 
-
+// Issues an order using the player's strategy or logs an error if none is assigned.
 void Player::issueOrder(const std::vector<Player*>& playerList) {
-        if (strategy) {
-            strategy->issueOrder(this,playerList);
-        } else {
-            std::cerr << "No strategy assigned to player " << *name << ". Cannot issue orders.\n";
-        }
+    if (strategy) {
+        strategy->issueOrder(this, playerList);
+    } else {
+        std::cerr << "No strategy assigned to player " << *name << ". Cannot issue orders.\n";
     }
+}
 
+// Returns the territories to defend using the player's strategy or an empty list if none is assigned.
 std::vector<Territory*> Player::toDefend() const {
-        if (strategy) {
-            return strategy->toDefend(this);
-        } else {
-            std::cerr << "No strategy assigned to player " << *name << ". Returning empty defense list.\n";
-            return {};
-        }
+    if (strategy) {
+        return strategy->toDefend(this);
+    } else {
+        std::cerr << "No strategy assigned to player " << *name << ". Returning empty defense list.\n";
+        return {};
     }
+}
 
+// Returns the territories to attack using the player's strategy or an empty list if none is assigned.
 std::vector<Territory*> Player::toAttack() const {
-        if (strategy) {
-            return strategy->toAttack(this);
-        } else {
-            std::cerr << "No strategy assigned to player " << *name << ". Returning empty attack list.\n";
-            return {};
-        }
+    if (strategy) {
+        return strategy->toAttack(this);
+    } else {
+        std::cerr << "No strategy assigned to player " << *name << ". Returning empty attack list.\n";
+        return {};
     }
+}
 
 
 // // Return a List of Territories to Defend
@@ -480,44 +482,58 @@ void Player::addCard(Card* card) {
     cards->push_back(card);  // Adds a card to the player's hand
 }
 
-
+// Allows the player to select a territory to attack from the list of enemy territories.
 Territory* Player::selectTargetFromAttackList() {
-    vector<Territory*> attackList = toAttack();
+    vector<Territory*> attackList = toAttack(); // Get the list of enemy territories to attack
     cout << "Enemy territories to target:" << endl;
+
+    // Display all enemy territories with their details
     for (size_t i = 0; i < attackList.size(); ++i) {
         cout << i + 1 << ". " << attackList[i]->getName() << " (Armies: " << attackList[i]->getArmyAmount() << ")" << endl;
     }
+
     int choice = 0;
     cout << "Select a territory to target (enter the number): ";
+    
+    // Validate user input to ensure a valid territory is chosen
     while (!(cin >> choice) || choice < 1 || choice > attackList.size()) {
         cout << "Invalid choice. Please select a valid territory number: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    return attackList[choice - 1];
+    return attackList[choice - 1]; // Return the selected territory
 }
 
+// Allows the player to select a territory to defend from their list of owned territories.
 Territory* Player::selectTargetFromDefendList() {
-    vector<Territory*> defendList = toDefend();
+    vector<Territory*> defendList = toDefend(); // Get the list of territories to defend
     cout << "Your territories to target:" << endl;
+
+    // Display all owned territories with their details
     for (size_t i = 0; i < defendList.size(); ++i) {
         cout << i + 1 << ". " << defendList[i]->getName() << " (Armies: " << defendList[i]->getArmyAmount() << ")" << endl;
     }
+
     int choice = 0;
     cout << "Select a territory to target (enter the number): ";
+
+    // Validate user input to ensure a valid territory is chosen
     while (!(cin >> choice) || choice < 1 || choice > defendList.size()) {
         cout << "Invalid choice. Please select a valid territory number: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    return defendList[choice - 1];
+    return defendList[choice - 1]; // Return the selected territory
 }
 
+// Allows the player to select another player to negotiate with, excluding themselves.
 Player* Player::selectPlayerToNegotiate(const std::vector<Player*>& playerList) {
     std::cout << "Players to negotiate with:" << std::endl;
+
     int index = 1;
+    // Display the list of other players available for negotiation
     for (Player* p : playerList) {
-        if (p != this) { // Exclude self
+        if (p != this) { // Exclude the current player
             std::cout << index << ". " << *(p->getName()) << std::endl;
             index++;
         }
@@ -525,50 +541,65 @@ Player* Player::selectPlayerToNegotiate(const std::vector<Player*>& playerList) 
 
     int choice = 0;
     std::cout << "Select a player to negotiate with (enter the number): ";
+
+    // Validate user input to ensure a valid player is chosen
     while (!(std::cin >> choice) || choice < 1 || choice >= index) {
         std::cout << "Invalid choice. Please select a valid player number: ";
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
-    return playerList[choice - 1];
+    return playerList[choice - 1]; // Return the selected player
 }
 
-
+// Allows the player to select a source territory from their list of owned territories
+// to move armies from.
 Territory* Player::selectSourceTerritory() {
-    vector<Territory*> defendList = toDefend();
+    vector<Territory*> defendList = toDefend(); // Get the list of territories to defend
     cout << "Your territories (to move armies from):" << endl;
+
+    // Display all owned territories with their details
     for (size_t i = 0; i < defendList.size(); ++i) {
         cout << i + 1 << ". " << defendList[i]->getName() << " (Armies: " << defendList[i]->getArmyAmount() << ")" << endl;
     }
+
     int choice = 0;
     cout << "Select a source territory (enter the number): ";
+
+    // Validate user input to ensure a valid territory is chosen
     while (!(cin >> choice) || choice < 1 || choice > defendList.size()) {
         cout << "Invalid choice. Please select a valid territory number: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    return defendList[choice - 1];
+
+    return defendList[choice - 1]; // Return the selected territory
 }
 
+// Allows the player to select a destination territory from their list of owned territories
+// to move armies to.
 Territory* Player::selectDestinationTerritory() {
-   
-    vector<Territory*> defendList = toDefend();
+    vector<Territory*> defendList = toDefend(); // Get the list of territories to defend
 
     cout << "Your territories to move armies to:" << endl;
+
+    // Display all owned territories with their details
     for (size_t i = 0; i < defendList.size(); ++i) {
         cout << i + 1 << ". " << defendList[i]->getName() << " (Armies: " << defendList[i]->getArmyAmount() << ")" << endl;
     }
 
     int choice = 0;
     cout << "Select a destination territory (enter the number): ";
+
+    // Validate user input to ensure a valid territory is chosen
     while (!(cin >> choice) || choice < 1 || choice > defendList.size()) {
         cout << "Invalid choice. Please select a valid territory number: ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    return defendList[choice - 1];
+    return defendList[choice - 1]; // Return the selected territory
 }
+
 
 void Player::removeTerritory(Territory* territory) {
     auto it = find(territories->begin(), territories->end(), territory); // Find the territory in the list
@@ -577,6 +608,7 @@ void Player::removeTerritory(Territory* territory) {
     }
 }
 
+// Fn to select an army amount
 int Player::selectArmyAmount(Territory* sourceTerritory) {
     int maxAmount = sourceTerritory->getArmyAmount();
     int amount = 0;
@@ -589,6 +621,7 @@ int Player::selectArmyAmount(Territory* sourceTerritory) {
     return amount;
 }
 
+// Fn to delete a card
 void Player::removeCard(Card::CardType type) {
     for (auto it = cards->begin(); it != cards->end(); ++it) {
         if ((*it)->getType() == type) {
