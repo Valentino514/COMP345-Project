@@ -3,6 +3,7 @@
 
 #include <string>
 
+// Interface
 class ILoggable {
 public:
     virtual ~ILoggable() = default;

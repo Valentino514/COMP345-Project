@@ -8,9 +8,11 @@
 
 #include "ILoggable.h"
 
+// Forward declarations
 class Subject;
 class CommandProcessor;
 
+// Abstract observer class
 class Observer {
 public:
     virtual ~Observer() = default;
@@ -18,6 +20,7 @@ public:
     virtual void setSubject(Subject* subject) = 0;
 };
 
+// Subject being observed by the observer
 class Subject : public ILoggable  {
 public:
     virtual ~Subject() = default;
@@ -30,21 +33,22 @@ public:
 
 protected:
     std::vector<Observer*>& getObservers();
-    std::vector<Observer*> observers;
+    std::vector<Observer*> observers;   // list of observers attached to the subject
 
 };
 
+// Observer observing subject and logging data
 class LogObserver : public Observer {
 public:
-    LogObserver();
-    void update() const override;
-    void printLog() const;
-    void setSubject(Subject* newSubject) override;
+    LogObserver();  // constructor
+    void update() const override;   // called when subject changes
+    void printLog() const;  // print log data to console
+    void setSubject(Subject* newSubject) override;  // set subject being observed
 
 private:
-    mutable std::vector<std::string> logData;
-    Subject* subject;
-    std::ofstream logFile;
+    mutable std::vector<std::string> logData;   // stores log data
+    Subject* subject;   // pointer to subject being observed
+    std::ofstream logFile;  // file stream to write logs to a file
 };
 
 #endif // LOGGINGOBSERVER_H
