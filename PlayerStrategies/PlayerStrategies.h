@@ -14,7 +14,7 @@ public:
     virtual ~PlayerStrategy() = default;
 
     // Pure virtual method for issuing orders based on the player's strategy
-    virtual void issueOrder(Player* player, const vector<Player*>& playerList) = 0;
+    virtual void issueOrder(Player* player, const vector<Player*>& playerList, bool test = false) = 0;
 
     // Pure virtual method to determine which territories the player should defend
     virtual vector<Territory*> toDefend(const Player* player) const = 0;
@@ -27,7 +27,7 @@ public:
 class HumanPlayerStrategy : public PlayerStrategy {
 public:
     // Issue orders interactively with user input
-    void issueOrder(Player* player, const vector<Player*>& playerList) override;
+    void issueOrder(Player* player, const vector<Player*>& playerList, bool test = false) override;
 
     // Determine territories to defend based on user input
     vector<Territory*> toDefend(const Player* player) const override;
@@ -40,7 +40,7 @@ public:
 class AggresivePlayerStrategy : public PlayerStrategy {
 public:
     // Issue orders to focus on attacking enemy territories
-    void issueOrder(Player* player, const vector<Player*>& playerList) override;
+    void issueOrder(Player* player, const vector<Player*>& playerList, bool test = false) override;
 
     // Determine the strongest territory for defense (if needed)
     vector<Territory*> toDefend(const Player* player) const override;
@@ -53,7 +53,7 @@ public:
 class BenevolentPlayerStrategy : public PlayerStrategy {
 public:
     // Issue orders to focus on defending the weakest territories
-    void issueOrder(Player* player, const vector<Player*>& playerList) override;
+    void issueOrder(Player* player, const vector<Player*>& playerList, bool test = false) override;
 
     // Determine the weakest territories to prioritize for defense
     vector<Territory*> toDefend(const Player* player) const override;
@@ -66,7 +66,7 @@ public:
 class NeutralPlayerStrategy : public PlayerStrategy {
 public:
     // Neutral player does not issue orders
-    void issueOrder(Player* player, const vector<Player*>& playerList) override;
+    void issueOrder(Player* player, const vector<Player*>& playerList, bool test = false) override;
 
     // Neutral player does not defend; returns an empty list
     vector<Territory*> toDefend(const Player* player) const override;
@@ -79,7 +79,7 @@ public:
 class CheaterPlayerStrategy : public PlayerStrategy {
 public:
     // Automatically conquer all adjacent enemy territories
-    void issueOrder(Player* player, const vector<Player*>& playerList) override;
+    void issueOrder(Player* player, const vector<Player*>& playerList, bool test = false) override;
 
     // Determine which territories to defend (all owned territories)
     vector<Territory*> toDefend(const Player* player) const override;

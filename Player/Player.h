@@ -51,7 +51,7 @@ public:
     friend ostream& operator<<(ostream& os, const Player& player);
 
 // Delegate to strategy for orders and decisions
-    void issueOrder(const std::vector<Player*>& playerList) ;
+    void issueOrder(const std::vector<Player*>& playerList, bool test= false) ;
 
     std::vector<Territory*> toDefend() const ;
     // return strategy->toDefend(this);

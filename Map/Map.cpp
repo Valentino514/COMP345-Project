@@ -236,7 +236,12 @@ int Territory::getArmyAmount() const {
 }
 
 void Territory::setArmyAmount(int amount) {
-    *armyAmount = amount;
+    if(amount <=0){
+        *armyAmount = 0;
+    }
+    else{
+        *armyAmount = amount;
+    }
 }
 
 void Territory::setLandOccupier(Player* player) {
@@ -262,9 +267,11 @@ void Territory::setName(const std::string &name) {
     *TerritoryName = name;
 }
 
+int* Territory::defaultTerritoryCount = new int(0);
+
 // Default Constructor
 Territory::Territory()
-    : TerritoryName(new std::string("default territory ")), 
+    : TerritoryName(new std::string("default territory " + to_string(++(*defaultTerritoryCount)))), 
       continent(new std::string("default continent")),
       AdjTerritories(new std::vector<Territory*>()),  // Allocating a new vector
       territoryOwner(nullptr), armyAmount(new int(0)) {
@@ -287,6 +294,8 @@ Territory::~Territory() {
     delete AdjTerritories;
     delete armyAmount;
     territoryOwner = nullptr;
+    delete defaultTerritoryCount;
+    defaultTerritoryCount = nullptr;
 }
 
 // Copy Constructor

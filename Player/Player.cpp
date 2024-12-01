@@ -161,9 +161,9 @@ void Player::clearNegotiations() {
 }
 
 // Issues an order using the player's strategy or logs an error if none is assigned.
-void Player::issueOrder(const std::vector<Player*>& playerList) {
+void Player::issueOrder(const std::vector<Player*>& playerList, bool test) {
     if (strategy) {
-        strategy->issueOrder(this, playerList);
+        strategy->issueOrder(this, playerList, test);
     } else {
         std::cerr << "No strategy assigned to player " << *name << ". Cannot issue orders.\n";
     }

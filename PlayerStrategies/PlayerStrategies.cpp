@@ -9,7 +9,7 @@
 using namespace std;
 
 // HumanPlayerStrategy Implementation
-void HumanPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList) {
+void HumanPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList, bool test) {
 
        const vector<Card*>* cards = &(player->getCards());
     OrdersList* orders = player->getOrdersList();
@@ -91,7 +91,7 @@ while (issuingAdvanceOrders) {
                 break;
             }
         }
-        if (source) break; // Exit Loop if player owns territory
+        if (source) break;// Exit Loop if player owns territory
         cout << "Source territory not found. Try again." << endl;
     }
 
@@ -113,7 +113,7 @@ while (issuingAdvanceOrders) {
     
 
     // Display enemy territories (for attack)
-    cout << "\nEnemy territories (to attack):" << endl;
+    cout << "\nEnemy territories to attack:" << endl;
     for (Territory* t : toAttack) {
         for(Territory* s: *source->getAdjacentTerritories()){
             if (t->getName()==s->getName())
@@ -131,7 +131,7 @@ while (issuingAdvanceOrders) {
         cout << "\nEnter the name of the destination territory: ";
         cin >> destinationName;
 
-        // Locate the destination in either toDefend or toAttack            (maybe comment out later )
+        // Locate the destination in either toDefend or toAttack  (maybe comment out later )
         for (Territory* t : toDefend) {
             if (t->getName() == destinationName) {
                 destination = t;
@@ -266,7 +266,7 @@ vector<Territory*> HumanPlayerStrategy::toAttack(const Player* player) const {
 
 
 // NeutralPlayerStrategy Implementation
-void NeutralPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList) {
+void NeutralPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList, bool test) {
     cout << "NeutralPlayer: Doing nothing.\n";
     // Does not issue any orders
 }
@@ -280,7 +280,7 @@ vector<Territory*> NeutralPlayerStrategy::toAttack(const Player* player) const {
 }
 
 // CheaterPlayerStrategy Implementation
-void CheaterPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList) {
+void CheaterPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList, bool test) {
 //    cout << "CheaterPlayerStrategy: Automatically conquering all adjacent enemy territories!\n";
     vector<Territory*> attackList = player->toAttack(); // Get territories that can be attacked
 
@@ -378,7 +378,7 @@ vector<Territory*> AggresivePlayerStrategy::toDefend(const Player* player) const
 
 
 // issueOrder method for the aggresive player class
-void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList) {
+void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList, bool test) {
     // Reinforcement phase
     OrdersList* orders = player->getOrdersList();
     Territory* strongestTerritory = nullptr;
@@ -396,8 +396,17 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
         Order* deployOrder = new Deploy(strongestTerritory, reinforcementAmount, player);
         orders->addOrder(deployOrder);
         player->setArmyAmount(0);
+
     }
 
+    if(strongestTerritory == nullptr){
+        cout<<" aggresive player has no territory left";
+        return;
+    }else
+    {
+        if(test == true){
+            cout<<"aggresive player strongest territory: "<< strongestTerritory->getName()+"\nplacing all available units on that territory\n";
+        }
     // Start attack phase for issuing orders
     Territory* attackTerritory = strongestTerritory;
     bool foundAttackTerritory = false;
@@ -446,12 +455,29 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
             int baseArmy = armiesToMove / numEnemies;
             int extra = armiesToMove % numEnemies;
 
-            for (size_t i = 0; i < adjacentEnemies.size(); ++i) {
-                int numArmies = baseArmy + (i < extra ? 1 : 0);
-                // Create Advance order
-                Order* advanceOrder = new Advance(player, attackTerritory, adjacentEnemies[i], numArmies);
-                orders->addOrder(advanceOrder);
+            if(test==true){
+                cout<<"attacking the following adjacent territories:\n";
             }
+        for (size_t i = 0; i < adjacentEnemies.size(); ++i) {
+            Player* enemyOwner = adjacentEnemies[i]->getLandOccupier();
+            if (!player->isNegotiatedWith(enemyOwner)) {
+                int numArmies = baseArmy + (i < extra ? 1 : 0);
+                // Ensure numArmies is not greater than source's available armies
+                numArmies = min(numArmies, attackTerritory->getArmyAmount());
+                if (numArmies > 0) {
+                    Order* advanceOrder = new Advance(player, attackTerritory, adjacentEnemies[i], numArmies);
+                    if(test == true){
+                            cout<<adjacentEnemies[i]->getName()+'\n';
+                        }
+                    if (advanceOrder->validate()) {
+                        orders->addOrder(advanceOrder);
+                        
+                    } else {
+                        delete advanceOrder; //if advance order is invalid
+                    }
+                }
+            }
+        }
             break; // Attack orders issued, exit the loop
         } else {
             // No adjacent enemy territories, find a new attack territory
@@ -460,6 +486,9 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
     }
     // Play Bomb card if the player has one
     if (player->hasCard(Card::Bomb)) {
+        if(test == true){
+            cout<<"aggresive player owns a bomb card \n";
+        }
         // Find the adjacent enemy territory with the most armies next to the strongest territory
         Territory* targetToBomb = nullptr;
         int maxEnemyArmies = -1;
@@ -474,18 +503,23 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
             }
         }
 
-        if (targetToBomb) {
-            // Create Bomb order
+        if (targetToBomb && !player->isNegotiatedWith(targetToBomb->getLandOccupier())) {
             Order* bombOrder = new Bomb(targetToBomb, player);
-            orders->addOrder(bombOrder);
-            cout << "Aggressive player uses Bomb card on " << targetToBomb->getName() << ".\n";
-            // Remove Bomb card from player's hand
-            player->removeCard(Card::Bomb);
+            if (bombOrder->validate()) {
+                cout<<"bombing "<<targetToBomb->getName()<<endl;
+                orders->addOrder(bombOrder);
+                player->removeCard(Card::Bomb);
+            } else {
+                delete bombOrder; //if order is invalid
+            }
         }
     }
 
     // Play Airlift card if the player has one
     if (player->hasCard(Card::Airlift)) {
+        if(test == true){
+            cout<<"aggresive player owns an airlift card \n";
+        }
         // Find the territory with second highest number of armies excluding the strongest territory
         Territory* secondStrongestTerritory = nullptr;
         int maxArmies = -1;
@@ -499,20 +533,30 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
 
         if (secondStrongestTerritory && maxArmies > 0) {
             int armyCount = secondStrongestTerritory->getArmyAmount();
-            // Create Airlift order
-            Order* airliftOrder = new Airlift(secondStrongestTerritory, strongestTerritory, armyCount, player);
-            orders->addOrder(airliftOrder);
-            // Remove Airlift card from player's hand
-            player->removeCard(Card::Airlift);
+            if (armyCount > 0) {
+                Order* airliftOrder = new Airlift(secondStrongestTerritory, strongestTerritory, armyCount, player);
+                if (airliftOrder->validate()) {
+                    orders->addOrder(airliftOrder);
+                    player->removeCard(Card::Airlift);
+                } else {
+                    delete airliftOrder;  // Clean up if not valid
+                }
+            }
+        }
+
+        else{
+            if(test == true){
+                cout<<"aggresive player has no other territories with more than 1 army to airlift\n";
+            }
         }
     }
-
+    }
 }
 
 // BenevolentPlayerStrategy Implementation
 
 //issueOrder for the benevolent player who only defends
-void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList) {
+void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList, bool test) {
     OrdersList* orders = player->getOrdersList();
 
     // Reinforcement phase: Deploy armies to weakest territories
@@ -523,14 +567,19 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
         int totalReinforcements = player->getArmyAmount();
         int baseReinforcement = totalReinforcements / numTerritories;
         int extra = totalReinforcements % numTerritories;
-
+        if(test == true){
+            cout<<"reinfocing weakest territories of benevolent player:\n";
+        }
         for (size_t i = 0; i < weakestTerritories.size(); ++i) {
             int reinforcementAmount = baseReinforcement + (i < extra ? 1 : 0);
             Order* deployOrder = new Deploy(weakestTerritories[i], reinforcementAmount, player);
             orders->addOrder(deployOrder);
+            if(test == true){
+                cout<<weakestTerritories[i]->getName()+" with "+to_string(weakestTerritories[i]->getArmyAmount())+" armies\n";
+            }
         }
 
-        player->setArmyAmount(0); // All armies have been deployed
+        player->setArmyAmount(0); 
     }
 
     // Fortification phase: Move armies between own territories
@@ -547,7 +596,7 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
         return a->getArmyAmount() > b->getArmyAmount();
     });
 
-    // For each movable territory, try to reinforce weaker territories
+    // For each move, try to reinforce weaker territories
     for (Territory* sourceTerritory : movableTerritories) {
         const vector<Territory*>* adjacents = sourceTerritory->getAdjacentTerritories();
 
@@ -566,18 +615,28 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
             int baseArmies = armiesToMove / numTerritories;
             int extra = armiesToMove % numTerritories;
 
-            for (size_t i = 0; i < weakerAdjacentTerritories.size(); ++i) {
-                int numArmies = baseArmies + (i < extra ? 1 : 0);
+        for (size_t i = 0; i < weakerAdjacentTerritories.size(); ++i) {
+            int numArmies = baseArmies + (i < extra ? 1 : 0);
+            // Ensure numArmies is not greater than source's available armies
+            numArmies = std::min(numArmies, sourceTerritory->getArmyAmount());
+            if (numArmies > 0) {
                 Order* advanceOrder = new Advance(player, sourceTerritory, weakerAdjacentTerritories[i], numArmies);
-                orders->addOrder(advanceOrder);
+                if (advanceOrder->validate()) {
+                    orders->addOrder(advanceOrder);
+                    sourceTerritory->setArmyAmount(sourceTerritory->getArmyAmount() - numArmies);
+                } else {
+                    delete advanceOrder;  // Clean up if not valid
+                }
             }
-
-            sourceTerritory->setArmyAmount(0);
+        }
         }
     }
 
     // Use Diplomacy card if the player has it
     if (player->hasCard(Card::Diplomacy)) {
+        if(test == true){
+            cout<< "benevolent player has diplomacy card\n";
+        }
         Player* targetPlayer = nullptr;
         for (Player* p : playerList) {
             if (p != player) {
@@ -585,12 +644,17 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
                 break;
             }
         }
-        if (targetPlayer) {
-            Order* negotiateOrder = new Negociate(player, targetPlayer);
-            orders->addOrder(negotiateOrder);
-            // Remove Diplomacy card from player's hand
-            player->removeCard(Card::Diplomacy);
-        }
+if (targetPlayer != nullptr && targetPlayer != player) {
+    Order* negotiateOrder = new Negociate(player, targetPlayer);
+    if (negotiateOrder->validate()) {
+        cout<<"negociating with "<<*targetPlayer->getName()<<endl;
+        orders->addOrder(negotiateOrder);
+        player->removeCard(Card::Diplomacy);
+    } else {
+        delete negotiateOrder;  // Clean up if not valid
+    }
+}
+
     }
 }
 

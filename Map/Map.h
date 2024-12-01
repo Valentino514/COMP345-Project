@@ -71,6 +71,7 @@ private:
     std::vector<Territory*>* AdjTerritories; 
     Player* territoryOwner; 
     int* armyAmount; 
+    static int* defaultTerritoryCount;
 
 public:
     // Default Constructor

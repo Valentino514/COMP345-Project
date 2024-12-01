@@ -10,6 +10,8 @@ void testPlayerStrategies() {
 
     void testAggresiveBenevolent();
 
+    cout<<"\n------------------\n";
+
     testAggresiveBenevolent();
 
     // Create territories
@@ -93,17 +95,17 @@ void testPlayerStrategies() {
 
 void testAggresiveBenevolent(){
     // Create territories
-    Territory* t1 = new Territory();
-    Territory* t2 = new Territory();
-    Territory* t3 = new Territory();
+    Territory* t11 = new Territory();
+    Territory* t22 = new Territory();
+    Territory* t33 = new Territory();
 
     // Add adjacency for territories
-    t1->addAdjacentTerritory(t2);
-    t2->addAdjacentTerritory(t1);
-    t1->addAdjacentTerritory(t3);
-    t3->addAdjacentTerritory(t1);
-    t2->addAdjacentTerritory(t3);
-    t3->addAdjacentTerritory(t2);
+    t11->addAdjacentTerritory(t22);
+    t22->addAdjacentTerritory(t11);
+    t11->addAdjacentTerritory(t33);
+    t33->addAdjacentTerritory(t11);
+    t22->addAdjacentTerritory(t33);
+    t33->addAdjacentTerritory(t22);
 
     // Create players
     string aggressiveName = "Aggressive Player";
@@ -115,18 +117,18 @@ void testAggresiveBenevolent(){
     Player* benevolentPlayer = new Player(&benevolentName, &benevolentArmy);
 
     // Assign territories
-    t1->setLandOccupier(aggressivePlayer);
-    t1->setArmyAmount(30);
-    aggressivePlayer->addTerritory(t1);
+    t11->setLandOccupier(aggressivePlayer);
+    t11->setArmyAmount(30);
+    aggressivePlayer->addTerritory(t11);
 
-    t2->setLandOccupier(benevolentPlayer);
-    t2->setArmyAmount(12);
-    benevolentPlayer->addTerritory(t2);
+    t22->setLandOccupier(benevolentPlayer);
+    t22->setArmyAmount(12);
+    benevolentPlayer->addTerritory(t22);
 
-    t3->setLandOccupier(benevolentPlayer);
-    t3->setArmyAmount(2);
-    benevolentPlayer->addTerritory(t3);
-
+    t33->setLandOccupier(benevolentPlayer);
+    t33->setArmyAmount(2);
+    benevolentPlayer->addTerritory(t33);
+   
     // Set strategies
     aggressivePlayer->setStrategy(new AggresivePlayerStrategy());
     benevolentPlayer->setStrategy(new BenevolentPlayerStrategy());
@@ -142,17 +144,13 @@ void testAggresiveBenevolent(){
     // Test AggressivePlayerStrategy
     cout << "\n--- Testing AggressivePlayerStrategy ---" << endl;
     cout << "Aggressive player issuing orders:" << endl;
-    aggressivePlayer->issueOrder(playerList);
+    aggressivePlayer->issueOrder(playerList,true);
 
     // Test BenevolentPlayerStrategy
     cout << "\n\n--- Testing BenevolentPlayerStrategy ---" << endl;
     cout << "Benevolent player issuing orders:" << endl;
-    benevolentPlayer->issueOrder(playerList);
+    benevolentPlayer->issueOrder(playerList,true);
 
-    // Cleanup
-    delete t1;
-    delete t2;
-    delete t3;
-    delete aggressivePlayer;
-    delete benevolentPlayer;
+    cout<<"\n------------\n";
+
 }
