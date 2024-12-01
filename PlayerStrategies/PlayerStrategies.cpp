@@ -59,9 +59,12 @@ void HumanPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playe
 
         // Create a Deploy order and add to orders list
          Order* deployOrder = new Deploy(selectedTerritory, reinforcementAmount,player);
-         orders->addOrder(deployOrder);  
+         if(deployOrder->validate()){
+        orders->addOrder(deployOrder);  
         player->setArmyAmount(player->getArmyAmount() - reinforcementAmount);
         cout << "Deploy order issued to add " << reinforcementAmount << " armies to " << selectedTerritory->getName() << ".\n" << endl;
+         }
+
     }
 
     cout << "\n------------------------------------------------\n         Reinforcement phase completed\n------------------------------------------------\n\n" << endl;
@@ -161,11 +164,13 @@ while (issuingAdvanceOrders) {
     }
 
     
-    Order* order = new Advance(player, source, destination, numArmies);  
+    Advance* order = new Advance(player, source, destination, numArmies);  
+    if(order->validate()){
     orders->addOrder(order); // Add the order to the player's order list
-
     cout << "Advance order issued to move " << numArmies << " armies from " << source->getName()
          << " to " << destination->getName() << "." << endl;
+    }
+
 
     // Ask if the player wants to issue another Advance order
      string decision;
@@ -394,8 +399,12 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
 
         // Create Deploy order
         Order* deployOrder = new Deploy(strongestTerritory, reinforcementAmount, player);
+        if(deployOrder->validate()){
         orders->addOrder(deployOrder);
         player->setArmyAmount(0);
+        }else{
+            return;
+        }
 
     }
 
@@ -573,10 +582,13 @@ void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>&
         for (size_t i = 0; i < weakestTerritories.size(); ++i) {
             int reinforcementAmount = baseReinforcement + (i < extra ? 1 : 0);
             Order* deployOrder = new Deploy(weakestTerritories[i], reinforcementAmount, player);
+            if(deployOrder->validate()){
             orders->addOrder(deployOrder);
             if(test == true){
-                cout<<weakestTerritories[i]->getName()+" with "+to_string(weakestTerritories[i]->getArmyAmount())+" armies\n";
+            cout<<weakestTerritories[i]->getName()+" with "+to_string(weakestTerritories[i]->getArmyAmount())+" armies\n";
             }
+            }
+
         }
 
         player->setArmyAmount(0); 

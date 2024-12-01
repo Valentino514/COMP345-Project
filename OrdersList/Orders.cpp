@@ -73,15 +73,9 @@ bool Deploy::validate() {
 }
 //execute method for deploy
 void Deploy::execute() {
-    if (validate()){
 
     int newArmyAmmount = (targetTerritory->getArmyAmount() + (*reinforcementAmount));
     targetTerritory->setArmyAmount(newArmyAmmount);
-
-    }
-    else
-     cout<<"error deploying troops, player does not seem to own the territoy"<<"\n";
-
     
 }
 //print method for deploy
