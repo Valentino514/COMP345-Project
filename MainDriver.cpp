@@ -111,6 +111,8 @@ int main(int argc, char* argv[]) {
     } else {
         std::cout << "Starting the game..." << std::endl;
         GameEngine gameEngine;
+        LogObserver logObserver;
+        gameEngine.addObserver(&logObserver);
         testTournament();
         // gameEngine.startupPhase();
         // gameEngine.mainGameLoop();

@@ -11,10 +11,16 @@ using namespace std;
 // HumanPlayerStrategy Implementation
 void HumanPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList, bool test) {
 
-       const vector<Card*>* cards = &(player->getCards());
+    const vector<Card*>* cards = &(player->getCards());
     OrdersList* orders = player->getOrdersList();
 
-    
+    // Open gamelog.txt in append mode to log the executed orders
+    ofstream logFile("gamelog.txt", ios::app);  
+    if (!logFile) {
+        cerr << "Error opening log file!" << endl;
+        return;
+    }
+
     // Retrieve territories to defend and attack
      vector<Territory*> toDefend = player->toDefend();
     vector<Territory*> toAttack = player->toAttack();
@@ -170,6 +176,8 @@ while (issuingAdvanceOrders) {
     cout << "Advance order issued to move " << numArmies << " armies from " << source->getName()
          << " to " << destination->getName() << "." << endl;
     }
+    logFile << "Advance order issued to move " << numArmies << " armies from " << source->getName()
+         << " to " << destination->getName() << "." << endl;
 
 
     // Ask if the player wants to issue another Advance order
@@ -209,6 +217,7 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
             cardOrder = new Bomb(target,player); // Bomb order targets enemy territory
 
             cout << "Bomb order created targeting " << target->getName() << "." << endl;
+            logFile << "Bomb order created targeting " << target->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Airlift") {
             Territory* source = player->selectSourceTerritory();
             Territory* destination = player->selectDestinationTerritory();
@@ -217,17 +226,21 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
 
             cout << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
                  << " to " << destination->getName() << "." << endl;
+            logFile << "Airlift order created to move " << armyAmount << " armies from " << source->getName()
+                 << " to " << destination->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Blockade") {
             Territory* target = player->selectTargetFromDefendList();
             cardOrder = new Blockade(player, target); // Blockade on own territory
 
             cout << "Blockade order created on " << target->getName() << "." << endl;
+            logFile << "Blockade order created on " << target->getName() << "." << endl;
         } else if (selectedCard->getCardTypeName() == "Diplomacy") {
             //Player* targetPlayer = selectPlayerToNegotiate(*playerList);
             Player* targetPlayer = player->selectPlayerToNegotiate(playerList);
 
             cardOrder = new Negociate(player, targetPlayer); // Negotiate with enemy player
             cout << "Negotiate order created with " << *(targetPlayer->getName()) << "." << endl;
+            logFile << "Negotiate order created with " << *(targetPlayer->getName()) << "." << endl;
          }
 
         if (cardOrder) {
@@ -236,7 +249,10 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
         player->removeCard(selectedCard->getType());
     }
 
-    cout << "Orders Issuing phase completed for player " << player->getName() << ".\n------------------------------------------------" << endl;}
+    cout << "Orders Issuing phase completed for player " << player->getName() << ".\n------------------------------------------------" << endl;
+    logFile << "Orders Issuing phase completed for player " << player->getName() << ".\n" << endl;
+    logFile.close();
+}
 
 
 

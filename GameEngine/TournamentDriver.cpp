@@ -10,7 +10,7 @@ void testTournament() {
     CommandProcessor commandProcessor;
 
     // Prompt the user for the tournament command
-    std::cout << "Enter the tournament command in the following format:\n";
+    std::cout << "Enter the tournament command in the following format:\ntournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns> ";
 
     // Read the user's input
     std::string tournamentCommand;

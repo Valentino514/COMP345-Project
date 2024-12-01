@@ -5,6 +5,7 @@
 #include "../Player/Player.h"
 #include "../CardsDeckHand/Cards.h"
 #include "../CommandProcessing/CommandProcessing.h"
+#include "../Log/LoggingObserver.h"
 
 #include <string>
 #include <vector>
@@ -19,9 +20,14 @@ using namespace std;
 
 GameEngine::GameEngine():currentIndex(new int(0)){
     playerList = new std::vector<Player*>;
+    LogObserver* logObserver = new LogObserver();
+    this->attach(logObserver);
 }
 
-GameEngine::GameEngine(GameEngine& other){ }
+GameEngine::GameEngine(GameEngine& other){
+    LogObserver* logObserver = new LogObserver();
+    this->attach(logObserver);
+ }
 
 //destructor
 GameEngine::~GameEngine() {
@@ -37,6 +43,9 @@ GameEngine::~GameEngine() {
     }
     delete[] map;
     delete[] commands;
+    for (Observer* observer : observers) {
+        delete observer;
+    }
 }
 
 // stream insertion operator
@@ -194,6 +203,13 @@ std::string GameEngine::getState() const {
 void GameEngine::startupPhase() {
     std::cout << "Welcome to the Game Startup Phase.\n";
 
+    // Open gamelog.txt in append mode to log the executed orders
+    ofstream logFile("gamelog.txt", ios::app);  
+    if (!logFile) {
+        cerr << "Error opening log file!" << endl;
+        return;
+    }
+
     // Ask the user if they want to enter tournament mode
     std::string choice;
     std::cout << "Do you want to enter a tournament mode? (Y/N): ";
@@ -208,7 +224,7 @@ void GameEngine::startupPhase() {
     if (choice == "Y" || choice == "y") {
         // Tournament mode
         while (true) {
-            std::cout << "Please enter the tournament command:\n";
+            std::cout << "Please enter the tournament command in this format:\ntournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>\n";
             std::string command = cp.readCommand1(); // Use readCommand1 for tournament input
             std::cout << std::endl;
 
@@ -216,6 +232,7 @@ void GameEngine::startupPhase() {
                 TournamentParams params = cp.parseTournamentCommand(command);
                 if (params.maps.empty()) {
                     std::cout << "Invalid tournament command. Exiting.\n";
+                    logFile << "Exiting program due to invalid tournament command.\n";
                     return;
                 }
 
@@ -223,6 +240,7 @@ void GameEngine::startupPhase() {
                 addPlayersToGameEngine(params.strategies);
 
                 // Execute the tournament
+                logFile << "Executing tournament mode.\n";
                 executeTournament(params);
                 exit(0);
             } else {
@@ -258,6 +276,8 @@ void GameEngine::startupPhase() {
                     std::string fullPath = mapsDirectory + "/" + chosenMap;
                     Cmap = x.loadMap(fullPath);
                     *cp.currentState = "maploaded"; // Update state after successful map loading
+                    (*currentIndex)++;
+                    notify();
                 } else {
                     std::cout << "Invalid map name. Please choose from the available maps.\n";
                 }
@@ -265,6 +285,8 @@ void GameEngine::startupPhase() {
                 if (Cmap != nullptr) {
                     if (Cmap->validate()) {
                         *cp.currentState = "mapvalidated"; // Update state after successful validation
+                        (*currentIndex)++;
+                        notify();
                     } else {
                         std::cout << "Map is invalid.\n";
                     }
@@ -275,6 +297,8 @@ void GameEngine::startupPhase() {
                 addplayer();
                 std::cout << std::endl;
                 *cp.currentState = "playersadded"; // Update state after adding players
+                (*currentIndex)++;
+                notify();
             } else if (*cp.currentState == "playersadded" && command == "gamestart") {
                 if (Cmap != nullptr) {
                     std::cout << std::endl;
@@ -283,6 +307,8 @@ void GameEngine::startupPhase() {
                     assignArmyAmount(50);
                     DrawTwoCards();
                     *cp.currentState = "assignreinforcement"; // Update state to assign reinforcements
+                    (*currentIndex)++;
+                    notify();
                     break; // Exit the loop once the game starts
                 } else {
                     std::cout << "No map loaded. Please load and validate a map before starting the game.\n";
@@ -300,6 +326,13 @@ void GameEngine::startupPhase() {
 void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategies) {
     // Maintain a count of players for each strategy type
     std::map<std::string, int> strategyCount;
+
+    // Open gamelog.txt in append mode to log the executed orders
+    ofstream logFile("gamelog.txt", ios::app);  
+    if (!logFile) {
+        cerr << "Error opening log file!" << endl;
+        return;
+    }
 
     for (const std::string& strategy : strategies) {
         // Increment the count for the current strategy
@@ -329,6 +362,7 @@ void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategi
 
         // Add the configured player to the GameEngine's player list
         playerList->push_back(player);
+        logFile <<"Added player " + name + " with strategy " + strategy << endl;
 
         // confirmation output
         std::cout << name << " has been added to the game.\n";
@@ -340,50 +374,76 @@ void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategi
 void GameEngine::executeTournament(const TournamentParams& params) {
     MapLoader x ;
 
+    // Open gamelog.txt in append mode to log the executed orders
+    ofstream logFile("gamelog.txt", ios::app);  
+    if (!logFile) {
+        cerr << "Error opening log file!" << endl;
+        return;
+    }
+
     // Iterate through each map specified in the tournament parameters
     for (const std::string& map : params.maps) {
         for (int game = 1; game <= params.games; ++game) {
 
             // Display the current game and map being played
-            std::cout << "Playing game " << game << " on map " << map << "...\n";
+            std::string startMsg = "Playing game " + std::to_string(game) + " on map " + map + "...";
+            std::cout << startMsg << "\n";
+            logFile << startMsg << endl;
             std::string mapsDirectory = "./Map/maps"; 
             string fullPath = mapsDirectory + "/" + map;
             Cmap = x.loadMap(fullPath);
 
             // Validate the map before starting the game
             if (Cmap->validate()) {
-                std::cout << "Valid Map: " << map << ". Starting game.\n";
-                
+                std::string validMsg = "Valid map: " + map + ". Starting game.";
+                std::cout << validMsg << "\n";
+                logFile << validMsg << endl;
             }
             else{
-                std::cout << "Invalid map: " << map << ". Skipping game.\n";
+                std::string errorMsg = "Invalid map: " + map + ". Skipping game.";
+                std::cout << errorMsg << "\n";
+                logFile << errorMsg << endl;
                 continue;
             }
 
             // Assign players and initial setup
+            logFile << "Distributing territories for map " << map << endl;
             DistributeTerritories(*Cmap->Territories, *playerList);
+            
+            logFile << "Shuffling players..." << endl;
             shufflePlayers();
+            
+            logFile << "Assigning armies..." << endl;
             assignArmyAmount(50);
+
+            logFile << "Drawing initial cards..." << endl;
             DrawTwoCards();
 
             // Play game
             bool gameWon = false;
             for (int turn = 1; turn <= params.maxTurns; ++turn) {
-                std::cout << "Turn " << turn << "...\n";
+                std::string turnMsg = "Turn " + std::to_string(turn) + "...";
+                std::cout << turnMsg << "\n";
+                logFile << turnMsg << endl;
 
                 //reinforcements phase to give players troops before round start
                 reinforcementPhase();
+                logFile << "Reinforcement phase completed." << endl;
 
                 // Issue orders for each player
                 issueOrdersPhase();
+                logFile << "Issue orders phase completed." << endl;
 
                 // Execute orders
                 executeOrdersPhase();
+                logFile << "Execute orders phase completed." << endl;
 
                 // Check for a winner
                 Player* winner = checkWinner(*Cmap->Territories);
                 if (winner) {
-                    std::cout << "Player " << *winner->getName() << " won the game on map " << map << "!\n";
+                    std::string winnerMsg = "Player " + *winner->getName() + " won the game on map " + map + "!";
+                    std::cout << winnerMsg << "\n";
+                    logFile << winnerMsg << endl;
                     gameWon = true;
                     break;
                 }
@@ -391,12 +451,15 @@ void GameEngine::executeTournament(const TournamentParams& params) {
 
             // If no winner after maxTurns, declare a draw
             if (!gameWon) {
-                std::cout << "Game " << game << " on map " << map << " declared a draw.\n";
+                std::string drawMsg = "Game " + std::to_string(game) + " on map " + map + " declared a draw.";
+                std::cout << drawMsg << "\n";
+                logFile << drawMsg << endl;
             }
         }
     }
 
     std::cout << "Tournament completed.\n";
+    logFile << "Tournament completed!!" << endl;
 }
 
     // Fn to test the Main game loop
@@ -661,6 +724,13 @@ void GameEngine::issueOrdersPhase() {
 void GameEngine::executeOrdersPhase() {
     cout << "Starting Orders Execution Phase...\n";
 
+    // Open gamelog.txt in append mode to log the executed orders
+    ofstream logFile("gamelog.txt", ios::app);  
+    if (!logFile) {
+        cerr << "Error opening log file!" << endl;
+        return;
+    }
+
     // Execute all Deploy orders first in a round-robin fashion across all players
     bool deployOrdersRemaining = true;
     while (deployOrdersRemaining) {
@@ -672,7 +742,9 @@ void GameEngine::executeOrdersPhase() {
             if (ordersList->hasDeployOrder()) {
                 Order* deployOrder = ordersList->getNextDeployOrder();
                 if (deployOrder) {
-                    deployOrder->execute();  
+                    deployOrder->execute(); 
+                    logFile << "Executing deploy order: " << *deployOrder << endl;
+                    notify();  
                     delete deployOrder;     
                     deployOrdersRemaining = true; // Set to true if there are more deploy orders
                 }
@@ -692,6 +764,8 @@ void GameEngine::executeOrdersPhase() {
                 Order* nextOrder = ordersList->getNextOrder(); // Get the next available order
                 if (nextOrder) {
                     nextOrder->execute();  
+                    logFile << "Executing order: " << *nextOrder << endl;
+                    notify();  
                     delete nextOrder;      
                     ordersRemaining = true; // Set to true if there are more orders
                 }
@@ -702,6 +776,7 @@ void GameEngine::executeOrdersPhase() {
         for (auto it = playerList->begin(); it != playerList->end();) {
             if ((*it)->getTerritoryCount() == 0) { 
                 cout << *(*it)->getName() << " has been eliminated.\n";
+                logFile << *(*it)->getName() << " has been eliminated.\n";              
                 delete *it;              // Free memory for eliminated player
                 it = playerList->erase(it); // Remove player from the list
             } else {
@@ -709,6 +784,7 @@ void GameEngine::executeOrdersPhase() {
             }
         }
     }
-
+    logFile << "Orders Execution Phase completed.\n";
     cout << "Orders Execution Phase completed.\n";
+    logFile.close();
 }
