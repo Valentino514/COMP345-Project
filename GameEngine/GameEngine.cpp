@@ -12,7 +12,7 @@
 #include <filesystem> 
 #include <algorithm>
 #include <random>
-
+#include <iomanip>
 
 
 using namespace std;
@@ -380,6 +380,28 @@ void GameEngine::executeTournament(const TournamentParams& params) {
         return;
     }
 
+    // Log tournament setup
+    logFile << "\n\nTournament mode:\n";
+    logFile << "M: ";
+    for (const auto& map : params.maps) {
+        logFile << map << " ";
+    }
+    logFile << ".\n";
+    logFile << "P: ";
+    for (const auto& strat : params.strategies) {
+        logFile << strat << " ";
+    }
+    logFile << ".\n";
+    logFile << "G: " << params.games << ".\n";
+    logFile << "D: " << params.maxTurns << ".\n\n\n";
+
+    // Matrix to store tournament results
+    std::vector<std::vector<std::string>> results(params.maps.size(), std::vector<std::string>(params.games, "Draw"));
+    std::unordered_map<std::string, int> mapIndex;
+    for (size_t i = 0; i < params.maps.size(); ++i) {
+        mapIndex[params.maps[i]] = i;
+    }
+
     // Iterate through each map specified in the tournament parameters
     for (const std::string& map : params.maps) {
         for (int game = 1; game <= params.games; ++game) {
@@ -427,19 +449,20 @@ void GameEngine::executeTournament(const TournamentParams& params) {
 
                 //reinforcements phase to give players troops before round start
                 reinforcementPhase();
-                logFile << "Reinforcement phase completed." << endl;
+                logFile << "Reinforcement phase completed.\n" << endl;
 
                 // Issue orders for each player
                 issueOrdersPhase();
-                logFile << "Issue orders phase completed." << endl;
+                logFile << "Issue orders phase completed.\n" << endl;
 
                 // Execute orders
                 executeOrdersPhase();
-                logFile << "Execute orders phase completed." << endl;
+                logFile << "Execute orders phase completed.\n" << endl;
 
                 // Check for a winner
                 Player* winner = checkWinner(*Cmap->Territories);
                 if (winner) {
+                    results[mapIndex[map]][game - 1] = *winner->getName();
                     std::string winnerMsg = "Player " + *winner->getName() + " won the game on map " + map + "!";
                     std::cout << winnerMsg << "\n";
                     logFile << winnerMsg << endl;
@@ -450,15 +473,56 @@ void GameEngine::executeTournament(const TournamentParams& params) {
 
             // If no winner after maxTurns, declare a draw
             if (!gameWon) {
+                results[mapIndex[map]][game - 1] = "Draw";
                 std::string drawMsg = "Game " + std::to_string(game) + " on map " + map + " declared a draw.";
                 std::cout << drawMsg << "\n";
                 logFile << drawMsg << endl;
             }
         }
     }
+    //Tabulating tournament results
+    logFile << "\nTournament Results:\n\n";
+    logFile << std::setw(24) << std::left << " ";
+    
+    // Dynamically calculate the column width
+    int columnWidth = 20; // Default column width
+    for (const auto& row : results) {
+        for (const auto& result : row) {
+            columnWidth = std::max(columnWidth, static_cast<int>(result.length() + 5)); // Add a little buffer
+        }
+    }
+
+    // Header row
+    for (int game = 1; game <= params.games; ++game) {
+        logFile << std::setw(columnWidth) << std::left <<("|Game " + std::to_string(game));
+    }
+    logFile << "|\n";
+
+    // Add dashed line after header
+    logFile << std::string(columnWidth, '-') << " ";  // Dash for "Map" column
+    for (int game = 1; game <= params.games; ++game) {
+        logFile << std::string(columnWidth, '-');  // Dash for each game column
+    }
+    logFile << "\n";
+
+    // Results for each map
+    for (size_t mapIdx = 0; mapIdx < params.maps.size(); ++mapIdx) {
+        logFile << std::setw(columnWidth) << std::left <<("|Map |" + params.maps[mapIdx]);
+        for (int game = 0; game < params.games; ++game) {
+            logFile << std::setw(columnWidth) << std::left <<"|" + results[mapIdx][game];
+        }
+        logFile << "|\n";
+
+        // Add dashed line after each map row
+        logFile << std::string(columnWidth, '-') << " ";  // Dash for "Map" column
+        for (int game = 1; game <= params.games; ++game) {
+            logFile << std::string(columnWidth, '-');  // Dash for each game column
+        }
+    logFile << "\n";
+    }
 
     std::cout << "Tournament completed.\n";
-    logFile << "Tournament completed!!" << endl;
+    logFile << "\nTournament completed!!\n" << endl;
 }
 
     // Fn to test the Main game loop
@@ -783,7 +847,6 @@ void GameEngine::executeOrdersPhase() {
             }
         }
     }
-    logFile << "Orders Execution Phase completed.\n";
     cout << "Orders Execution Phase completed.\n";
     logFile.close();
 }
