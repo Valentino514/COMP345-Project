@@ -113,9 +113,17 @@ int main(int argc, char* argv[]) {
         GameEngine gameEngine;
         LogObserver logObserver;
         gameEngine.addObserver(&logObserver);
+        std::ofstream logFile("gamelog.txt", std::ios::trunc);
+                
+        if (logFile) {
+            logFile << "New game session started.\n";  // Add a header if needed
+        }
+        logFile.close();
+
         testTournament();
         // gameEngine.startupPhase();
         // gameEngine.mainGameLoop();
+        
     }
 
     return 0;

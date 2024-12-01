@@ -43,9 +43,8 @@ GameEngine::~GameEngine() {
     }
     delete[] map;
     delete[] commands;
-    for (Observer* observer : observers) {
-        delete observer;
-    }
+    observers.clear();
+
 }
 
 // stream insertion operator
