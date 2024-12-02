@@ -10,7 +10,22 @@
 
 using namespace std;
 
+/**
+ * @class Player
+ * @brief Represents a player in the game, including their name, army, territories, orders, and strategy.
+ * 
+ * The Player class manages player attributes such as name, army amount, territories, orders, cards, and negotiation 
+ * states with other players. It also supports different strategies for player actions, such as deciding which territories 
+ * to attack or defend, and how to issue orders.
+ */
 
+// Parameterized Constructor
+/**
+ * @brief Constructs a Player with a specified name and army amount.
+ * 
+ * @param name A pointer to the player's name.
+ * @param armyamount A pointer to the player's army amount.
+ */
 Player::Player(string* name, int* armyamount) {
     cout << "Generating player..." << *name << " with " << *armyamount << " armies\n";
     this->name = new string(*name);
@@ -21,6 +36,12 @@ Player::Player(string* name, int* armyamount) {
     strategy = new HumanPlayerStrategy(); // Default strategy
 }
 
+// Parameterized Constructor (Alternative)
+ /**
+  * @brief Constructs a Player with a specified name and default army amount of 0.
+  * 
+  * @param name A reference to the player's name.
+  */
 Player::Player(string& name) {
     cout << "Generating player... " << name << " with 0 armies (default)\n";
     this->name = new string(name);
@@ -31,7 +52,12 @@ Player::Player(string& name) {
     strategy = new HumanPlayerStrategy(); // Default strategy
 }
 
-
+// Copy Constructor
+/**
+ * @brief Creates a deep copy of another Player.
+ * 
+ * @param other The Player to copy.
+ */
 Player::Player(const Player& other) {
     name = new string(*other.name);
     armyamount = new int(*other.armyamount);
@@ -59,7 +85,14 @@ Player::Player(const Player& other) {
     }
 }
 
-
+// Parameterized Constructor (with custom strategy)
+ /**
+  * @brief Constructs a Player with a specified name, army amount, and custom strategy.
+  * 
+  * @param name A pointer to the player's name.
+  * @param armyamount A pointer to the player's army amount.
+  * @param customStrategy The player's strategy.
+  */
 Player::Player(string* name, int* armyamount, PlayerStrategy* customStrategy) {
     cout << "Generating player..." << *name << " with " << *armyamount << " armies\n";
     this->name = new string(*name);
@@ -70,7 +103,12 @@ Player::Player(string* name, int* armyamount, PlayerStrategy* customStrategy) {
     strategy = customStrategy ? customStrategy : new HumanPlayerStrategy(); // Use custom or default
 }
 
-
+// Set Army Amount
+/**
+ * @brief Sets the player's army amount.
+ * 
+ * @param amount The amount of armies to assign to the player.
+ */
 void Player::setArmyAmount(int amount) { 
     if (armyamount) {
         *armyamount = amount;  // Update the existing armyamount
@@ -79,7 +117,13 @@ void Player::setArmyAmount(int amount) {
     }
 }
 
-// Assignment operator 
+// Assignment Operator
+/**
+ * @brief Assigns the state of another Player to this one.
+ * 
+ * @param other The Player to copy.
+ * @return A reference to the updated Player.
+ */
 Player& Player::operator=(const Player& other) {
     if (this == &other) return *this;  // Self-assignment check
 
@@ -110,7 +154,13 @@ Player& Player::operator=(const Player& other) {
     return *this;
 }
 
-
+// Destructor
+/**
+ * @brief Destroys the Player.
+ * 
+ * @details Cleans up all dynamically allocated memory, including the player's name, army amount, strategy, territories, 
+ * cards, and orders.
+ */
 Player::~Player() {
     delete name;
     name = nullptr;
@@ -143,24 +193,47 @@ Player::~Player() {
     orders = nullptr;
 }
 
-
-// Adds a player to the negotiated list if not already present
+// Add Negotiated Player
+/**
+ * @brief Adds a player to the negotiated list if not already present.
+ * 
+ * @param player The player to add to the negotiated list.
+ */
 void Player::addNegotiatedPlayer(Player* player) {
     if (std::find(negotiatedPlayers.begin(), negotiatedPlayers.end(), player) == negotiatedPlayers.end()) {
         negotiatedPlayers.push_back(player);
     }
 }
 
-// Checks if this player has a truce with the specified player
+// Check Negotiation Status
+/**
+ * @brief Checks if this player has a truce with the specified player.
+ * 
+ * @param player The player to check for a truce.
+ * @return true if the players have a truce, false otherwise.
+ */
 bool Player::isNegotiatedWith(const Player* player) const {
     return std::find(negotiatedPlayers.begin(), negotiatedPlayers.end(), player) != negotiatedPlayers.end();
 }
 
+// Clear Negotiations
+/**
+ * @brief Clears all negotiations (truce agreements) for the player.
+ */
 void Player::clearNegotiations() {
     negotiatedPlayers.clear();
 }
 
-// Issues an order using the player's strategy or logs an error if none is assigned.
+// Issue Order
+/**
+ * @brief Issues an order using the player's strategy.
+ * 
+ * @details If the player has a strategy assigned, the order is issued using that strategy. If no strategy is assigned, 
+ * an error is logged.
+ * 
+ * @param playerList The list of all players in the game.
+ * @param test A flag indicating whether the order should be tested.
+ */
 void Player::issueOrder(const std::vector<Player*>& playerList, bool test) {
     if (strategy) {
         strategy->issueOrder(this, playerList, test);
@@ -169,7 +242,12 @@ void Player::issueOrder(const std::vector<Player*>& playerList, bool test) {
     }
 }
 
-// Returns the territories to defend using the player's strategy or an empty list if none is assigned.
+// Territories to Defend
+/**
+ * @brief Returns the territories that the player needs to defend according to their strategy.
+ * 
+ * @return A vector of territories to defend. If no strategy is assigned, an empty list is returned.
+ */
 std::vector<Territory*> Player::toDefend() const {
     if (strategy) {
         return strategy->toDefend(this);
@@ -179,7 +257,12 @@ std::vector<Territory*> Player::toDefend() const {
     }
 }
 
-// Returns the territories to attack using the player's strategy or an empty list if none is assigned.
+// Territories to Attack
+/**
+ * @brief Returns the territories that the player needs to attack according to their strategy.
+ * 
+ * @return A vector of territories to attack. If no strategy is assigned, an empty list is returned.
+ */
 std::vector<Territory*> Player::toAttack() const {
     if (strategy) {
         return strategy->toAttack(this);
@@ -456,7 +539,17 @@ std::vector<Territory*> Player::toAttack() const {
 
 
 
-//Overloaded stream insertion 
+/**
+ * @brief Overloads the stream insertion operator (<<) for the Player class.
+ * 
+ * @details This method allows the player to be printed in a human-readable format. It includes information 
+ *          about the player's name, the number of territories they control, the number of cards they hold, 
+ *          and the size of their army.
+ * 
+ * @param os The output stream to which the player details are written.
+ * @param player The player object to be output.
+ * @return The updated output stream.
+ */
 ostream& operator<<(ostream& os, const Player& player) {
     os << "Player with name " << *(player.name)
        << " has " << player.territories->size() << " territories, "
@@ -465,12 +558,20 @@ ostream& operator<<(ostream& os, const Player& player) {
     return os;
 }
 
-
+/**
+ * @brief Adds a territory to the player's list of owned territories.
+ * 
+ * @param territory The territory to be added to the player's list.
+ */
 void Player::addTerritory(Territory* territory) {
     territories->push_back(territory);  // Add territory to the player's list
 }
 
-
+/**
+ * @brief Prints the list of territories owned by the player.
+ * 
+ * @details This method iterates through the player's territories and prints each territory's name.
+ */
 void Player::printOwnedTerritories() const {
     std::cout << "Player " << *name << " owns the following territories:\n";
     for (auto t : *territories) {
@@ -478,11 +579,23 @@ void Player::printOwnedTerritories() const {
     }
 }
 
+/**
+ * @brief Adds a card to the player's hand.
+ * 
+ * @param card The card to be added to the player's list of cards.
+ */
 void Player::addCard(Card* card) {
     cards->push_back(card);  // Adds a card to the player's hand
 }
 
-// Allows the player to select a territory to attack from the list of enemy territories.
+/**
+ * @brief Allows the player to select a territory to attack from the list of enemy territories.
+ * 
+ * @details The method displays a list of enemy territories, including their name and army count, 
+ *          and prompts the player to select one for attack.
+ * 
+ * @return The selected enemy territory to attack.
+ */
 Territory* Player::selectTargetFromAttackList() {
     vector<Territory*> attackList = toAttack(); // Get the list of enemy territories to attack
     cout << "Enemy territories to target:" << endl;
@@ -504,7 +617,14 @@ Territory* Player::selectTargetFromAttackList() {
     return attackList[choice - 1]; // Return the selected territory
 }
 
-// Allows the player to select a territory to defend from their list of owned territories.
+/**
+ * @brief Allows the player to select a territory to defend from their list of owned territories.
+ * 
+ * @details The method displays a list of the player's owned territories, including their name and army count, 
+ *          and prompts the player to select one to defend.
+ * 
+ * @return The selected territory to defend.
+ */
 Territory* Player::selectTargetFromDefendList() {
     vector<Territory*> defendList = toDefend(); // Get the list of territories to defend
     cout << "Your territories to target:" << endl;
@@ -526,7 +646,14 @@ Territory* Player::selectTargetFromDefendList() {
     return defendList[choice - 1]; // Return the selected territory
 }
 
-// Allows the player to select another player to negotiate with, excluding themselves.
+/**
+ * @brief Allows the player to select another player to negotiate with, excluding themselves.
+ * 
+ * @details The method displays a list of other players and prompts the current player to select one for negotiation.
+ * 
+ * @param playerList The list of all players in the game.
+ * @return The selected player to negotiate with.
+ */
 Player* Player::selectPlayerToNegotiate(const std::vector<Player*>& playerList) {
     std::cout << "Players to negotiate with:" << std::endl;
 
@@ -551,8 +678,13 @@ Player* Player::selectPlayerToNegotiate(const std::vector<Player*>& playerList) 
     return playerList[choice - 1]; // Return the selected player
 }
 
-// Allows the player to select a source territory from their list of owned territories
-// to move armies from.
+/**
+ * @brief Allows the player to select a source territory from their list of owned territories to move armies from.
+ * 
+ * @details The method displays the player's owned territories and prompts the player to select one from which to move armies.
+ * 
+ * @return The selected source territory.
+ */
 Territory* Player::selectSourceTerritory() {
     vector<Territory*> defendList = toDefend(); // Get the list of territories to defend
     cout << "Your territories (to move armies from):" << endl;
@@ -575,8 +707,13 @@ Territory* Player::selectSourceTerritory() {
     return defendList[choice - 1]; // Return the selected territory
 }
 
-// Allows the player to select a destination territory from their list of owned territories
-// to move armies to.
+/**
+ * @brief Allows the player to select a destination territory from their list of owned territories to move armies to.
+ * 
+ * @details The method displays the player's owned territories and prompts the player to select one to move armies to.
+ * 
+ * @return The selected destination territory.
+ */
 Territory* Player::selectDestinationTerritory() {
     vector<Territory*> defendList = toDefend(); // Get the list of territories to defend
 
@@ -600,7 +737,11 @@ Territory* Player::selectDestinationTerritory() {
     return defendList[choice - 1]; // Return the selected territory
 }
 
-
+/**
+ * @brief Removes a territory from the player's list of owned territories.
+ * 
+ * @param territory The territory to be removed.
+ */
 void Player::removeTerritory(Territory* territory) {
     auto it = find(territories->begin(), territories->end(), territory); // Find the territory in the list
     if (it != territories->end()) { // If found
@@ -608,7 +749,12 @@ void Player::removeTerritory(Territory* territory) {
     }
 }
 
-// Fn to select an army amount
+/**
+ * @brief Prompts the player to select an amount of armies to move from a given territory.
+ * 
+ * @param sourceTerritory The source territory from which armies will be moved.
+ * @return The number of armies to move.
+ */
 int Player::selectArmyAmount(Territory* sourceTerritory) {
     int maxAmount = sourceTerritory->getArmyAmount();
     int amount = 0;
@@ -621,7 +767,11 @@ int Player::selectArmyAmount(Territory* sourceTerritory) {
     return amount;
 }
 
-// Fn to delete a card
+/**
+ * @brief Removes a specific card type from the player's hand.
+ * 
+ * @param type The type of card to remove.
+ */
 void Player::removeCard(Card::CardType type) {
     for (auto it = cards->begin(); it != cards->end(); ++it) {
         if ((*it)->getType() == type) {
@@ -632,8 +782,12 @@ void Player::removeCard(Card::CardType type) {
     }
 }
 
-
-//checks if player has a specific card
+/**
+ * @brief Checks if the player has a specific card type.
+ * 
+ * @param type The type of card to check for.
+ * @return true if the player has the card, false otherwise.
+ */
 bool Player::hasCard(Card::CardType type) const {
     for (const auto& card : *cards) {
         if (card->getType() == type) {

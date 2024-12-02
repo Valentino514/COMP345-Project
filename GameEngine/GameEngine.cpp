@@ -17,19 +17,41 @@
 
 using namespace std;
 
+/**
+ * @class GameEngine
+ * @brief Represents the core game engine, managing the game states, players, maps, commands, and phases.
+ * 
+ * The GameEngine class implements the main logic for navigating through the game phases, managing game states,
+ * executing commands, and running the game or tournament modes. It integrates with various components like 
+ * players, maps, cards, and observers.
+ */
 
+
+// Default constructor
+/**
+ * @brief Initializes a new GameEngine object with default state and observer.
+ */
 GameEngine::GameEngine():currentIndex(new int(0)){
     playerList = new std::vector<Player*>;
     LogObserver* logObserver = new LogObserver();
     this->attach(logObserver);
 }
 
+// Copy constructor
+/**
+ * @brief Creates a copy of another GameEngine object, including observers.
+ * 
+ * @param other The GameEngine object to copy.
+ */
 GameEngine::GameEngine(GameEngine& other){
     LogObserver* logObserver = new LogObserver();
     this->attach(logObserver);
  }
 
-//destructor
+// Destructor
+/**
+ * @brief Releases all resources used by the GameEngine, including players and observers.
+ */
 GameEngine::~GameEngine() {
     if (playerList) {
         for (Player* player : *playerList) {
@@ -47,7 +69,14 @@ GameEngine::~GameEngine() {
 
 }
 
-// stream insertion operator
+// Stream insertion operator
+/**
+ * @brief Outputs the current state of the GameEngine object to an output stream.
+ * 
+ * @param os The output stream.
+ * @param gameEngine The GameEngine object to output.
+ * @return Reference to the output stream.
+ */
 ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
     os << "Map States:\n";
     for (int i = 0; i < 8; i++) {
@@ -59,7 +88,14 @@ ostream& operator<<(ostream& os, const GameEngine& gameEngine) {
     }
     return os;
 }
-//Assignment operator
+
+// Assignment operator
+/**
+ * @brief Assigns the state of one GameEngine object to another.
+ * 
+ * @param other The GameEngine object to copy.
+ * @return Reference to the updated GameEngine object.
+ */
 GameEngine& GameEngine::operator=(const GameEngine& other) {
     if (this != &other) {  // Check for self
         delete[] map;
@@ -80,10 +116,26 @@ GameEngine& GameEngine::operator=(const GameEngine& other) {
     return *this;
 }
 
+// Logs the current state of the GameEngine
+/**
+ * @brief Returns a string representation of the GameEngine's state for logging.
+ * 
+ * @return A string describing the current state.
+ */
 std::string GameEngine::stringToLog() const {
     return "GameEngine State Change: New state is " + map[*currentIndex];
 }
 
+// Navigates through the game states
+/**
+ * @brief Allows the user to navigate through the game states based on commands.
+ * 
+ * This method manages the transitions between game states, processes user input, 
+ * and invokes state-specific functionality. It also checks for end-game conditions.
+ * 
+ * @details The navigation starts with the current state and transitions based on valid commands. 
+ * Special handling is applied for looping states and exit conditions.
+ */
 void GameEngine::navigate() {
     std::string* command = new std::string;
 
@@ -182,23 +234,46 @@ void GameEngine::navigate() {
     currentIndex = nullptr;
 }
 
-// Adds an observer to the GameEngine and sets its subject.
+// Adds an observer to the GameEngine
+/**
+ * @brief Registers an observer to monitor GameEngine state changes.
+ * 
+ * @param observer A pointer to the Observer object to add.
+ */
 void GameEngine::addObserver(Observer* observer) {
     observers.push_back(observer);
     observer->setSubject(this);
 }
 
-// Notifies all observers of a change in the GameEngine's state.
+// Notifies all observers of a state change
+/**
+ * @brief Notifies all registered observers about the current GameEngine state.
+ */
 void GameEngine::notify() {
     for (Observer* observer : observers) {
         observer->update(); 
     }
 }
-// Return game state
+
+// Retrieves the current game state
+/**
+ * @brief Gets the current state of the GameEngine as a string.
+ * 
+ * @return A string representing the current game state.
+ */
 std::string GameEngine::getState() const {
     return map[*currentIndex];
 }
-// Implementing startupPhase
+
+// Startup phase of the game
+/**
+ * @brief Manages the initialization phase, allowing users to set up tournament or normal game mode.
+ * 
+ * This phase involves loading maps, adding players, validating maps, and transitioning to gameplay.
+ * 
+ * @details Users can select tournament mode or normal gameplay. Based on the choice, appropriate commands 
+ * are processed, and the game transitions through its setup states.
+ */
 void GameEngine::startupPhase() {
     std::cout << "Welcome to the Game Startup Phase.\n";
 
@@ -321,7 +396,12 @@ void GameEngine::startupPhase() {
     }
 }
 
-
+// Adds players to the GameEngine
+/**
+ * @brief Adds players to the game and assigns strategies to them.
+ * 
+ * @param strategies A vector of strings representing player strategies.
+ */
 void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategies) {
     // Maintain a count of players for each strategy type
     std::map<std::string, int> strategyCount;
@@ -369,7 +449,12 @@ void GameEngine::addPlayersToGameEngine(const std::vector<std::string>& strategi
 }
 
 
-// executes the tournament phase of the game
+// Executes the tournament mode
+/**
+ * @brief Executes a tournament mode based on provided parameters.
+ * 
+ * @param params A struct containing tournament configuration details, such as maps, strategies, games, and turns.
+ */
 void GameEngine::executeTournament(const TournamentParams& params) {
     MapLoader x ;
 
@@ -549,7 +634,13 @@ void GameEngine::executeTournament(const TournamentParams& params) {
   }
   }
 
-// Fn that checks if any player has won the game by owning all territories
+// Checks if any player has won the game
+/**
+ * @brief Determines if a player has won by owning all territories.
+ * 
+ * @param allTerritories A map of territory names to Territory objects.
+ * @return A pointer to the winning Player, or nullptr if no winner exists.
+ */
  Player* GameEngine::checkWinner(const std::unordered_map<std::string, Territory*>& allTerritories) const {
     for (Player* player : *playerList) {
         bool ownsAll = true;
@@ -570,8 +661,12 @@ void GameEngine::executeTournament(const TournamentParams& params) {
 }
 
 
-
-
+// Adds players to the game
+/**
+ * @brief Prompts the user to enter player details and adds them to the game.
+ * 
+ * @details Ensures valid player count (between 2 and 6) and collects player names.
+ */
 void GameEngine::addplayer() {
     int playerAmount;
 
@@ -609,6 +704,13 @@ void GameEngine::addplayer() {
     std::cout << playerAmount << " players added successfully!\n";
 }
 
+// Distributes territories to players
+/**
+ * @brief Assigns territories to players in a round-robin fashion.
+ * 
+ * @param m A map of territory names to Territory objects.
+ * @param p A vector of Player pointers.
+ */
 void GameEngine::DistributeTerritories(unordered_map<std::string, Territory*> m,vector<Player*> p){
 
     if (p.empty() || m.empty()) {
@@ -639,6 +741,10 @@ int numPlayers = p.size();
 
 }
 
+// Shuffles players in random order
+/**
+ * @brief Randomly shuffles the order of players for fairness.
+ */
 void GameEngine::shufflePlayers() {
     if (!playerList || playerList->empty()) {
         std::cout << "No players to shuffle." << std::endl;
@@ -655,6 +761,12 @@ void GameEngine::shufflePlayers() {
     std::cout << "Players shuffled successfully!" << std::endl;
 }
 
+// Assigns a fixed number of armies to each player
+/**
+ * @brief Assigns a specified amount of armies to all players.
+ * 
+ * @param amount The number of armies to assign to each player.
+ */
 void GameEngine::assignArmyAmount(int amount) {
     if (!playerList || playerList->empty()) {
         std::cout << "No players to assign armies." << std::endl;
@@ -670,6 +782,10 @@ void GameEngine::assignArmyAmount(int amount) {
     std::cout << "Each player has been assigned " << amount << " armies.\n" << std::endl;
 }
 
+// Draws two cards for each player
+/**
+ * @brief Allows each player to draw two cards from the deck.
+ */
 void GameEngine::DrawTwoCards() {
     if (!playerList || playerList->empty()) {
         std::cout << "No players available to draw cards." << std::endl;
@@ -690,6 +806,10 @@ void GameEngine::DrawTwoCards() {
     }
 }
 
+// Main game loop
+/**
+ * @brief Executes the main gameplay loop, including all phases and victory conditions.
+ */
 void GameEngine::mainGameLoop() {
     bool gameRunning = true;
 
@@ -727,7 +847,10 @@ void GameEngine::mainGameLoop() {
     }
 }
 
-
+// Reinforcement phase of the game
+/**
+ * @brief Distributes reinforcement armies to players based on territories and continent bonuses.
+ */
 void GameEngine::reinforcementPhase() {
     for (Player* player : *playerList) {
         int territoryCount = player->getTerritories()->size();
@@ -764,7 +887,10 @@ void GameEngine::reinforcementPhase() {
     }
 }
 
-
+// Issues orders for players
+/**
+ * @brief Facilitates players in issuing orders during the orders phase.
+ */
 void GameEngine::issueOrdersPhase() {
     bool allPlayersDone = false;
 
@@ -783,7 +909,10 @@ void GameEngine::issueOrdersPhase() {
     }
 }
 
-
+// Executes all orders
+/**
+ * @brief Executes orders in a structured manner, eliminating players without territories.
+ */
 void GameEngine::executeOrdersPhase() {
     cout << "Starting Orders Execution Phase...\n";
 

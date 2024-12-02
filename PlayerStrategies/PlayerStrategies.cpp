@@ -8,7 +8,19 @@
 
 using namespace std;
 
-// HumanPlayerStrategy Implementation
+/**
+ * @brief Handles the order issuance process for a human player.
+ * 
+ * @details This method provides a user interface for the human player to issue orders. The player can:
+ *          - Reinforce their territories by selecting a territory and assigning available army units.
+ *          - Issue advance orders by selecting a source territory, a destination territory, and the number of armies to move.
+ *          - Play cards from their hand, including Bomb, Airlift, Blockade, or Diplomacy cards.
+ *          - Each action is logged to the "gamelog.txt" file for tracking purposes.
+ * 
+ * @param player The player issuing the orders.
+ * @param playerList The list of all players in the game.
+ * @param test A flag to indicate if the method is running in test mode (unused in this implementation).
+ */
 void HumanPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList, bool test) {
 
     const vector<Card*>* cards = &(player->getCards());
@@ -254,9 +266,12 @@ cout << "Orders Issuing phase for Advance orders completed.\n-------------------
     logFile.close();
 }
 
-
-
-
+/**
+ * @brief Returns a list of territories that the player can defend.
+ * 
+ * @param player The player for whom the territories are being retrieved.
+ * @return A vector of territories that the player owns and can defend.
+ */
 vector<Territory*> HumanPlayerStrategy::toDefend(const Player* player) const {
     vector<Territory*> defendList;
     // Use player's territories
@@ -267,6 +282,12 @@ vector<Territory*> HumanPlayerStrategy::toDefend(const Player* player) const {
     return defendList;
 }
 
+/**
+ * @brief Returns a list of territories that the player can attack.
+ * 
+ * @param player The player for whom the territories are being retrieved.
+ * @return A vector of enemy territories that the player can attack.
+ */
 vector<Territory*> HumanPlayerStrategy::toAttack(const Player* player) const {
     vector<Territory*> attackList;
     unordered_set<Territory*> addedTerritories;
@@ -286,21 +307,45 @@ vector<Territory*> HumanPlayerStrategy::toAttack(const Player* player) const {
 }
 
 
-// NeutralPlayerStrategy Implementation
+/**
+ * @brief Does nothing, as neutral players do not issue orders.
+ * 
+ * @param player The neutral player (unused).
+ * @param playerList List of all players (unused).
+ * @param test A flag indicating if the method is running in test mode.
+ */
 void NeutralPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList, bool test) {
     cout << "NeutralPlayer: Doing nothing.\n";
     // Does not issue any orders
 }
 
+/**
+ * @brief Returns an empty list, as neutral players do not defend territories.
+ * 
+ * @param player The neutral player (unused).
+ * @return An empty vector, as neutral players do not defend.
+ */
 vector<Territory*> NeutralPlayerStrategy::toDefend(const Player* player) const {
     return {}; //neutral does not  not defend
 }
 
+/**
+ * @brief Returns an empty list, as neutral players do not attack.
+ * 
+ * @param player The neutral player (unused).
+ * @return An empty vector, as neutral players do not attack.
+ */
 vector<Territory*> NeutralPlayerStrategy::toAttack(const Player* player) const {
     return {}; // neutral Does not attack
 }
 
-// CheaterPlayerStrategy Implementation
+/**
+ * @brief Automatically conquers all adjacent enemy territories.
+ * 
+ * @param player The cheater player issuing the orders.
+ * @param playerList List of all players (unused).
+ * @param test A flag indicating if the method is running in test mode.
+ */
 void CheaterPlayerStrategy::issueOrder(Player* player,const vector<Player*>& playerList, bool test) {
 //    cout << "CheaterPlayerStrategy: Automatically conquering all adjacent enemy territories!\n";
     vector<Territory*> attackList = player->toAttack(); // Get territories that can be attacked
@@ -312,11 +357,22 @@ void CheaterPlayerStrategy::issueOrder(Player* player,const vector<Player*>& pla
     }
 }
 
-
+/**
+ * @brief Returns a list of territories owned by the player that can be defended.
+ * 
+ * @param player The player for whom the territories are being retrieved.
+ * @return A vector of territories that the player owns and can defend.
+ */
 vector<Territory*> CheaterPlayerStrategy::toDefend(const Player* player) const {
     return player->toDefend(); // Defends all owned territories
 }
 
+/**
+ * @brief Returns a list of territories that the player can attack, ensuring they conquer all enemy territories.
+ * 
+ * @param player The player for whom the territories are being retrieved.
+ * @return A vector of enemy territories that the player can attack and conquer.
+ */
 vector<Territory*> CheaterPlayerStrategy::toAttack(const Player* player) const {
     if (player == nullptr) {
         cout << "Error: Player pointer is null!" << endl;
@@ -335,6 +391,12 @@ vector<Territory*> CheaterPlayerStrategy::toAttack(const Player* player) const {
     return attackList;
 }
 
+/**
+ * @brief Returns a list of territories that the aggressive player can defend, prioritizing the strongest one.
+ * 
+ * @param player The player for whom the territories are being retrieved.
+ * @return A vector of territories that the player can defend, prioritizing the strongest territory.
+ */
 vector<Territory*> AggresivePlayerStrategy::toAttack(const Player *player) const {
     vector<Territory*> attackList;
     unordered_set<Territory*> addedTerritories;
@@ -355,7 +417,12 @@ vector<Territory*> AggresivePlayerStrategy::toAttack(const Player *player) const
 }
 
 
-//to defend method for the Aggressive player 
+/**
+ * @brief Returns a list of territories that the aggressive player can defend, prioritizing the strongest one.
+ * 
+ * @param player The player for whom the territories are being retrieved.
+ * @return A vector of territories that the player can defend, prioritizing the strongest territory.
+ */
 vector<Territory*> AggresivePlayerStrategy::toDefend(const Player* player) const{
     vector<Territory*> defendList;
     Territory* strongestTerritory = nullptr;
@@ -398,7 +465,13 @@ vector<Territory*> AggresivePlayerStrategy::toDefend(const Player* player) const
 }
 
 
-// issueOrder method for the aggresive player class
+/**
+ * @brief Issues orders for the aggressive player, including reinforcement and attack orders.
+ * 
+ * @param player The aggressive player issuing the orders.
+ * @param playerList List of all players (unused).
+ * @param test A flag indicating if the method is running in test mode.
+ */
 void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList, bool test) {
     // Reinforcement phase
     OrdersList* orders = player->getOrdersList();
@@ -578,9 +651,17 @@ void AggresivePlayerStrategy::issueOrder(Player* player, const vector<Player*>& 
     }
 }
 
-// BenevolentPlayerStrategy Implementation
-
-//issueOrder for the benevolent player who only defends
+/**
+ * @brief Implements the order issuing process for the benevolent player.
+ * 
+ * The benevolent player focuses on reinforcing their weakest territories and 
+ * fortifying them by moving armies to adjacent weaker territories. Additionally, 
+ * they may use a Diplomacy card to negotiate a truce with another player.
+ * 
+ * @param player The benevolent player issuing the orders.
+ * @param playerList List of all players in the game.
+ * @param test A flag indicating if the method is running in test mode.
+ */
 void BenevolentPlayerStrategy::issueOrder(Player* player, const vector<Player*>& playerList, bool test) {
     OrdersList* orders = player->getOrdersList();
 
@@ -686,7 +767,12 @@ if (targetPlayer != nullptr && targetPlayer != player) {
     }
 }
 
-//todefend method for the benevolent player
+/**
+ * @brief Returns a list of territories the benevolent player can defend, prioritizing the weakest territories.
+ * 
+ * @param player The player whose territories are being considered for defense.
+ * @return A vector of territories the player can defend.
+ */
 vector<Territory*> BenevolentPlayerStrategy::toDefend(const Player* player) const {
     vector<Territory*> defendList;
     int minArmies = INT_MAX;
@@ -708,7 +794,12 @@ vector<Territory*> BenevolentPlayerStrategy::toDefend(const Player* player) cons
     return defendList;
 }
 
-//benevolent player does not attack
+/**
+ * @brief Benevolent player does not attack.
+ * 
+ * @param player The player for whom attack territories are being considered.
+ * @return An empty vector, as the benevolent player does not attack.
+ */
 vector<Territory*> BenevolentPlayerStrategy::toAttack(const Player* player) const {
     // Benevolent player does not attack
     return vector<Territory*>();
